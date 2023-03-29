@@ -1,12 +1,12 @@
 #ifndef ATOMIC_MEMORY_H
 #define ATOMIC_MEMORY_H
 
-#include "Enums.h"
 #include "Structure.h"
 
 #include <condition_variable>
 #include <list>
 #include <mutex>
+#include <queue>
 
 class SceneObject;
 
@@ -26,10 +26,10 @@ public:
 	// Functionality
 	void AddSpriteToScratch(const char** _sprite, int _spriteHeight, const Structure::Vector2<int>& _position);
 	inline void FixedUpdateCycleCompleted() { m_renderBufferConVar.notify_one(); }
-	inline Enums::ButtonPressState& GetButtonPressStateRef() { return m_spaceBarPressState; }
+	inline std::queue<Structure::Input>& GetInputQueueRef() { return m_inputQueue; }
+	inline const std::list<SceneObject*>& GetConstSceneObjectsListRef () const { return m_sceneObjectsList; }
 	inline int GetNumberOfRows() { return m_numberOfWindowRows; }
-	inline std::list<SceneObject*>& GetSceneObjectsList() { return m_sceneObjectsList; }
-	inline const std::list<SceneObject*>& GetSceneObjectsListForRendering () const { return m_sceneObjectsList; }
+	inline std::list<SceneObject*>& GetSceneObjectsListRef() { return m_sceneObjectsList; }
 	void SwapBuffersAndClearScratch();
 
 	// Destruction
@@ -42,7 +42,7 @@ public:
 
 private:
 	// Member Variables
-	Enums::ButtonPressState m_spaceBarPressState;
+	std::queue<Structure::Input> m_inputQueue;
 	int m_numberOfCharactersToErase;
 	int m_reusableIterator;
 	std::list<SceneObject*> m_sceneObjectsList;

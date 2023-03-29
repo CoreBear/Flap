@@ -2,7 +2,6 @@
 #include "AtomicMemory.h"
 
 #include "Consts.h"
-#include "Enums.h"
 #pragma endregion
 
 #pragma region Initialization

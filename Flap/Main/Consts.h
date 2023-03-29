@@ -1,6 +1,8 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
+#include <Windows.h>
+
 namespace Consts
 {
 	// Floats
@@ -10,7 +12,17 @@ namespace Consts
 	// Ints
 	constexpr int FPS_TARGET = 60;
 	constexpr int NO_VALUE = 0;
+	constexpr int NUMBER_OF_INPUTS = 4;
 	constexpr int OFF_BY_ONE = 1;
+
+	// Keys
+	constexpr unsigned short INPUTS[NUMBER_OF_INPUTS]
+	{
+		(unsigned short)VK_DOWN,
+		(unsigned short)VK_LEFT,
+		(unsigned short)VK_RIGHT,
+		(unsigned short)VK_UP
+	};
 
 	// Seconds to milli (*1000) to micro (*1000)
 	constexpr short int ORDER_OF_MAG_CONVERTER = 1000;

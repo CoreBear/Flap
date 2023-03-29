@@ -19,8 +19,8 @@ public:
 
 	// Functionality
 	static void AssignObjectManager(ObjectManager& _objectManager) { sp_objectManager = &_objectManager; }
-	inline const Structure::Vector2<int>& GetPosition() const { return m_position; }
-	inline const SpriteInfo& GetSpriteInfo() const { return m_spriteInfo; }
+	inline const Structure::Vector2<int>& GetConstPositionRef() const { return m_position; }
+	inline const SpriteInfo& GetConstSpriteInfoRef() const { return m_spriteInfo; }
 	inline bool IsActive() { return m_isActive; }
 	void SetPosition(const Structure::Vector2<int>& _position);
 

@@ -2,12 +2,19 @@
 #define STRUCTURE_H
 
 #include "Consts.h"
+#include "Enums.h"
 
 namespace Structure
 {
 	struct Generic
 	{
 
+	};
+	struct Input
+	{
+	public:
+		Enums::InputPressState m_inputPressState;
+		unsigned short m_input;
 	};
 	template<typename T>
 	struct Vector2

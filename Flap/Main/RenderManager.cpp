@@ -36,7 +36,7 @@ void RenderManager::Update()
 	std::unique_lock<std::mutex> renderBufferUniqueLock(mp_atomicMemory->m_renderBufferMutex);
 
 	// Draw next frame
-	WriteSpritesIntoBuffer(mp_atomicMemory->GetSceneObjectsListForRendering());
+	WriteSpritesIntoBuffer(mp_atomicMemory->GetConstSceneObjectsListRef());
 
 	// Swap buffers
 	mp_atomicMemory->SwapBuffersAndClearScratch();
@@ -61,8 +61,8 @@ void RenderManager::WriteSpritesIntoBuffer(const std::list<SceneObject*>& _scene
 {
 	for (m_sceneObjectsIterator = _sceneObjectsList.begin(); m_sceneObjectsIterator != _sceneObjectsList.end(); m_sceneObjectsIterator++)
 	{
-		mp_spriteInfo = &(*m_sceneObjectsIterator)->GetSpriteInfo();
-		mp_atomicMemory->AddSpriteToScratch(mp_spriteInfo->mppp_sprite[mp_spriteInfo->m_animationKeyFrameIndexToRender], mp_spriteInfo->m_spriteHeight, (*m_sceneObjectsIterator)->GetPosition());
+		mp_spriteInfo = &(*m_sceneObjectsIterator)->GetConstSpriteInfoRef();
+		mp_atomicMemory->AddSpriteToScratch(mp_spriteInfo->mppp_sprite[mp_spriteInfo->m_animationKeyFrameIndexToRender], mp_spriteInfo->m_spriteHeight, (*m_sceneObjectsIterator)->GetConstPositionRef());
 	}
 }
 #pragma endregion

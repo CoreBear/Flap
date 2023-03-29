@@ -8,14 +8,14 @@
 #pragma endregion
 
 #pragma region Initialization
-ObjectManager::ObjectManager(AtomicMemory& _atomicMemory) : mr_sceneObjectsList(_atomicMemory.GetSceneObjectsList())
+ObjectManager::ObjectManager(AtomicMemory& _atomicMemory) : mr_sceneObjectsList(_atomicMemory.GetSceneObjectsListRef())
 {
 	SceneObject::AssignObjectManager(*this);
 
-	mp_numberOfObjectsToPoolPerType = new int[(int)Enums::ObjectType::NumberOfTypes] { 10 };
+	mp_numberOfObjectsToPoolPerType = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { 10 };
 
 	// Generate pointers for each type
-	mpp_pooledObject = new SceneObject ** [(int)Enums::ObjectType::NumberOfTypes];
+	mpp_pooledObject = new SceneObject ** [static_cast<int>(Enums::ObjectType::NumberOfTypes)];
 
 	// For each object type
 	for (int objectTypeIndex = Consts::NO_VALUE; objectTypeIndex < (int)Enums::ObjectType::NumberOfTypes; objectTypeIndex++)
@@ -75,17 +75,17 @@ void ObjectManager::Update()
 #pragma region Public Functionality
 void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2<int>& _position, const Structure::Generic& _genericContainer)
 {
-	m_numberOfObjectsToPoolForThisType = mp_numberOfObjectsToPoolPerType[(int)_objectType];
+	m_numberOfObjectsToPoolForThisType = mp_numberOfObjectsToPoolPerType[static_cast<int>(_objectType)];
 
 	// For each pooled object of this type
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_numberOfObjectsToPoolForThisType; m_reusableIterator++)
 	{
 		// If object is not active
-		if (mpp_pooledObject[(int)_objectType][m_reusableIterator]->IsActive() == false)
-		{
-			// Position and initialize it
-			mpp_pooledObject[(int)_objectType][m_reusableIterator]->SetPosition(_position);
-			mpp_pooledObject[(int)_objectType][m_reusableIterator]->Initialize(_genericContainer);
+		if (mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->IsActive() == false)
+		{												 
+			// Position and initialize it				 
+			mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->SetPosition(_position);
+			mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->Initialize(_genericContainer);
 
 			// Stop looking for object to spawn
 			break;

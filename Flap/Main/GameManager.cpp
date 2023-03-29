@@ -36,7 +36,7 @@ int main()
 	enum class ManagerType { Input, Network, Render, Scene, NumberOfTypes };
 
 	// Generate managers
-	Manager** managers = new Manager * [(int)ManagerType::NumberOfTypes]
+	Manager** managers = new Manager * [static_cast<int>(ManagerType::NumberOfTypes)]
 	{
 		// NOTE/WARNING: windowHandle is not being used in InputManager
 		// because this instance was retrieved before the window was active.
@@ -48,7 +48,7 @@ int main()
 	};
 
 	// Generate manager handles
-	std::thread managerThreads[(int)ManagerType::NumberOfTypes];
+	std::thread managerThreads[static_cast<int>(ManagerType::NumberOfTypes)];
 
 	// Start manager threads
 	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ManagerType::NumberOfTypes; threadIndex++)
