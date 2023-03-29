@@ -17,6 +17,9 @@ public:
 private:
 	// Member Variables
 	Structure::Vector2<int> m_velocity;
+
+	// Static Variables
+	const static float s_flyForwardSpeed;
 };
 
 #endif BIRD_H

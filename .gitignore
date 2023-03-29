@@ -31,4 +31,19 @@
 *.out
 *.app
 
+# What I added
+*\**\bin\Debug
+*\**\bin\Release
+*\**\obj\Debug
+*\**\obj\Release
+*\**\x64\Debug
+*\**\x64\Release
+*.cache
+*.exe
+*.idb
+*.ilk
+*.log
+*.manifest
+*.pdb
+*.tlog
 *.vs

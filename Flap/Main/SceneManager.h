@@ -12,6 +12,9 @@ class OverlayManager;
 class SceneManager : public Manager
 {
 public:
+	// Static Variables
+	static unsigned int s_simFrameCount;
+
 	// Initialization
 	SceneManager(AtomicMemory& _atomicMemory);
 
@@ -29,8 +32,5 @@ private:
 	ObjectManager* mp_objectManager;
 	OverlayManager* mp_overlayManager;
 	SceneType m_sceneType;
-
-	// Static Variables
-	static unsigned int s_simFrameCount;
 };
 #endif SCENE_MANAGER_H

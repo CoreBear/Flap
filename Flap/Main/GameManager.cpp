@@ -38,7 +38,10 @@ int main()
 	// Generate managers
 	Manager** managers = new Manager * [(int)ManagerType::NumberOfTypes]
 	{
-		new InputManager(),
+		// NOTE/WARNING: windowHandle is not being used in InputManager
+		// because this instance was retrieved before the window was active.
+		// Leaving this here for posterity
+		new InputManager(atomicMemory, windowHandle),
 		new NetworkManager(),
 		new RenderManager(atomicMemory, windowHandle),
 		new SceneManager(atomicMemory)

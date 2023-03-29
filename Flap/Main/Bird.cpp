@@ -6,6 +6,8 @@
 #pragma endregion
 
 #pragma region Initialization
+const float Bird::s_flyForwardSpeed = static_cast<float>(10 * Consts::FIXED_DELTA_TIME_D);
+
 Bird::Bird() 
 {
 	m_spriteInfo.m_numberOfAnimationKeyFrames = 3;
@@ -37,6 +39,9 @@ void Bird::Initialize(const Structure::Generic& _genericContainer)
 #pragma region Updates
 void Bird::FixedUpdate() 
 {
+	// Fly forward
+	m_positionF.m_x += s_flyForwardSpeed;
+
 	// Apply gravity
 	m_positionF.m_y += Consts::GRAVITY_FORCE_CONVERTED_F;
 
