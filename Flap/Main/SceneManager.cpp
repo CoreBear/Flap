@@ -1,10 +1,10 @@
 #pragma region Includes
 #include "SceneManager.h"
 
-#include "AtomicMemory.h"
 #include "Consts.h"
 #include "ObjectManager.h"
 #include "OverlayManager.h"
+#include "SharedMemory.h"
 #pragma endregion
 
 //HACK:
@@ -13,11 +13,11 @@
 #pragma region Initialization
 unsigned int SceneManager::s_simFrameCount = Consts::NO_VALUE;
 
-SceneManager::SceneManager(AtomicMemory& _atomicMemory) : mp_atomicMemory(&_atomicMemory), m_sceneType(SceneType::Game)
+SceneManager::SceneManager(SharedMemory& _sharedMemory) : mp_sharedMemory(&_sharedMemory), m_sceneType(SceneType::Game)
 {
 	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
 
-	mp_objectManager = new ObjectManager(_atomicMemory);
+	mp_objectManager = new ObjectManager(_sharedMemory);
 	mp_overlayManager = new OverlayManager();
 
 	// HACK:
@@ -28,7 +28,11 @@ SceneManager::SceneManager(AtomicMemory& _atomicMemory) : mp_atomicMemory(&_atom
 
 		Structure::Generic g;
 
-		mp_objectManager->SpawnObject(Enums::ObjectType::Bird, position, g);
+		for (size_t i = 0; i < 20; i++)
+		{
+			position.m_x = i * 4;
+			mp_objectManager->SpawnObject(Enums::ObjectType::Bird, position, g);
+		}
 	}
 }
 #pragma endregion
@@ -65,8 +69,6 @@ void SceneManager::Update()
 		{
 			mp_overlayManager->FixedUpdate();
 		}
-
-		mp_atomicMemory->FixedUpdateCycleCompleted();
 	}
 
 	// Last Update

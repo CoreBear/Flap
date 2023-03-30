@@ -1,16 +1,20 @@
 #pragma region Includes
 #include "InputManager.h"
 
-#include "AtomicMemory.h"
 #include "Consts.h"
 #include "SceneManager.h"
+#include "SharedMemory.h"
 #pragma endregion
 
 #pragma region Initialization
-InputManager::InputManager(AtomicMemory& _atomicMemory, HANDLE& _windowHandle) :
-	mp_inputPressStates(new Enums::InputPressState[Consts::NUMBER_OF_INPUTS]),
+InputManager::InputManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory) :
+	m_bufferLength(sizeof(INPUT_RECORD) * UCHAR_MAX),
 	m_windowHandle(GetStdHandle(STD_INPUT_HANDLE)),
-	mr_inputQueue(_atomicMemory.GetInputQueueRef()),
+	mp_inputPressStates(new Enums::InputPressState[Consts::NUMBER_OF_INPUTS]),
+	m_numberOfEventsRead(Consts::NO_VALUE),
+	m_reusableIterator_1(Consts::NO_VALUE),
+	m_reusableIterator_2(Consts::NO_VALUE),
+	mr_inputQueue(_sharedMemory.GetInputQueueRef()),
 	mp_deadFramesTargetFrames(new unsigned int[Consts::NUMBER_OF_INPUTS])
 {
 	// Reset all input
@@ -18,8 +22,6 @@ InputManager::InputManager(AtomicMemory& _atomicMemory, HANDLE& _windowHandle) :
 	{
 		mp_inputPressStates[m_reusableIterator_1] = Enums::InputPressState::Released;
 	}
-
-	m_bufferLength = sizeof(INPUT_RECORD) * UCHAR_MAX;
 }
 #pragma endregion
 
@@ -28,7 +30,7 @@ void InputManager::Update()
 {
 	//https://learn.microsoft.com/en-us/windows/console/readconsoleinput
 	// NOTE: If this returns 0, error occurred
-	ReadConsoleInput(m_windowHandle, m_inputRecords, m_bufferLength, &m_numberOfEventsRead);
+	ReadConsoleInput(m_windowHandle, m_inputRecords, m_bufferLength, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
 
 	// For each record
 	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < m_numberOfEventsRead; m_reusableIterator_1++)

@@ -1,13 +1,15 @@
 #pragma region Includes
 #include "Bird.h"
 
-#include "AtomicMemory.h"
 #include "Consts.h"
+#include "SharedMemory.h"
+#pragma endregion
+
+#pragma region Static Initialization
+const float Bird::s_flyForwardSpeed = static_cast<float>(1 * Consts::FIXED_DELTA_TIME_F);
 #pragma endregion
 
 #pragma region Initialization
-const float Bird::s_flyForwardSpeed = static_cast<float>(10 * Consts::FIXED_DELTA_TIME_D);
-
 Bird::Bird() 
 {
 	m_spriteInfo.m_numberOfAnimationKeyFrames = 3;
@@ -33,19 +35,39 @@ Bird::Bird()
 void Bird::Initialize(const Structure::Generic& _genericContainer)
 {
 	SceneObject::Initialize(_genericContainer);
+
+	m_dragVelocity.m_y = Consts::NO_VALUE_F;
+	m_dragVelocity.m_x = Consts::NO_VALUE_F;
+	m_velocity.m_x = s_flyForwardSpeed;
+	m_velocity.m_y = Consts::NO_VALUE_F;
 }
 #pragma endregion
 
 #pragma region Updates
 void Bird::FixedUpdate() 
 {
-	// Fly forward
-	m_positionF.m_x += s_flyForwardSpeed;
+	Structure::Vector2<float> a = -m_velocity.NormalizeReturn();
+	float b = m_velocity.SquareMagnitudeReturn();
+	float c = static_cast<float>(Consts::MULTIPLICATIVE_HALF_F * m_velocity.SquareMagnitudeReturn());
+
+	// Update drag
+	m_dragVelocity = -m_velocity.NormalizeReturn() * m_velocity.SquareMagnitudeReturn();
+
+	// Add drag
+	m_velocity += m_dragVelocity;
 
 	// Apply gravity
-	m_positionF.m_y += Consts::GRAVITY_FORCE_CONVERTED_F;
+	m_velocity.m_y += Consts::GRAVITY_FORCE_CONVERTED_F;
 
-	m_position.m_x = static_cast<int>(m_positionF.m_x);
-	m_position.m_y = static_cast<int>(m_positionF.m_y);
+	// Convert to per frame
+	m_velocity *= Consts::FIXED_DELTA_TIME_F;
+
+	// Apply velocity
+	m_position.m_x += m_velocity.m_x;
+	m_position.m_y += m_velocity.m_y;
+
+	// Update sprite position for the renderer
+	m_spriteInfo.m_position.m_x = static_cast<int>(m_position.m_x);
+	m_spriteInfo.m_position.m_y = static_cast<int>(m_position.m_y);
 }
 #pragma endregion

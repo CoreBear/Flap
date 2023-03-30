@@ -1,68 +1,132 @@
 #pragma region Includes
 #include "RenderManager.h"
 
-#include "AtomicMemory.h"
 #include "Consts.H"
 #include "ObjectManager.h"
+#include "SceneObject.h"
+#include "SharedMemory.h"
 
 #include <Windows.h>
 #pragma endregion
 
 #pragma region Initialization
-RenderManager::RenderManager(AtomicMemory& _atomicMemory, HANDLE& _windowHandle) : mp_atomicMemory(&_atomicMemory), mp_spriteInfo(nullptr), mp_windowHandle(&_windowHandle)
+RenderManager::RenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory, const Structure::Vector2<int>& _bufferSize) :
+	m_frameWritingIsComplete(false),
+	m_writeSpritesIntoBuffer(false),
+	mpp_renderBufferSwapper(nullptr),
+	mp_spriteRow(nullptr),
+	mp_windowHandle(&_windowHandle), 
+	m_bufferSize(_bufferSize.m_x * _bufferSize.m_y),
+	m_numberOfCharactersToErase(m_bufferSize - Consts::OFF_BY_ONE),
+	m_reusableIterator(Consts::NO_VALUE),
+	mr_spriteWriteInIterator(_sharedMemory.GetSpriteWriteInIteratorRef()),
+	mp_sharedMemory(&_sharedMemory)
 {
-	mp_textBuffer = new CHAR_INFO[mp_atomicMemory->m_bufferSize];
+	int numberOfWindowColumns = _bufferSize.m_x;
+	int numberOfWindowRows = _bufferSize.m_y;
 
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mp_atomicMemory->m_bufferSize; m_reusableIterator++)
+	mpp_renderBufferForRendering = new char[m_bufferSize];
+	memset(mpp_renderBufferForRendering, ' ', m_numberOfCharactersToErase);
+
+	mpp_renderBufferForWriting = new char[m_bufferSize];
+	memset(mpp_renderBufferForWriting, ' ', m_numberOfCharactersToErase);
+
+	mp_textBuffer = new CHAR_INFO[m_bufferSize];
+	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
 	{
 		mp_textBuffer[m_reusableIterator].Attributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
 	}
 
-	m_screenBufferCR.X = mp_atomicMemory->m_numberOfWindowColumns;
-	m_screenBufferCR.Y = mp_atomicMemory->m_numberOfWindowRows;
+	m_screenBufferCR.X = numberOfWindowColumns;
+	m_screenBufferCR.Y = numberOfWindowRows;
 	m_topLeftCellCR.X = static_cast<SHORT>(Consts::NO_VALUE);
 	m_topLeftCellCR.X = static_cast<SHORT>(Consts::NO_VALUE);
 
-	m_writeRegionRect.Bottom = static_cast<SHORT>(mp_atomicMemory->m_numberOfWindowRows - Consts::OFF_BY_ONE);
+	m_writeRegionRect.Bottom = static_cast<SHORT>(numberOfWindowRows - Consts::OFF_BY_ONE);
 	m_writeRegionRect.Left = static_cast<SHORT>(Consts::NO_VALUE);
-	m_writeRegionRect.Right = static_cast<SHORT>(mp_atomicMemory->m_numberOfWindowColumns - Consts::OFF_BY_ONE);
+	m_writeRegionRect.Right = static_cast<SHORT>(numberOfWindowColumns - Consts::OFF_BY_ONE);
 	m_writeRegionRect.Top = static_cast<SHORT>(Consts::NO_VALUE);
+
+
+	consoleWindow = GetConsoleWindow();
 }
 #pragma endregion
 
 #pragma region Updates
 void RenderManager::Update()
 {
-	std::unique_lock<std::mutex> renderBufferUniqueLock(mp_atomicMemory->m_renderBufferMutex);
+	// Check to see if all sprites have been written (frame draw is complete)
+	mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
+	m_frameWritingIsComplete = mp_sharedMemory->m_spriteWriteInIterator == mp_sharedMemory->m_nullIterator;
+	mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
 
-	// Draw next frame
-	WriteSpritesIntoBuffer(mp_atomicMemory->GetConstSceneObjectsListRef());
-
-	// Swap buffers
-	mp_atomicMemory->SwapBuffersAndClearScratch();
-
-	// Render next (now this) frame
+	if (m_frameWritingIsComplete == false)
 	{
-		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mp_atomicMemory->m_bufferSize; m_reusableIterator++)
+		// Draw next frame (write sprites to buffer)
+		do
 		{
-			mp_textBuffer[m_reusableIterator].Char.UnicodeChar = mp_atomicMemory->mpp_renderBuffer[m_reusableIterator];
+			// Check to see if there are sprites to write
+			mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
+			m_writeSpritesIntoBuffer = mp_sharedMemory->m_spriteWriteInIterator != mp_sharedMemory->GetSceneObjectsIteratorRef();
+			mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
+
+			// While there are sprites to write
+			while (m_writeSpritesIntoBuffer)
+			{
+				// Write sprite(s)
+				WriteSpriteIntoBuffer((*mr_spriteWriteInIterator)->GetSpriteInfoRef());
+
+				// Move to next object (which holds sprite)
+				++mr_spriteWriteInIterator;
+
+				// Check to see if there are sprites to write
+				mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
+				m_writeSpritesIntoBuffer = mp_sharedMemory->m_spriteWriteInIterator != mp_sharedMemory->GetSceneObjectsIteratorRef();
+				mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
+			}
+
+			// Check to see if all sprites have been written (frame draw is complete)
+			mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
+			m_frameWritingIsComplete = mp_sharedMemory->m_spriteWriteInIterator == mp_sharedMemory->m_nullIterator;
+			mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
+
+		} while (m_frameWritingIsComplete == false);
+
+		// Swap buffers and erase the writing buffer
+		{
+			// Swap
+			mpp_renderBufferSwapper = mpp_renderBufferForRendering;
+			mpp_renderBufferForRendering = mpp_renderBufferForWriting;
+			mpp_renderBufferForWriting = mpp_renderBufferSwapper;
+
+			// Erase
+			memset(mpp_renderBufferForWriting, ' ', m_numberOfCharactersToErase);
 		}
 
-		WriteConsoleOutput(*mp_windowHandle, mp_textBuffer, m_screenBufferCR, m_topLeftCellCR, &m_writeRegionRect);
-	}
+		// Render frame (the one drawn above)
+		{
+			//COORD cursorPosition;	cursorPosition.X = 0;	cursorPosition.Y = 0;
+			//SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
 
-	// Wait for next frame
-	mp_atomicMemory->m_renderBufferConVar.wait(renderBufferUniqueLock);
+			for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
+			{
+				mp_textBuffer[m_reusableIterator].Char.UnicodeChar = mpp_renderBufferForRendering[m_reusableIterator];
+			}
+
+			WriteConsoleOutput(*mp_windowHandle, mp_textBuffer, m_screenBufferCR, m_topLeftCellCR, &m_writeRegionRect);
+		}
+	}
 }
 #pragma endregion
 
 #pragma region Private Functionality
-void RenderManager::WriteSpritesIntoBuffer(const std::list<SceneObject*>& _sceneObjectsList) 
+void RenderManager::WriteSpriteIntoBuffer(const Structure::SpriteInfo& _spriteInfo)
 {
-	for (m_sceneObjectsIterator = _sceneObjectsList.begin(); m_sceneObjectsIterator != _sceneObjectsList.end(); m_sceneObjectsIterator++)
+	// Copy each sprite row into the buffer
+	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < _spriteInfo.m_spriteHeight; m_reusableIterator++)
 	{
-		mp_spriteInfo = &(*m_sceneObjectsIterator)->GetConstSpriteInfoRef();
-		mp_atomicMemory->AddSpriteToScratch(mp_spriteInfo->mppp_sprite[mp_spriteInfo->m_animationKeyFrameIndexToRender], mp_spriteInfo->m_spriteHeight, (*m_sceneObjectsIterator)->GetConstPositionRef());
+		mp_spriteRow = _spriteInfo.mppp_sprite[_spriteInfo.m_animationKeyFrameIndexToRender][m_reusableIterator];
+		memcpy(&mpp_renderBufferForWriting[((_spriteInfo.m_position.m_y * m_screenBufferCR.X) + (m_reusableIterator * m_screenBufferCR.Y)) + _spriteInfo.m_position.m_x], mp_spriteRow, strlen(mp_spriteRow));
 	}
 }
 #pragma endregion
@@ -70,7 +134,9 @@ void RenderManager::WriteSpritesIntoBuffer(const std::list<SceneObject*>& _scene
 #pragma region Destruction
 RenderManager::~RenderManager()
 {
-	delete mp_atomicMemory;
+	delete[] mpp_renderBufferForRendering;
+	delete[] mpp_renderBufferForWriting;
 	delete[] mp_textBuffer;
+	delete mp_sharedMemory;
 }
 #pragma endregion

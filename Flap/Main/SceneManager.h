@@ -5,18 +5,18 @@
 
 #include <chrono>
 
-class AtomicMemory;
 class ObjectManager;
 class OverlayManager;
+class SharedMemory;
 
-class SceneManager : public Manager
+class SceneManager final : public Manager
 {
 public:
 	// Static Variables
 	static unsigned int s_simFrameCount;
 
 	// Initialization
-	SceneManager(AtomicMemory& _atomicMemory);
+	SceneManager(SharedMemory& _sharedMemory);
 
 	// Updates
 	void Update() override;
@@ -26,7 +26,7 @@ public:
 
 private:
 	// Member Variables
-	AtomicMemory* mp_atomicMemory;
+	SharedMemory* mp_sharedMemory;
 	enum class SceneType { Game, Overlay };
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	ObjectManager* mp_objectManager;

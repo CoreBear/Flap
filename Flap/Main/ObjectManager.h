@@ -9,14 +9,14 @@
 #include <queue>
 #include <Windows.h>
 
-class AtomicMemory;
 class SceneObject;
+class SharedMemory;
 
-class ObjectManager : public Manager
+class ObjectManager final : public Manager
 {
 public:
 	// Initialization
-	ObjectManager(AtomicMemory& _atomicMemory);
+	ObjectManager(SharedMemory& _sharedMemory);
 
 	// Updates
 	void FixedUpdate();
@@ -33,17 +33,19 @@ public:
 
 private:
 	// Member Variables
-	int m_numberOfObjectsToPoolForThisType;
+	int m_numberOfObjectsPooledForThisType;
 	int m_reusableIterator;
 	int* mp_numberOfObjectsToPoolPerType;
 
 	// HACK: Initialize with values
-	std::list<SceneObject*>& mr_sceneObjectsList;
-	std::list<SceneObject*>::iterator m_sceneObjectsIterator;
+	std::list<SceneObject*> m_sceneObjectsList;
+	std::list<SceneObject*>::iterator m_sceneObjectsOtherUpdatesIterator;
+	std::list<SceneObject*>::iterator& mr_sceneObjectsFixedUpdateIterator;
 
 	// HACK: Initialize with values
 	std::queue<SceneObject*> m_addToSceneObjects;
 	std::queue<SceneObject*> m_removeFromSceneObjects;
 	SceneObject*** mpp_pooledObject;
+	SharedMemory* mp_sharedMemory;
 };
 #endif OBJECT_MANAGER_H

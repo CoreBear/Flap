@@ -2,18 +2,19 @@
 #define RENDER_MANAGER_H
 
 #include "Manager.h"
-#include "SceneObject.h"
+#include "Structure.h"
 
 #include <list>
 #include <Windows.h>
 
-class AtomicMemory;
+class SharedMemory;
+class SceneObject;
 
-class RenderManager : public Manager
+class RenderManager final : public Manager
 {
 public:
 	// Initialization
-	RenderManager(AtomicMemory& _atomicMemory, HANDLE& _windowHandle);
+	RenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory, const Structure::Vector2<int>& _bufferSize);
 
 	// Updates
 	void Update() override;
@@ -23,18 +24,29 @@ public:
 
 private:
 	// Member Variables
-	AtomicMemory* mp_atomicMemory;
+	bool m_frameWritingIsComplete;
+	bool m_writeSpritesIntoBuffer;
+	char* mpp_renderBufferForRendering;
+	char* mpp_renderBufferForWriting;
+	char* mpp_renderBufferSwapper;
+	const char* mp_spriteRow;
 	CHAR_INFO* mp_textBuffer;
 	COORD m_screenBufferCR;
 	COORD m_topLeftCellCR;
 	HANDLE* mp_windowHandle;
+	int m_bufferSize;
+	int m_numberOfCharactersToErase;
 	int m_reusableIterator;
-	std::list<SceneObject*>::const_iterator m_sceneObjectsIterator;
-	const SceneObject::SpriteInfo* mp_spriteInfo;
+	std::list<SceneObject*>::iterator& mr_spriteWriteInIterator;
+	SharedMemory* mp_sharedMemory;
 	SMALL_RECT m_writeRegionRect;
 
+	HWND consoleWindow;
+
+
 	// Functionality
-	void WriteSpritesIntoBuffer(const std::list<SceneObject*>& _sceneObjectsList);
+	//void SwapBuffersAndClearScratch();
+	void WriteSpriteIntoBuffer(const Structure::SpriteInfo& _spriteInfo);
 };
 
 #endif RENDER_MANAGER_H

@@ -1,5 +1,2 @@
-﻿  GameManager.cpp
-  InputManager.cpp
-C:\Flap\Flap\Main\InputManager.cpp(34,69): warning C4018: '<': signed/unsigned mismatch
-  Generating Code...
+﻿  Bird.cpp
   Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe

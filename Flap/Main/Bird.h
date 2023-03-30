@@ -4,7 +4,7 @@
 #include "SceneObject.h"
 #include "Structure.h"
 
-class Bird : public SceneObject
+class Bird final : public SceneObject
 {
 public:
 	// Initialization
@@ -15,11 +15,12 @@ public:
 	void FixedUpdate() override;
 
 private:
-	// Member Variables
-	Structure::Vector2<int> m_velocity;
-
 	// Static Variables
 	const static float s_flyForwardSpeed;
+
+	// Member Variables
+	Structure::Vector2<float> m_dragVelocity;
+	Structure::Vector2<float> m_velocity;
 };
 
 #endif BIRD_H

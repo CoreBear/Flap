@@ -3,7 +3,7 @@
 
 #include "Manager.h"
 
-class NetworkManager : public Manager
+class NetworkManager final : public Manager
 {
 };
 

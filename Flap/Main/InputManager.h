@@ -8,13 +8,13 @@
 #include <queue>
 #include <Windows.h>
 
-class AtomicMemory;
+class SharedMemory;
 
-class InputManager : public Manager
+class InputManager final : public Manager
 {
 public:
 	// Initialization
-	InputManager(AtomicMemory& _atomicMemory, HANDLE& _windowHandle);
+	InputManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory);
 		
 	// Updates
 	void Update() override;
@@ -23,18 +23,19 @@ public:
 	~InputManager() override;
 
 private:
+	// Member Variables
 	DWORD m_bufferLength;
-	DWORD m_numberOfEventsRead;
 	HANDLE m_windowHandle;
 	Structure::Input m_newInput;
 	INPUT_RECORD m_inputRecords[UCHAR_MAX];
 	Enums::InputPressState* mp_inputPressStates;
+	int m_numberOfEventsRead;
 	int m_reusableIterator_1;
 	int m_reusableIterator_2;
 	std::queue<Structure::Input>& mr_inputQueue;
 	unsigned int* mp_deadFramesTargetFrames;
 
-	void EnqueueInput();
+	// Functionality
 	void ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo);
 };
 

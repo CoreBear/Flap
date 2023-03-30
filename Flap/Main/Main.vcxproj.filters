@@ -19,8 +19,11 @@
     <Filter Include="Header Files\Object">
       <UniqueIdentifier>{e4c7d9c0-6fb4-4c8b-a233-f43596bc2bbe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Object">
+      <UniqueIdentifier>{623c4c3b-38ca-4f92-822c-fb0e4227fce2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\Global">
-      <UniqueIdentifier>{fb550cd0-e3ab-4922-861d-a4d3cdc41d53}</UniqueIdentifier>
+      <UniqueIdentifier>{372b0a8c-a9ee-4c3e-bebc-f812ba65536a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,28 +36,31 @@
     <ClCompile Include="RenderManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OverlayManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SceneObject.cpp">
+    <ClCompile Include="SharedMemory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Bird.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectManager.cpp">
+      <Filter>Source Files\Object</Filter>
     </ClCompile>
     <ClCompile Include="RenderObject.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneObject.cpp">
+      <Filter>Source Files\Object</Filter>
     </ClCompile>
     <ClCompile Include="GameManager.cpp">
-      <Filter>Source Files\Global</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AtomicMemory.cpp">
+    <ClCompile Include="Tools.cpp">
       <Filter>Source Files\Global</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,7 +107,10 @@
     <ClInclude Include="Enums.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
-    <ClInclude Include="AtomicMemory.h">
+    <ClInclude Include="SharedMemory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
   </ItemGroup>

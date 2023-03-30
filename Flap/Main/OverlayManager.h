@@ -3,7 +3,7 @@
 
 #include "Manager.h"
 
-class OverlayManager : public Manager
+class OverlayManager final : public Manager
 {
 public:
 	// Updates

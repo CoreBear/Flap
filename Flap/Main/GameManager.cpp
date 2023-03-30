@@ -1,5 +1,4 @@
 #pragma region Includes
-#include "AtomicMemory.h"
 #include "Consts.h"
 #include "InputManager.h"
 #include "Manager.h"
@@ -7,6 +6,7 @@
 #include "ObjectManager.h"
 #include "RenderManager.h"
 #include "SceneManager.h"
+#include "SharedMemory.h"
 #include "Structure.h"
 
 #include <thread>
@@ -14,6 +14,7 @@
 #pragma endregion
 
 #pragma region Variables
+// Static
 static bool gs_applicationIsRunning;
 #pragma endregion
 
@@ -31,7 +32,7 @@ int main()
 
 	SetupConsole(bufferSizeCR, windowHandle);
 
-	AtomicMemory atomicMemory(bufferSizeCR);
+	SharedMemory sharedMemory;
 
 	enum class ManagerType { Input, Network, Render, Scene, NumberOfTypes };
 
@@ -41,10 +42,10 @@ int main()
 		// NOTE/WARNING: windowHandle is not being used in InputManager
 		// because this instance was retrieved before the window was active.
 		// Leaving this here for posterity
-		new InputManager(atomicMemory, windowHandle),
+		new InputManager(windowHandle, sharedMemory),
 		new NetworkManager(),
-		new RenderManager(atomicMemory, windowHandle),
-		new SceneManager(atomicMemory)
+		new RenderManager(windowHandle, sharedMemory, bufferSizeCR),
+		new SceneManager(sharedMemory)
 	};
 
 	// Generate manager handles

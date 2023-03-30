@@ -128,7 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameManager.cpp" />
-    <ClCompile Include="AtomicMemory.cpp" />
+    <ClCompile Include="SharedMemory.cpp" />
     <ClCompile Include="Bird.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="NetworkManager.cpp" />
@@ -138,9 +138,10 @@
     <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneObject.cpp" />
+    <ClCompile Include="Tools.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AtomicMemory.h" />
+    <ClInclude Include="SharedMemory.h" />
     <ClInclude Include="Bird.h" />
     <ClInclude Include="Consts.h" />
     <ClInclude Include="Enums.h" />
@@ -155,6 +156,7 @@
     <ClInclude Include="RenderObject.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneObject.h" />
+    <ClInclude Include="Tools.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
