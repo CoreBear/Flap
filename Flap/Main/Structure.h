@@ -16,7 +16,8 @@ namespace Structure
 	{
 	public:
 		Enums::InputPressState m_inputPressState;
-		unsigned short m_input;
+		int m_inputIndex;;
+		//unsigned short m_input;
 	};
 	template<typename T> struct Vector2
 	{

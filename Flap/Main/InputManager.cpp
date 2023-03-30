@@ -8,19 +8,27 @@
 
 #pragma region Initialization
 InputManager::InputManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory) :
+	m_inputMatched(false),
 	m_bufferLength(sizeof(INPUT_RECORD) * UCHAR_MAX),
 	m_windowHandle(GetStdHandle(STD_INPUT_HANDLE)),
-	mp_inputPressStates(new Enums::InputPressState[Consts::NUMBER_OF_INPUTS]),
+	mpp_inputPressStates(new Enums::InputPressState*[Consts::MAX_NUMBER_OF_PLAYERS]),
 	m_numberOfEventsRead(Consts::NO_VALUE),
 	m_reusableIterator_1(Consts::NO_VALUE),
-	m_reusableIterator_2(Consts::NO_VALUE),
-	mr_inputQueue(_sharedMemory.GetInputQueueRef()),
-	mp_deadFramesTargetFrames(new unsigned int[Consts::NUMBER_OF_INPUTS])
+	m_reusableIterator_3(Consts::NO_VALUE),
+	mp_inputQueueMutex(_sharedMemory.GetInputQueueMutexPtr()),
+	mp_inputQueue(_sharedMemory.GetInputQueuePtr()),
+	mpp_deadFramesTargetFrames(new unsigned int*[Consts::MAX_NUMBER_OF_PLAYERS])
 {
-	// Reset all input
-	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_1++)
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::MAX_NUMBER_OF_PLAYERS; m_reusableIterator_1++)
 	{
-		mp_inputPressStates[m_reusableIterator_1] = Enums::InputPressState::Released;
+		mpp_inputPressStates[m_reusableIterator_1] = new Enums::InputPressState[Consts::NUMBER_OF_INPUTS];
+		mpp_deadFramesTargetFrames[m_reusableIterator_1] = new unsigned int[Consts::NUMBER_OF_INPUTS];
+
+		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_2++)
+		{
+			mpp_inputPressStates[m_reusableIterator_1][m_reusableIterator_2] = Enums::InputPressState::Released;
+			mpp_deadFramesTargetFrames[m_reusableIterator_1][m_reusableIterator_2] = static_cast<unsigned int>(Consts::NO_VALUE);
+		}
 	}
 }
 #pragma endregion
@@ -38,18 +46,25 @@ void InputManager::Update()
 		//https://learn.microsoft.com/en-us/windows/console/input-record-str
 		// NOTE: Records can be focus, key, menu, mouse, window buffer
 		// Only handle key input
-		if (m_inputRecords[m_reusableIterator_1].EventType == KEY_EVENT) 
+		if (m_inputRecords[m_reusableIterator_1].EventType == KEY_EVENT)
 		{
-			// For each input being watched
-			for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2  < Consts::NUMBER_OF_INPUTS; m_reusableIterator_2++)
-			{
-				// If input that caused event is an input being watched
-				if (m_inputRecords[m_reusableIterator_1].Event.KeyEvent.wVirtualKeyCode == Consts::INPUTS[m_reusableIterator_2])
-				{
-					ReadAndEnqueueInput(m_inputRecords[m_reusableIterator_1].Event.KeyEvent);
+			// Flip flag
+			m_inputMatched = false;
 
-					// Stop looking for input
-					break;
+			// For each player
+			for (m_reusableIterator_2 = Consts::NO_VALUE; m_inputMatched == false && m_reusableIterator_2 < Consts::MAX_NUMBER_OF_PLAYERS; m_reusableIterator_2++)
+			{
+				// For each player's inputs being watched
+				for (m_reusableIterator_3 = Consts::NO_VALUE; m_inputMatched == false && m_reusableIterator_3 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_3++)
+				{
+					// If input that caused event is an input being watched
+					if (m_inputRecords[m_reusableIterator_1].Event.KeyEvent.wVirtualKeyCode == Consts::INPUTS[m_reusableIterator_2][m_reusableIterator_3])
+					{
+						ReadAndEnqueueInput(m_inputRecords[m_reusableIterator_1].Event.KeyEvent);
+
+						// Stop looking for input
+						m_inputMatched = true;
+					}
 				}
 			}
 		}
@@ -63,7 +78,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	// If input is pressed down
 	if (_inputInfo.bKeyDown)
 	{
-		switch (mp_inputPressStates[m_reusableIterator_2])
+		switch (mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3])
 		{
 			// Do nothing
 		//case Enums::InputPressState::Held:
@@ -71,14 +86,14 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		case Enums::InputPressState::Click:
 		case Enums::InputPressState::Released:
 		{
-			mp_inputPressStates[m_reusableIterator_2] = Enums::InputPressState::PressedThisFrame;
+			mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::PressedThisFrame;
 		}
 		break;
 		case Enums::InputPressState::Dead:
 		{
-			if (SceneManager::s_simFrameCount >= mp_deadFramesTargetFrames[m_reusableIterator_2])
+			if (SceneManager::s_simFrameCount >= mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3])
 			{
-				mp_inputPressStates[m_reusableIterator_2] = Enums::InputPressState::Held;
+				mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Held;
 			}
 		}
 		// NOTE/WARNING: Notice this return! Dead frames shouldn't be enqueues
@@ -86,11 +101,11 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		
 		case Enums::InputPressState::PressedThisFrame:
 		{
-			mp_inputPressStates[m_reusableIterator_2] = Enums::InputPressState::Dead;
+			mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Dead;
 
 			// Arbitrary value, represents click-to-hold number of frames
 			const unsigned int NUMBER_OF_DEAD_FRAMES = 15;
-			mp_deadFramesTargetFrames[m_reusableIterator_2] = SceneManager::s_simFrameCount + NUMBER_OF_DEAD_FRAMES;
+			mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3] = SceneManager::s_simFrameCount + NUMBER_OF_DEAD_FRAMES;
 		}
 		break;
 		}
@@ -99,7 +114,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	// If input is released
 	else
 	{
-		switch (mp_inputPressStates[m_reusableIterator_2])
+		switch (mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3])
 		{
 			// Cannot occur
 		//case Enums::InputPressState::Click:
@@ -108,30 +123,39 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		case Enums::InputPressState::Dead:
 		case Enums::InputPressState::PressedThisFrame:
 		{
-			mp_inputPressStates[m_reusableIterator_2] = Enums::InputPressState::Click;
+			mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Click;
 		}
 		break;
 		case Enums::InputPressState::Held:
 		{
-			mp_inputPressStates[m_reusableIterator_2] = Enums::InputPressState::Released;
+			mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Released;
 		}
 		break;
 		}
 	}
 
 	// Add values to input
-	m_newInput.m_input = static_cast<short>(_inputInfo.wVirtualKeyCode);
-	m_newInput.m_inputPressState = mp_inputPressStates[m_reusableIterator_2];
+	//m_newInput.m_input = static_cast<short>(_inputInfo.wVirtualKeyCode);
+	m_newInput.m_inputIndex = m_reusableIterator_3;
+	m_newInput.m_inputPressState = mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3];
 
 	// Add input to queue
-	mr_inputQueue.push(m_newInput);
+	mp_inputQueueMutex[m_reusableIterator_2].lock();
+	mp_inputQueue[m_reusableIterator_2].push(m_newInput);
+	mp_inputQueueMutex[m_reusableIterator_2].unlock();
 }
 #pragma endregion
 
 #pragma region Destruction
 InputManager::~InputManager()
 {
-	delete[] mp_inputPressStates;
-	delete[] mp_deadFramesTargetFrames;
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::MAX_NUMBER_OF_PLAYERS; m_reusableIterator_1++)
+	{
+		delete[] mpp_inputPressStates[m_reusableIterator_1];
+		delete[] mpp_deadFramesTargetFrames[m_reusableIterator_1];
+	}
+
+	delete[] mpp_inputPressStates;
+	delete[] mpp_deadFramesTargetFrames;
 }
 #pragma endregion

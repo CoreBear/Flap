@@ -63,6 +63,9 @@
     <ClCompile Include="Tools.cpp">
       <Filter>Source Files\Global</Filter>
     </ClCompile>
+    <ClCompile Include="InputReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputManager.h">
@@ -112,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="Tools.h">
       <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="InputReceiver.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

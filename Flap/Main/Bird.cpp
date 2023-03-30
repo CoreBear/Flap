@@ -6,12 +6,27 @@
 #pragma endregion
 
 #pragma region Static Initialization
+const float Bird::s_upForce = static_cast<float>(16.0F * Consts::FIXED_DELTA_TIME_F);
 const float Bird::s_flyForwardSpeed = static_cast<float>(1 * Consts::FIXED_DELTA_TIME_F);
 #pragma endregion
 
 #pragma region Initialization
-Bird::Bird() 
+Bird::Bird()
 {
+	static int assignInputReceiverIndex = Consts::NO_VALUE;
+	if (assignInputReceiverIndex != Consts::MAX_NUMBER_OF_PLAYERS)
+	{
+		// HACK:
+		m_isAPlayer = true;
+		mp_inputQueueMutex = &sp_sharedMemory->GetInputQueueMutexRef(assignInputReceiverIndex);
+		mp_inputQueue = &sp_sharedMemory->GetInputQueueRef(assignInputReceiverIndex++);
+	}
+	else
+	{
+		// HACK:
+		m_isAPlayer = false;
+	}
+
 	m_spriteInfo.m_numberOfAnimationKeyFrames = 3;
 	m_spriteInfo.m_spriteHeight = 1;
 
@@ -69,5 +84,84 @@ void Bird::FixedUpdate()
 	// Update sprite position for the renderer
 	m_spriteInfo.m_position.m_x = static_cast<int>(m_position.m_x);
 	m_spriteInfo.m_position.m_y = static_cast<int>(m_position.m_y);
+}
+
+void Bird::Update()
+{
+	// HACK:
+	if (m_isAPlayer)
+	{
+		InputReceiver::HandleInput();
+	}
+}
+#pragma endregion
+
+#pragma region Private Functionality
+void Bird::InputDown(Enums::InputPressState _inputPressState) 
+{
+	switch (_inputPressState)
+	{
+	case Enums::InputPressState::Click:
+		break;
+	case Enums::InputPressState::Dead:
+		break;
+	case Enums::InputPressState::Held:
+		break;
+	case Enums::InputPressState::PressedThisFrame:
+		break;
+	case Enums::InputPressState::Released:
+		break;
+	}
+}
+void Bird::InputLeft(Enums::InputPressState _inputPressState)
+{
+	switch (_inputPressState)
+	{
+	case Enums::InputPressState::Click:
+		break;
+	case Enums::InputPressState::Dead:
+		break;
+	case Enums::InputPressState::Held:
+		break;
+	case Enums::InputPressState::PressedThisFrame:
+		break;
+	case Enums::InputPressState::Released:
+		break;
+	}
+}
+void Bird::InputRight(Enums::InputPressState _inputPressState)
+{
+	switch (_inputPressState)
+	{
+	case Enums::InputPressState::Click:
+		break;
+	case Enums::InputPressState::Dead:
+		break;
+	case Enums::InputPressState::Held:
+		break;
+	case Enums::InputPressState::PressedThisFrame:
+		break;
+	case Enums::InputPressState::Released:
+		break;
+	}
+}
+void Bird::InputUp(Enums::InputPressState _inputPressState)
+{
+	switch (_inputPressState)
+	{
+	case Enums::InputPressState::Click:
+		break;
+	case Enums::InputPressState::Dead:
+		break;
+	case Enums::InputPressState::Held:
+		break;
+	case Enums::InputPressState::PressedThisFrame:
+	{
+		m_velocity.m_y += s_upForce;
+	}
+		break;
+	case Enums::InputPressState::Released:
+		break;
+	}
 }
 #pragma endregion

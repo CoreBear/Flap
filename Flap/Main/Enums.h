@@ -4,6 +4,7 @@
 namespace Enums
 {
 	enum class Dimension { Column, Row, NumberOfDimensions };
+	enum class InputName { Down, Left, Right, Up };
 	enum class InputPressState { Click, Dead, Held, PressedThisFrame, Released };
 	enum class ObjectType { Bird, NumberOfTypes };
 }

@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="InputReceiver.cpp" />
     <ClCompile Include="SharedMemory.cpp" />
     <ClCompile Include="Bird.cpp" />
     <ClCompile Include="InputManager.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="Tools.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="InputReceiver.h" />
     <ClInclude Include="SharedMemory.h" />
     <ClInclude Include="Bird.h" />
     <ClInclude Include="Consts.h" />

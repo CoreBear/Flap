@@ -1,6 +1,7 @@
 #ifndef ATOMIC_MEMORY_H
 #define ATOMIC_MEMORY_H
 
+#include "Consts.h"
 #include "Structure.h"
 
 #include <condition_variable>
@@ -13,8 +14,8 @@ class SceneObject;
 class SharedMemory final
 {
 public:
-	// Initializatino
-	SharedMemory() : m_threadWaitingFlag(false) { return; }
+	// Initialization
+	SharedMemory();
 
 	// Member Variables
 	bool m_threadWaitingFlag;
@@ -24,14 +25,18 @@ public:
 	std::mutex m_spriteWriteInIteratorMutex;
 
 	// Functionality
-	inline std::queue<Structure::Input>& GetInputQueueRef() { return m_inputQueue; }
+	inline std::mutex* GetInputQueueMutexPtr() { return m_inputQueueMutex; }
+	inline std::mutex& GetInputQueueMutexRef(int _inputQueueIndex) { return m_inputQueueMutex[_inputQueueIndex]; }
+	inline std::queue<Structure::Input>* GetInputQueuePtr() { return m_inputQueue; }
+	inline std::queue<Structure::Input>& GetInputQueueRef(int _inputQueueIndex) { return m_inputQueue[_inputQueueIndex]; }
 	inline std::list<SceneObject*>::iterator& GetSceneObjectsIteratorRef() { return m_sceneObjectsIterator; }
 	inline std::list<SceneObject*>::iterator& GetSpriteWriteInIteratorRef() { return m_spriteWriteInIterator; }
 
 private:
 	// Member Variables
 	std::list<SceneObject*>::iterator m_sceneObjectsIterator;
-	std::queue<Structure::Input> m_inputQueue;
+	std::mutex m_inputQueueMutex[Consts::MAX_NUMBER_OF_PLAYERS];
+	std::queue<Structure::Input> m_inputQueue[Consts::MAX_NUMBER_OF_PLAYERS];
 };
 
 #endif ATOMIC_MEMORY_H
