@@ -4,7 +4,6 @@
 #include "Manager.h"
 #include "Structure.h"
 
-#include <list>
 #include <Windows.h>
 
 class SharedMemory;
@@ -37,7 +36,6 @@ private:
 	int m_bufferSize;
 	int m_numberOfCharactersToErase;
 	int m_reusableIterator;
-	std::list<SceneObject*>::iterator& mr_spriteWriteInIterator;
 	SharedMemory* mp_sharedMemory;
 	SMALL_RECT m_writeRegionRect;
 

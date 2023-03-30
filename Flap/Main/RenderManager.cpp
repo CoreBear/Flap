@@ -19,7 +19,6 @@ RenderManager::RenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory,
 	m_bufferSize(_bufferSize.m_x * _bufferSize.m_y),
 	m_numberOfCharactersToErase(m_bufferSize - Consts::OFF_BY_ONE),
 	m_reusableIterator(Consts::NO_VALUE),
-	mr_spriteWriteInIterator(_sharedMemory.GetSpriteWriteInIteratorRef()),
 	mp_sharedMemory(&_sharedMemory)
 {
 	int numberOfWindowColumns = _bufferSize.m_x;
@@ -74,10 +73,10 @@ void RenderManager::Update()
 			while (m_writeSpritesIntoBuffer)
 			{
 				// Write sprite(s)
-				WriteSpriteIntoBuffer((*mr_spriteWriteInIterator)->GetSpriteInfoRef());
+				WriteSpriteIntoBuffer((*mp_sharedMemory->m_spriteWriteInIterator)->GetSpriteInfoRef());
 
 				// Move to next object (which holds sprite)
-				++mr_spriteWriteInIterator;
+				++mp_sharedMemory->m_spriteWriteInIterator;
 
 				// Check to see if there are sprites to write
 				mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
