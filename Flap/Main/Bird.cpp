@@ -6,7 +6,7 @@
 #pragma endregion
 
 #pragma region Static Initialization
-const float Bird::s_upForce = static_cast<float>(16.0F * Consts::FIXED_DELTA_TIME_F);
+const float Bird::s_upForce = static_cast<float>(10 * Consts::FIXED_DELTA_TIME_F);
 const float Bird::s_flyForwardSpeed = static_cast<float>(1 * Consts::FIXED_DELTA_TIME_F);
 #pragma endregion
 

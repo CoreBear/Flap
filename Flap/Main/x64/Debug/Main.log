@@ -1,2 +1,6 @@
-﻿  Bird.cpp
-  Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe
+﻿  GameManager.cpp
+  InputReceiver.cpp
+  Bird.cpp
+  RenderManager.cpp
+  Generating Code...
+C:\Flap\Flap\Main\InputReceiver.cpp : fatal  error C1090: PDB API call failed, error code '3': C:\Flap\Flap\Main\x64\Debug\vc143.pdb

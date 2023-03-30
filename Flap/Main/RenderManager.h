@@ -4,6 +4,7 @@
 #include "Manager.h"
 #include "Structure.h"
 
+#include <list>
 #include <mutex>
 #include <Windows.h>
 
@@ -37,9 +38,10 @@ private:
 	int m_bufferSize;
 	int m_numberOfCharactersToErase;
 	int m_reusableIterator;
+	const std::list<SceneObject*>::const_iterator& mr_nullIterator;
 	SharedMemory* mp_sharedMemory;
 	SMALL_RECT m_writeRegionRect;
-	std::unique_lock<std::mutex> m_spriteWriteInIteratorUniqueLock;
+	std::unique_lock<std::mutex> m_renderIteratorUniqueLock;
 
 	// Functionality
 	//void SwapBuffersAndClearScratch();

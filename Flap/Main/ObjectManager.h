@@ -48,6 +48,6 @@ private:
 	std::queue<SceneObject*> m_removeFromSceneObjects;
 	SceneObject*** mpp_pooledObject;
 	SharedMemory* mp_sharedMemory;
-	std::unique_lock<std::mutex> m_spriteWriteInIteratorUniqueLock;
+	std::unique_lock<std::mutex> m_renderIteratorUniqueLock;
 };
 #endif OBJECT_MANAGER_H

@@ -18,8 +18,9 @@ RenderManager::RenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory,
 	m_bufferSize(_bufferSize.m_x * _bufferSize.m_y),
 	m_numberOfCharactersToErase(m_bufferSize - Consts::OFF_BY_ONE),
 	m_reusableIterator(Consts::NO_VALUE), 
+	mr_nullIterator(_sharedMemory.GetNullIteratorRef()),
 	mp_sharedMemory(&_sharedMemory),
-	m_spriteWriteInIteratorUniqueLock(_sharedMemory.m_spriteWriteInIteratorMutex)
+	m_renderIteratorUniqueLock(_sharedMemory.GetSpriteWriteInIteratorMutexRef())
 {
 	int numberOfWindowColumns = _bufferSize.m_x;
 	int numberOfWindowRows = _bufferSize.m_y;
@@ -47,19 +48,19 @@ RenderManager::RenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory,
 	m_writeRegionRect.Top = static_cast<SHORT>(Consts::NO_VALUE);
 
 	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
-	m_spriteWriteInIteratorUniqueLock.unlock();
+	m_renderIteratorUniqueLock.unlock();
 }
 #pragma endregion
 
 #pragma region Updates
 void RenderManager::Update()
 {
-	m_spriteWriteInIteratorUniqueLock.lock();
+	m_renderIteratorUniqueLock.lock();
 
 	// If Scene thread is already waiting, release the Render thread
 	if (mp_sharedMemory->m_threadWaitingFlag)
 	{
-		mp_sharedMemory->m_spriteWriteInIteratorConVar.notify_one();
+		mp_sharedMemory->m_renderIteratorConVar.notify_one();
 	}
 
 	// If Scene thread is not already waiting, flip flag and wait
@@ -68,13 +69,13 @@ void RenderManager::Update()
 		mp_sharedMemory->m_threadWaitingFlag = true;
 
 		// When Scene thread releases this (Render) thread, flip flag
-		mp_sharedMemory->m_spriteWriteInIteratorConVar.wait(m_spriteWriteInIteratorUniqueLock);
+		mp_sharedMemory->m_renderIteratorConVar.wait(m_renderIteratorUniqueLock);
 
 		mp_sharedMemory->m_threadWaitingFlag = false;
 	}
 
 	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
-	m_spriteWriteInIteratorUniqueLock.unlock();
+	m_renderIteratorUniqueLock.unlock();
 
 	m_frameWritingIsComplete = false;
 
@@ -82,29 +83,29 @@ void RenderManager::Update()
 	while (m_frameWritingIsComplete == false)
 	{
 		// Check to see if there are sprites to write
-		mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
-		m_writeSpritesIntoBuffer = mp_sharedMemory->m_spriteWriteInIterator != mp_sharedMemory->GetSceneObjectsIteratorRef();
-		mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
+		m_renderIteratorUniqueLock.lock();
+		m_writeSpritesIntoBuffer = mp_sharedMemory->m_renderIterator != mp_sharedMemory->GetSceneObjectsIteratorRef();
+		m_renderIteratorUniqueLock.unlock();
 
 		// While there are sprites to write
 		while (m_writeSpritesIntoBuffer)
 		{
 			// Write sprite(s)
-			WriteSpriteIntoBuffer((*mp_sharedMemory->m_spriteWriteInIterator)->GetSpriteInfoRef());
+			WriteSpriteIntoBuffer((*mp_sharedMemory->m_renderIterator)->GetSpriteInfoRef());
 
 			// Move to next object (which holds sprite)
-			++mp_sharedMemory->m_spriteWriteInIterator;
+			++mp_sharedMemory->m_renderIterator;
 
 			// Check to see if there are sprites to write
-			mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
-			m_writeSpritesIntoBuffer = mp_sharedMemory->m_spriteWriteInIterator != mp_sharedMemory->GetSceneObjectsIteratorRef();
-			mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
+			m_renderIteratorUniqueLock.lock();
+			m_writeSpritesIntoBuffer = mp_sharedMemory->m_renderIterator != mp_sharedMemory->GetSceneObjectsIteratorRef();
+			m_renderIteratorUniqueLock.unlock();
 		}
 
 		// Check to see if all sprites have been written (frame draw is complete)
-		mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
-		m_frameWritingIsComplete = mp_sharedMemory->m_spriteWriteInIterator == mp_sharedMemory->m_nullIterator;
-		mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
+		m_renderIteratorUniqueLock.lock();
+		m_frameWritingIsComplete = mp_sharedMemory->m_renderIterator == mr_nullIterator;
+		m_renderIteratorUniqueLock.unlock();
 	}
 
 	// Swap buffers and erase the writing buffer

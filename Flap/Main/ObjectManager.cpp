@@ -11,7 +11,7 @@
 ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 	mr_sceneObjectsFixedUpdateIterator(_sharedMemory.GetSceneObjectsIteratorRef()), 
 	mp_sharedMemory(&_sharedMemory),
-	m_spriteWriteInIteratorUniqueLock(_sharedMemory.m_spriteWriteInIteratorMutex)
+	m_renderIteratorUniqueLock(_sharedMemory.GetSpriteWriteInIteratorMutexRef())
 {
 	SceneObject::AssignObjectManager(*this);
 
@@ -42,11 +42,11 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 
 	// Set pointers to the beginning of the container
 	mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.end();
-	mp_sharedMemory->m_spriteWriteInIterator = m_sceneObjectsList.end();
-	mp_sharedMemory->m_nullIterator = m_sceneObjectsList.end();
+	mp_sharedMemory->m_renderIterator = m_sceneObjectsList.end();
+	mp_sharedMemory->SetNullIterator(m_sceneObjectsList.end());
 
 	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
-	m_spriteWriteInIteratorUniqueLock.unlock();
+	m_renderIteratorUniqueLock.unlock();
 }
 #pragma endregion
 
@@ -55,12 +55,12 @@ void ObjectManager::FixedUpdate()
 {
 	if (m_sceneObjectsList.empty() == false)
 	{
-		m_spriteWriteInIteratorUniqueLock.lock();
+		m_renderIteratorUniqueLock.lock();
 
 		// If Render thread is already waiting, release the Scene thread
 		if (mp_sharedMemory->m_threadWaitingFlag)
 		{
-			mp_sharedMemory->m_spriteWriteInIteratorConVar.notify_one();
+			mp_sharedMemory->m_renderIteratorConVar.notify_one();
 		}
 
 		// If Render thread is not already waiting, flip flag and wait
@@ -69,17 +69,17 @@ void ObjectManager::FixedUpdate()
 			mp_sharedMemory->m_threadWaitingFlag = true;
 
 			// When Render thread releases this (Scene) thread, flip flag
-			mp_sharedMemory->m_spriteWriteInIteratorConVar.wait(m_spriteWriteInIteratorUniqueLock);
+			mp_sharedMemory->m_renderIteratorConVar.wait(m_renderIteratorUniqueLock);
 
 			mp_sharedMemory->m_threadWaitingFlag = false;
 		}
 
 		// Reset iterators
 		mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.begin();
-		mp_sharedMemory->m_spriteWriteInIterator = m_sceneObjectsList.begin();
+		mp_sharedMemory->m_renderIterator = m_sceneObjectsList.begin();
 
 		// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
-		m_spriteWriteInIteratorUniqueLock.unlock();
+		m_renderIteratorUniqueLock.unlock();
 
 		// NOTE: Initialization is done above, while within mutex
 		for (; mr_sceneObjectsFixedUpdateIterator != m_sceneObjectsList.end(); ++mr_sceneObjectsFixedUpdateIterator)

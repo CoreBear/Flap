@@ -19,22 +19,25 @@ public:
 
 	// Member Variables
 	bool m_threadWaitingFlag;
-	std::condition_variable m_spriteWriteInIteratorConVar;
-	std::list<SceneObject*>::const_iterator m_nullIterator;		// Cannot be a reference, because SharedMemory is created before the container this points to
-	std::list<SceneObject*>::iterator m_spriteWriteInIterator;	
-	std::mutex m_spriteWriteInIteratorMutex;
+	std::condition_variable m_renderIteratorConVar;
+	std::list<SceneObject*>::iterator m_renderIterator;	
 
 	// Functionality
 	inline std::mutex* GetInputQueueMutexPtr() { return m_inputQueueMutex; }
 	inline std::mutex& GetInputQueueMutexRef(int _inputQueueIndex) { return m_inputQueueMutex[_inputQueueIndex]; }
 	inline std::queue<Structure::Input>* GetInputQueuePtr() { return m_inputQueue; }
 	inline std::queue<Structure::Input>& GetInputQueueRef(int _inputQueueIndex) { return m_inputQueue[_inputQueueIndex]; }
+	inline const std::list<SceneObject*>::const_iterator& GetNullIteratorRef() { return m_nullIterator; }
 	inline std::list<SceneObject*>::iterator& GetSceneObjectsIteratorRef() { return m_sceneObjectsIterator; }
-	inline std::list<SceneObject*>::iterator& GetSpriteWriteInIteratorRef() { return m_spriteWriteInIterator; }
+	inline std::mutex& GetSpriteWriteInIteratorMutexRef() { return m_renderIteratorMutex; }
+	inline std::list<SceneObject*>::iterator& GetSpriteWriteInIteratorRef() { return m_renderIterator; }
+	inline void SetNullIterator(const std::list<SceneObject*>::const_iterator& _nullIterator) { m_nullIterator = _nullIterator; }
 
 private:
 	// Member Variables
+	std::list<SceneObject*>::const_iterator m_nullIterator;		
 	std::list<SceneObject*>::iterator m_sceneObjectsIterator;
+	std::mutex m_renderIteratorMutex;
 	std::mutex m_inputQueueMutex[Consts::MAX_NUMBER_OF_PLAYERS];
 	std::queue<Structure::Input> m_inputQueue[Consts::MAX_NUMBER_OF_PLAYERS];
 };
