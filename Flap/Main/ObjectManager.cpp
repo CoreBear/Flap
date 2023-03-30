@@ -8,9 +8,10 @@
 #pragma endregion
 
 #pragma region Initialization
-ObjectManager::ObjectManager(SharedMemory& _sharedMemory) : 
+ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 	mr_sceneObjectsFixedUpdateIterator(_sharedMemory.GetSceneObjectsIteratorRef()), 
-	mp_sharedMemory(&_sharedMemory)
+	mp_sharedMemory(&_sharedMemory),
+	m_spriteWriteInIteratorUniqueLock(_sharedMemory.m_spriteWriteInIteratorMutex)
 {
 	SceneObject::AssignObjectManager(*this);
 
@@ -43,22 +44,48 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 	mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.end();
 	mp_sharedMemory->m_spriteWriteInIterator = m_sceneObjectsList.end();
 	mp_sharedMemory->m_nullIterator = m_sceneObjectsList.end();
+
+	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
+	m_spriteWriteInIteratorUniqueLock.unlock();
 }
 #pragma endregion
 
 #pragma region Updates
 void ObjectManager::FixedUpdate() 
 {
-	mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.begin();
-
-	mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
-	mp_sharedMemory->m_spriteWriteInIterator = m_sceneObjectsList.begin();
-	mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
-
-	// NOTE/WARNING: Initialization is done above and in a particular order. DO NOT CHANGE!
-	for (; mr_sceneObjectsFixedUpdateIterator != m_sceneObjectsList.end(); ++mr_sceneObjectsFixedUpdateIterator)
+	if (m_sceneObjectsList.empty() == false)
 	{
-		(*mr_sceneObjectsFixedUpdateIterator)->FixedUpdate();
+		m_spriteWriteInIteratorUniqueLock.lock();
+
+		// If Render thread is already waiting, release the Scene thread
+		if (mp_sharedMemory->m_threadWaitingFlag)
+		{
+			mp_sharedMemory->m_spriteWriteInIteratorConVar.notify_one();
+		}
+
+		// If Render thread is not already waiting, flip flag and wait
+		else
+		{
+			mp_sharedMemory->m_threadWaitingFlag = true;
+
+			// When Render thread releases this (Scene) thread, flip flag
+			mp_sharedMemory->m_spriteWriteInIteratorConVar.wait(m_spriteWriteInIteratorUniqueLock);
+
+			mp_sharedMemory->m_threadWaitingFlag = false;
+		}
+
+		// Reset iterators
+		mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.begin();
+		mp_sharedMemory->m_spriteWriteInIterator = m_sceneObjectsList.begin();
+
+		// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
+		m_spriteWriteInIteratorUniqueLock.unlock();
+
+		// NOTE: Initialization is done above, while within mutex
+		for (; mr_sceneObjectsFixedUpdateIterator != m_sceneObjectsList.end(); ++mr_sceneObjectsFixedUpdateIterator)
+		{
+			(*mr_sceneObjectsFixedUpdateIterator)->FixedUpdate();
+		}
 	}
 }
 void ObjectManager::LastUpdate()

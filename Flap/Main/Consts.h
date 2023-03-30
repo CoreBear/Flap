@@ -6,12 +6,12 @@
 namespace Consts
 {
 	// Floats
-	constexpr float GRAVITY_FORCE_F = 9.8F;
+	constexpr float GRAVITY_FORCE_F = 2.0F;// 9.8F;
 	constexpr float MULTIPLICATIVE_HALF_F = 0.5F;
 	constexpr float NO_VALUE_F = 0.0F;
 
 	// Ints
-	constexpr int FPS_TARGET = 60;
+	constexpr int FPS_TARGET = 10;
 	constexpr int NO_VALUE = 0;
 	constexpr int NUMBER_OF_INPUTS = 4;
 	constexpr int OFF_BY_ONE = 1;

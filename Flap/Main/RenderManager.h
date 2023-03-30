@@ -4,6 +4,7 @@
 #include "Manager.h"
 #include "Structure.h"
 
+#include <mutex>
 #include <Windows.h>
 
 class SharedMemory;
@@ -38,9 +39,7 @@ private:
 	int m_reusableIterator;
 	SharedMemory* mp_sharedMemory;
 	SMALL_RECT m_writeRegionRect;
-
-	HWND consoleWindow;
-
+	std::unique_lock<std::mutex> m_spriteWriteInIteratorUniqueLock;
 
 	// Functionality
 	//void SwapBuffersAndClearScratch();

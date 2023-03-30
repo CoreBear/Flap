@@ -5,7 +5,6 @@
 #include "ObjectManager.h"
 #include "SceneObject.h"
 #include "SharedMemory.h"
-
 #include <Windows.h>
 #pragma endregion
 
@@ -18,8 +17,9 @@ RenderManager::RenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory,
 	mp_windowHandle(&_windowHandle), 
 	m_bufferSize(_bufferSize.m_x * _bufferSize.m_y),
 	m_numberOfCharactersToErase(m_bufferSize - Consts::OFF_BY_ONE),
-	m_reusableIterator(Consts::NO_VALUE),
-	mp_sharedMemory(&_sharedMemory)
+	m_reusableIterator(Consts::NO_VALUE), 
+	mp_sharedMemory(&_sharedMemory),
+	m_spriteWriteInIteratorUniqueLock(_sharedMemory.m_spriteWriteInIteratorMutex)
 {
 	int numberOfWindowColumns = _bufferSize.m_x;
 	int numberOfWindowRows = _bufferSize.m_y;
@@ -46,74 +46,87 @@ RenderManager::RenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory,
 	m_writeRegionRect.Right = static_cast<SHORT>(numberOfWindowColumns - Consts::OFF_BY_ONE);
 	m_writeRegionRect.Top = static_cast<SHORT>(Consts::NO_VALUE);
 
-
-	consoleWindow = GetConsoleWindow();
+	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
+	m_spriteWriteInIteratorUniqueLock.unlock();
 }
 #pragma endregion
 
 #pragma region Updates
 void RenderManager::Update()
 {
-	// Check to see if all sprites have been written (frame draw is complete)
-	mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
-	m_frameWritingIsComplete = mp_sharedMemory->m_spriteWriteInIterator == mp_sharedMemory->m_nullIterator;
-	mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
+	m_spriteWriteInIteratorUniqueLock.lock();
 
-	if (m_frameWritingIsComplete == false)
+	// If Scene thread is already waiting, release the Render thread
+	if (mp_sharedMemory->m_threadWaitingFlag)
 	{
-		// Draw next frame (write sprites to buffer)
-		do
+		mp_sharedMemory->m_spriteWriteInIteratorConVar.notify_one();
+	}
+
+	// If Scene thread is not already waiting, flip flag and wait
+	else
+	{
+		mp_sharedMemory->m_threadWaitingFlag = true;
+
+		// When Scene thread releases this (Render) thread, flip flag
+		mp_sharedMemory->m_spriteWriteInIteratorConVar.wait(m_spriteWriteInIteratorUniqueLock);
+
+		mp_sharedMemory->m_threadWaitingFlag = false;
+	}
+
+	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
+	m_spriteWriteInIteratorUniqueLock.unlock();
+
+	m_frameWritingIsComplete = false;
+
+	// Draw next frame (write sprites to buffer)
+	while (m_frameWritingIsComplete == false)
+	{
+		// Check to see if there are sprites to write
+		mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
+		m_writeSpritesIntoBuffer = mp_sharedMemory->m_spriteWriteInIterator != mp_sharedMemory->GetSceneObjectsIteratorRef();
+		mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
+
+		// While there are sprites to write
+		while (m_writeSpritesIntoBuffer)
 		{
+			// Write sprite(s)
+			WriteSpriteIntoBuffer((*mp_sharedMemory->m_spriteWriteInIterator)->GetSpriteInfoRef());
+
+			// Move to next object (which holds sprite)
+			++mp_sharedMemory->m_spriteWriteInIterator;
+
 			// Check to see if there are sprites to write
 			mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
 			m_writeSpritesIntoBuffer = mp_sharedMemory->m_spriteWriteInIterator != mp_sharedMemory->GetSceneObjectsIteratorRef();
 			mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
-
-			// While there are sprites to write
-			while (m_writeSpritesIntoBuffer)
-			{
-				// Write sprite(s)
-				WriteSpriteIntoBuffer((*mp_sharedMemory->m_spriteWriteInIterator)->GetSpriteInfoRef());
-
-				// Move to next object (which holds sprite)
-				++mp_sharedMemory->m_spriteWriteInIterator;
-
-				// Check to see if there are sprites to write
-				mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
-				m_writeSpritesIntoBuffer = mp_sharedMemory->m_spriteWriteInIterator != mp_sharedMemory->GetSceneObjectsIteratorRef();
-				mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
-			}
-
-			// Check to see if all sprites have been written (frame draw is complete)
-			mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
-			m_frameWritingIsComplete = mp_sharedMemory->m_spriteWriteInIterator == mp_sharedMemory->m_nullIterator;
-			mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
-
-		} while (m_frameWritingIsComplete == false);
-
-		// Swap buffers and erase the writing buffer
-		{
-			// Swap
-			mpp_renderBufferSwapper = mpp_renderBufferForRendering;
-			mpp_renderBufferForRendering = mpp_renderBufferForWriting;
-			mpp_renderBufferForWriting = mpp_renderBufferSwapper;
-
-			// Erase
-			memset(mpp_renderBufferForWriting, ' ', m_numberOfCharactersToErase);
 		}
 
-		// Render frame (the one drawn above)
+		// Check to see if all sprites have been written (frame draw is complete)
+		mp_sharedMemory->m_spriteWriteInIteratorMutex.lock();
+		m_frameWritingIsComplete = mp_sharedMemory->m_spriteWriteInIterator == mp_sharedMemory->m_nullIterator;
+		mp_sharedMemory->m_spriteWriteInIteratorMutex.unlock();
+	}
+
+	// Swap buffers and erase the writing buffer
+	{
+		// Swap
+		mpp_renderBufferSwapper = mpp_renderBufferForRendering;
+		mpp_renderBufferForRendering = mpp_renderBufferForWriting;
+		mpp_renderBufferForWriting = mpp_renderBufferSwapper;
+
+		// Erase
+		memset(mpp_renderBufferForWriting, ' ', m_numberOfCharactersToErase);
+	}
+
+	// Render frame (the one drawn above)
+	{
+
+		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
 		{
-			//COORD cursorPosition;	cursorPosition.X = 0;	cursorPosition.Y = 0;
-			//SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
-
-			for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
-			{
-				mp_textBuffer[m_reusableIterator].Char.UnicodeChar = mpp_renderBufferForRendering[m_reusableIterator];
-			}
-
-			WriteConsoleOutput(*mp_windowHandle, mp_textBuffer, m_screenBufferCR, m_topLeftCellCR, &m_writeRegionRect);
+			mp_textBuffer[m_reusableIterator].Char.UnicodeChar = mpp_renderBufferForRendering[m_reusableIterator];
 		}
+
+		WriteConsoleOutput(*mp_windowHandle, mp_textBuffer, m_screenBufferCR, m_topLeftCellCR, &m_writeRegionRect);
 	}
 }
 #pragma endregion

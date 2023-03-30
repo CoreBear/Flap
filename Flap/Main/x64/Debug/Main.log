@@ -1,15 +1,4 @@
-﻿  Bird.cpp
-  GameManager.cpp
-  InputManager.cpp
-  ObjectManager.cpp
+﻿  ObjectManager.cpp
   RenderManager.cpp
-  SceneManager.cpp
-C:\Flap\Flap\Main\SceneManager.cpp(33,24): warning C4267: '=': conversion from 'size_t' to 'T', possible loss of data
-          with
-          [
-              T=int
-          ]
-  SharedMemory.cpp
   Generating Code...
-  LINK : C:\Flap\Flap\x64\Debug\Main.exe not found or not built by the last incremental link; performing full link
   Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe

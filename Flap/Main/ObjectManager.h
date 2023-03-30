@@ -6,6 +6,7 @@
 #include "Structure.h"
 
 #include <list>
+#include <mutex>
 #include <queue>
 #include <Windows.h>
 
@@ -47,5 +48,6 @@ private:
 	std::queue<SceneObject*> m_removeFromSceneObjects;
 	SceneObject*** mpp_pooledObject;
 	SharedMemory* mp_sharedMemory;
+	std::unique_lock<std::mutex> m_spriteWriteInIteratorUniqueLock;
 };
 #endif OBJECT_MANAGER_H

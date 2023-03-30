@@ -3,6 +3,7 @@
 
 #include "Structure.h"
 
+#include <condition_variable>
 #include <list>
 #include <mutex>
 #include <queue>
@@ -12,10 +13,15 @@ class SceneObject;
 class SharedMemory final
 {
 public:
+	// Initializatino
+	SharedMemory() : m_threadWaitingFlag(false) { return; }
+
 	// Member Variables
+	bool m_threadWaitingFlag;
+	std::condition_variable m_spriteWriteInIteratorConVar;
+	std::list<SceneObject*>::const_iterator m_nullIterator;		// Cannot be a reference, because SharedMemory is created before the container this points to
 	std::list<SceneObject*>::iterator m_spriteWriteInIterator;	
 	std::mutex m_spriteWriteInIteratorMutex;
-	std::list<SceneObject*>::const_iterator m_nullIterator;		// Cannot be a reference, because SharedMemory is created before the container this points to
 
 	// Functionality
 	inline std::queue<Structure::Input>& GetInputQueueRef() { return m_inputQueue; }
