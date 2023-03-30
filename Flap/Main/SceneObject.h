@@ -26,7 +26,7 @@ public:
 
 	// Destruction
 	virtual void Denitialize();
-	virtual ~SceneObject() override { return; }
+	virtual ~SceneObject() { return; }
 
 protected:
 	// Static Variables

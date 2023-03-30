@@ -19,18 +19,18 @@ void InputReceiver::HandleInput()
 		mp_inputQueue->pop();
 		mp_inputQueueMutex->unlock();
 
-		switch ((Enums::InputName)m_currentInput.m_inputIndex)
+		switch ((Enums::Direction)m_currentInput.m_inputIndex)
 		{
-		case Enums::InputName::Down:
+		case Enums::Direction::Down:
 			InputDown(m_currentInput.m_inputPressState);
 			break;
-		case Enums::InputName::Left:
+		case Enums::Direction::Left:
 			InputLeft(m_currentInput.m_inputPressState);
 			break;
-		case Enums::InputName::Right:
+		case Enums::Direction::Right:
 			InputRight(m_currentInput.m_inputPressState);
 			break;
-		case Enums::InputName::Up:
+		case Enums::Direction::Up:
 			InputUp(m_currentInput.m_inputPressState);
 			break;
 		}

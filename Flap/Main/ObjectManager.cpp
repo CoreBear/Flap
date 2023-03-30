@@ -1,10 +1,11 @@
 #pragma region Includes
 #include "ObjectManager.h"
 
-#include "Bird.h"
+#include "Avatar.h"
 #include "Consts.h"
 #include "SceneObject.h"
 #include "SharedMemory.h"
+#include "Snake.h"
 #pragma endregion
 
 #pragma region Initialization
@@ -15,7 +16,8 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 {
 	SceneObject::AssignObjectManager(*this);
 
-	mp_numberOfObjectsToPoolPerType = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { 20 };
+	// NOTE: Only MAX_NUMBER_OF_PLAYERS number of avatars
+	mp_numberOfObjectsToPoolPerType = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { Consts::MAX_NUMBER_OF_PLAYERS, 20 };
 
 	// Generate pointers for each type
 	mpp_pooledObject = new SceneObject ** [static_cast<int>(Enums::ObjectType::NumberOfTypes)];
@@ -33,8 +35,11 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 		{
 			switch ((Enums::ObjectType)objectTypeIndex)
 			{
-			case Enums::ObjectType::Bird:
-				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Bird();
+			case Enums::ObjectType::Avatar:
+				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Avatar();
+				break;
+			case Enums::ObjectType::Snake:
+				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Snake();
 				break;
 			}
 		}
@@ -81,8 +86,7 @@ void ObjectManager::FixedUpdate()
 		// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
 		m_renderIteratorUniqueLock.unlock();
 
-		// NOTE: Initialization is done above, while within mutex
-		for (; mr_sceneObjectsFixedUpdateIterator != m_sceneObjectsList.end(); ++mr_sceneObjectsFixedUpdateIterator)
+		for (/*Initialization is done above, while within mutex*/; mr_sceneObjectsFixedUpdateIterator != m_sceneObjectsList.end(); ++mr_sceneObjectsFixedUpdateIterator)
 		{
 			(*mr_sceneObjectsFixedUpdateIterator)->FixedUpdate();
 		}

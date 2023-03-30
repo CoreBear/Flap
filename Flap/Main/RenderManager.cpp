@@ -13,7 +13,6 @@ RenderManager::RenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory,
 	m_frameWritingIsComplete(false),
 	m_writeSpritesIntoBuffer(false),
 	mpp_renderBufferSwapper(nullptr),
-	mp_spriteRow(nullptr),
 	mp_windowHandle(&_windowHandle), 
 	m_bufferSize(_bufferSize.m_x * _bufferSize.m_y),
 	m_numberOfCharactersToErase(m_bufferSize - Consts::OFF_BY_ONE),
@@ -32,10 +31,12 @@ RenderManager::RenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory,
 	memset(mpp_renderBufferForWriting, ' ', m_numberOfCharactersToErase);
 
 	mp_textBuffer = new CHAR_INFO[m_bufferSize];
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
-	{
-		mp_textBuffer[m_reusableIterator].Attributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
-	}
+
+	// NOTE: No longer drawing this way
+	//for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
+	//{
+	//	mp_textBuffer[m_reusableIterator].Attributes = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED;
+	//}
 
 	m_screenBufferCR.X = numberOfWindowColumns;
 	m_screenBufferCR.Y = numberOfWindowRows;
@@ -125,6 +126,19 @@ void RenderManager::Update()
 		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
 		{
 			mp_textBuffer[m_reusableIterator].Char.UnicodeChar = mpp_renderBufferForRendering[m_reusableIterator];
+			
+			// If this is a body cell
+			const char* CHECK_CHAR = " ";
+			if (strcmp((const char*)&mp_textBuffer[m_reusableIterator].Char.UnicodeChar, CHECK_CHAR) != Consts::NO_VALUE)
+			{
+				mp_textBuffer[m_reusableIterator].Attributes = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
+			}
+
+			// If this is not a body cell
+			else
+			{
+				mp_textBuffer[m_reusableIterator].Attributes = NULL;
+			}
 		}
 
 		WriteConsoleOutput(*mp_windowHandle, mp_textBuffer, m_screenBufferCR, m_topLeftCellCR, &m_writeRegionRect);
@@ -133,13 +147,68 @@ void RenderManager::Update()
 #pragma endregion
 
 #pragma region Private Functionality
+void RenderManager::WriteConnectorsIntoBuffer(bool _positive, int& _dimenstionToUpdate)
+{
+	if (_positive)
+	{
+		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < (*m_bodyNodeIterator)->m_numberOfConnectorsToNextNode; m_reusableIterator++)
+		{
+			_dimenstionToUpdate += m_reusableIterator;
+
+			// Write connector into buffer
+			WriteIntoBuffer();
+		}
+	}
+	else
+	{
+		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < (*m_bodyNodeIterator)->m_numberOfConnectorsToNextNode; m_reusableIterator++)
+		{
+			_dimenstionToUpdate -= m_reusableIterator;
+
+			// Write connector into buffer
+			WriteIntoBuffer();
+		}
+	}
+}
+void RenderManager::WriteIntoBuffer()
+{
+	const char* BODY_CHAR = "_";
+	size_t sizeOfChar = 1;
+
+	// Write into buffer
+	memcpy(&mpp_renderBufferForWriting[(m_nodePosition.m_y * m_screenBufferCR.X) + m_nodePosition.m_x], BODY_CHAR, sizeOfChar);
+
+}
 void RenderManager::WriteSpriteIntoBuffer(const Structure::SpriteInfo& _spriteInfo)
 {
-	// Copy each sprite row into the buffer
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < _spriteInfo.m_spriteHeight; m_reusableIterator++)
+	// For each node
+	for (m_bodyNodeIterator = _spriteInfo.m_bodyNodes.begin(); m_bodyNodeIterator != _spriteInfo.m_bodyNodes.end(); ++m_bodyNodeIterator)
 	{
-		mp_spriteRow = _spriteInfo.mppp_sprite[_spriteInfo.m_animationKeyFrameIndexToRender][m_reusableIterator];
-		memcpy(&mpp_renderBufferForWriting[((_spriteInfo.m_position.m_y * m_screenBufferCR.X) + (m_reusableIterator * m_screenBufferCR.Y)) + _spriteInfo.m_position.m_x], mp_spriteRow, strlen(mp_spriteRow));
+		// Store the node's position
+		m_nodePosition = (*m_bodyNodeIterator)->m_position;
+
+		// Write node into buffer
+		WriteIntoBuffer();
+
+		switch ((*m_bodyNodeIterator)->m_directionToNextPosition)
+		{
+		case Enums::Direction::Down:
+			WriteConnectorsIntoBuffer(true, m_nodePosition.m_y);
+			break;
+		case Enums::Direction::Left:
+			WriteConnectorsIntoBuffer(false, m_nodePosition.m_x);
+			break;
+		case Enums::Direction::Right:
+			WriteConnectorsIntoBuffer(true, m_nodePosition.m_x);
+			break;
+		case Enums::Direction::Up:
+			WriteConnectorsIntoBuffer(false, m_nodePosition.m_y);
+			break;
+
+		// NOTE: If execution makes it here, this is the last node
+		default:
+			break;
+		}
 	}
 }
 #pragma endregion

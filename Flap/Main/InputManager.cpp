@@ -135,7 +135,6 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	}
 
 	// Add values to input
-	//m_newInput.m_input = static_cast<short>(_inputInfo.wVirtualKeyCode);
 	m_newInput.m_inputIndex = m_reusableIterator_3;
 	m_newInput.m_inputPressState = mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3];
 

@@ -127,24 +127,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Avatar.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="InputReceiver.cpp" />
     <ClCompile Include="SharedMemory.cpp" />
-    <ClCompile Include="Bird.cpp" />
+    <ClCompile Include="Snake.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="NetworkManager.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="OverlayManager.cpp" />
     <ClCompile Include="RenderManager.cpp" />
-    <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="Tools.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Avatar.h" />
     <ClInclude Include="InputReceiver.h" />
     <ClInclude Include="SharedMemory.h" />
-    <ClInclude Include="Bird.h" />
+    <ClInclude Include="Snake.h" />
     <ClInclude Include="Consts.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="Structure.h" />

@@ -30,7 +30,6 @@ private:
 	char* mpp_renderBufferForRendering;
 	char* mpp_renderBufferForWriting;
 	char* mpp_renderBufferSwapper;
-	const char* mp_spriteRow;
 	CHAR_INFO* mp_textBuffer;
 	COORD m_screenBufferCR;
 	COORD m_topLeftCellCR;
@@ -39,12 +38,15 @@ private:
 	int m_numberOfCharactersToErase;
 	int m_reusableIterator;
 	const std::list<SceneObject*>::const_iterator& mr_nullIterator;
+	std::list<Structure::SpriteInfo::BodyNode*>::const_iterator m_bodyNodeIterator;
 	SharedMemory* mp_sharedMemory;
 	SMALL_RECT m_writeRegionRect;
 	std::unique_lock<std::mutex> m_renderIteratorUniqueLock;
+	Structure::Vector2<int> m_nodePosition;
 
 	// Functionality
-	//void SwapBuffersAndClearScratch();
+	void WriteConnectorsIntoBuffer(bool _positive, int& _dimenstionToUpdate);
+	void WriteIntoBuffer();
 	void WriteSpriteIntoBuffer(const Structure::SpriteInfo& _spriteInfo);
 };
 

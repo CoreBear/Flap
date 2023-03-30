@@ -4,9 +4,9 @@
 namespace Enums
 {
 	enum class Dimension { Column, Row, NumberOfDimensions };
-	enum class InputName { Down, Left, Right, Up };
+	enum class Direction { Down, Left, Right, Up, NumberOfDirections, NA };
 	enum class InputPressState { Click, Dead, Held, PressedThisFrame, Released };
-	enum class ObjectType { Bird, NumberOfTypes };
+	enum class ObjectType { Avatar, Snake, NumberOfTypes };
 }
 
 #endif ENUMS_H

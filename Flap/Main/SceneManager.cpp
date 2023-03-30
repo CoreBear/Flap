@@ -28,11 +28,17 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) : mp_sharedMemory(&_shar
 
 		Structure::Generic g;
 
-		for (size_t i = 0; i < 20; i++)
+		for (size_t i = 0; i < 1; i++)
 		{
 			position.m_x = i * 4;
-			mp_objectManager->SpawnObject(Enums::ObjectType::Bird, position, g);
+			mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, position, g);
 		}
+
+		/*for (size_t i = 0; i < 2; i++)
+		{
+			position.m_x = (i + 1) * 15;
+			mp_objectManager->SpawnObject(Enums::ObjectType::Snake, position, g);
+		}*/
 	}
 }
 #pragma endregion
