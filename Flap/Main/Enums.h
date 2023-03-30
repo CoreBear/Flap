@@ -6,7 +6,7 @@ namespace Enums
 	enum class Dimension { Column, Row, NumberOfDimensions };
 	enum class Direction { Down, Left, Right, Up, NumberOfDirections, NA };
 	enum class InputPressState { Click, Dead, Held, PressedThisFrame, Released };
-	enum class ObjectType { Avatar, Snake, NumberOfTypes };
+	enum class ObjectType { Avatar, Food, Snake, NumberOfTypes };
 }
 
 #endif ENUMS_H

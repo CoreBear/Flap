@@ -22,9 +22,6 @@ protected:
 private:
 	// Static Variables
 	const static float s_moveSpeed;
-
-	// Member Variables
-	Structure::Vector2<float> m_headPosition;
 };
 
 #endif BIRD_H

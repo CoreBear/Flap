@@ -27,6 +27,9 @@ void SceneObject::SetPosition(const Structure::Vector2<int>& _position)
 {
 	m_position.m_x = static_cast<float>(_position.m_x);
 	m_position.m_y = static_cast<float>(_position.m_y);
+
+	m_spriteInfo.m_bodyNodes.front()->m_position.m_x = static_cast<int>(m_position.m_x);
+	m_spriteInfo.m_bodyNodes.front()->m_position.m_y = static_cast<int>(m_position.m_y);
 }
 #pragma endregion
 

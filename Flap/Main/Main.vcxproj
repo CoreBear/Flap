@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Avatar.cpp" />
+    <ClCompile Include="Food.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="InputReceiver.cpp" />
     <ClCompile Include="SharedMemory.cpp" />
@@ -143,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Avatar.h" />
+    <ClInclude Include="Food.h" />
     <ClInclude Include="InputReceiver.h" />
     <ClInclude Include="SharedMemory.h" />
     <ClInclude Include="Snake.h" />

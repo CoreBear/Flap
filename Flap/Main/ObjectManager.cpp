@@ -3,6 +3,7 @@
 
 #include "Avatar.h"
 #include "Consts.h"
+#include "Food.h"
 #include "SceneObject.h"
 #include "SharedMemory.h"
 #include "Snake.h"
@@ -17,7 +18,7 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 	SceneObject::AssignObjectManager(*this);
 
 	// NOTE: Only MAX_NUMBER_OF_PLAYERS number of avatars
-	mp_numberOfObjectsToPoolPerType = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { Consts::MAX_NUMBER_OF_PLAYERS, 20 };
+	mp_numberOfObjectsToPoolPerType = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { Consts::MAX_NUMBER_OF_PLAYERS, 20, 20 };
 
 	// Generate pointers for each type
 	mpp_pooledObject = new SceneObject ** [static_cast<int>(Enums::ObjectType::NumberOfTypes)];
@@ -37,6 +38,9 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 			{
 			case Enums::ObjectType::Avatar:
 				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Avatar();
+				break;
+			case Enums::ObjectType::Food:
+				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Food();
 				break;
 			case Enums::ObjectType::Snake:
 				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Snake();

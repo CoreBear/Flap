@@ -25,26 +25,26 @@ void Snake::FixedUpdate()
 	{
 	case Enums::Direction::Down:
 	{
-		m_headPosition.m_y += s_moveSpeed;
-		m_spriteInfo.m_bodyNodes.front()->m_position.m_y = static_cast<int>(m_headPosition.m_y);
+		m_position.m_y += s_moveSpeed;
+		m_spriteInfo.m_bodyNodes.front()->m_position.m_y = static_cast<int>(m_position.m_y);
 	}
 	break;
 	case Enums::Direction::Left:
 	{
-		m_headPosition.m_x -= s_moveSpeed;
-		m_spriteInfo.m_bodyNodes.front()->m_position.m_x = static_cast<int>(m_headPosition.m_x);
+		m_position.m_x -= s_moveSpeed;
+		m_spriteInfo.m_bodyNodes.front()->m_position.m_x = static_cast<int>(m_position.m_x);
 	}
 	break;
 	case Enums::Direction::Right:
 	{
-		m_headPosition.m_x += s_moveSpeed;
-		m_spriteInfo.m_bodyNodes.front()->m_position.m_x = static_cast<int>(m_headPosition.m_x);
+		m_position.m_x += s_moveSpeed;
+		m_spriteInfo.m_bodyNodes.front()->m_position.m_x = static_cast<int>(m_position.m_x);
 	}
 	break;
 	case Enums::Direction::Up:
 	{
-		m_headPosition.m_y -= s_moveSpeed;
-		m_spriteInfo.m_bodyNodes.front()->m_position.m_y = static_cast<int>(m_headPosition.m_y);
+		m_position.m_y -= s_moveSpeed;
+		m_spriteInfo.m_bodyNodes.front()->m_position.m_y = static_cast<int>(m_position.m_y);
 	}
 	break;
 	}
