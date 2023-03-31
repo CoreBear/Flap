@@ -7,7 +7,8 @@ class Food final : public SceneObject
 {
 public:
 	// Initialization
-	Food() : SceneObject(Enums::ObjectType::Food) { return; }
+	// NOTE/WARNING: Allocated memory is destroyed in the SceneObject destructor
+	Food() : SceneObject(new Structure::CollisionRenderInfo(Enums::ObjectType::Food, m_position)) { return; }
 
 	// Functionality
 	void Collision(const SceneObject& _otherCollidingObject) final;

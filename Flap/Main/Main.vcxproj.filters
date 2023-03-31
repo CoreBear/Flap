@@ -33,9 +33,6 @@
     <ClCompile Include="NetworkManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RenderManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,13 +42,7 @@
     <ClCompile Include="SharedMemory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Bird.cpp">
-      <Filter>Source Files\Object</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectManager.cpp">
-      <Filter>Source Files\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderObject.cpp">
       <Filter>Source Files\Object</Filter>
     </ClCompile>
     <ClCompile Include="SceneObject.cpp">
@@ -66,6 +57,18 @@
     <ClCompile Include="InputReceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Avatar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Food.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Snake.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionRenderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputManager.h">
@@ -75,9 +78,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NetworkManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Consts.h">
@@ -101,12 +101,6 @@
     <ClInclude Include="Structure.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
-    <ClInclude Include="Bird.h">
-      <Filter>Header Files\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderObject.h">
-      <Filter>Header Files\Object</Filter>
-    </ClInclude>
     <ClInclude Include="Enums.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
@@ -117,6 +111,18 @@
       <Filter>Header Files\Global</Filter>
     </ClInclude>
     <ClInclude Include="InputReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Avatar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Food.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Snake.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionRenderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

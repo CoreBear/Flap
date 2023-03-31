@@ -6,12 +6,20 @@
 #include "SceneObject.h"
 #include "Structure.h"
 
+#include <list>
+
 class Snake : public SceneObject
 {
 public:
+	// Member Variables
+	std::list<Structure::Vector2<int>> m_listOfBodyPositions;
+	std::list<Structure::Vector2<int>>::iterator m_headTraversingIterator;
+	std::list<Structure::Vector2<int>>::iterator m_tailTraversingIterator;
+	std::list<Structure::Vector2<int>>::iterator m_tailIterator;
+
 	// Initialization
 	void Initialize(const Structure::Generic& _genericContainer) override;
-	Snake() : SceneObject(Enums::ObjectType::Snake), m_currentDirection(Enums::Direction::NA), m_newDirection(Enums::Direction::NA) { return; }
+	Snake();
 
 	// Updates
 	void FixedUpdate() override final;
@@ -32,10 +40,13 @@ private:
 	// Static Variables
 	Enums::Direction m_currentDirection;
 	Enums::Direction m_newDirection;
+	Structure::Vector2<int> m_newBodyPosition;
+	Structure::Vector2<float> m_realHeadPosition;
 	const static Structure::Vector2<float> s_velocity;
 
 	// Functionality
-	void HandleTurn();
+	void AddTail();
+	void HandleInput();
 	void Move();
 };
 

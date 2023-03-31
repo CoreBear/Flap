@@ -16,6 +16,7 @@ CollisionRenderManager::CollisionRenderManager(HANDLE& _windowHandle, SharedMemo
 	m_writeSpritesIntoBuffer(false),
 	mp_bufferCell(nullptr),
 	mp_bufferSwapper(nullptr),
+	m_snakeCollisionRenderInfo(nullptr),
 	mp_windowHandle(&_windowHandle), 
 	m_bufferSize(_bufferSize.m_x * _bufferSize.m_y),
 	m_reusableIterator(Consts::NO_VALUE), 
@@ -167,17 +168,31 @@ void CollisionRenderManager::Update()
 #pragma region Private Functionality
 void CollisionRenderManager::WriteIntoBuffer(const Structure::CollisionRenderInfo& _collisionRenderInfo)
 {
-	// For each node
-	for (m_nodeIterator = _collisionRenderInfo.m_nodes.begin(); m_nodeIterator != _collisionRenderInfo.m_nodes.end(); ++m_nodeIterator)
+	if (_collisionRenderInfo.m_objectType == Enums::ObjectType::Food)
 	{
-		// Write node into buffer
+		// Store the memory address of the cell that's being updated
+		mp_bufferCell = &mp_bufferForWriting[(_collisionRenderInfo.mr_position.m_y * m_screenBufferCR.X) + _collisionRenderInfo.mr_position.m_x];
+
+		// Write into buffer
 		WriteIntoBufferCell(_collisionRenderInfo);
+	}
+	else
+	{
+		m_snakeCollisionRenderInfo = dynamic_cast<const Structure::SnakeCollisionRenderInfo*>(&_collisionRenderInfo);
+
+		// For each node
+		for (m_positionIterator = m_snakeCollisionRenderInfo->mr_listOfBodyPositions.begin(); m_positionIterator != m_snakeCollisionRenderInfo->mr_listOfBodyPositions.end(); ++m_positionIterator)
+		{
+			// Store the memory address of the cell that's being updated
+			mp_bufferCell = &mp_bufferForWriting[(m_positionIterator->m_y * m_screenBufferCR.X) + m_positionIterator->m_x];
+
+			// Write into buffer
+			WriteIntoBufferCell(_collisionRenderInfo);
+		}
 	}
 }
 void CollisionRenderManager::WriteIntoBufferCell(const Structure::CollisionRenderInfo& _collisionRenderInfo)
 {
-	mp_bufferCell = &mp_bufferForWriting[((*m_nodeIterator)->m_position.m_y * m_screenBufferCR.X) + (*m_nodeIterator)->m_position.m_x];
-	
 	mp_bufferCell->m_objectsInCellIterators[mp_bufferCell->m_objectInCellIndex++] = mp_sharedMemory->m_collisionRenderIterator;
 
 	// What is currently in the cell

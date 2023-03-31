@@ -14,7 +14,7 @@ public:
 
 	// Initialization
 	virtual void Initialize(const Structure::Generic& _genericContainer);
-	SceneObject(Enums::ObjectType _objectType);
+	SceneObject(Structure::CollisionRenderInfo* _collisionRenderInfo);
 
 	// Updates
 	virtual void FixedUpdate() { return; }
@@ -22,20 +22,22 @@ public:
 
 	// Functionality
 	virtual void Collision(const SceneObject& _otherCollidingObject) = 0;
-	inline const Structure::CollisionRenderInfo& GetCollisionRenderInfoRef() const { return m_collisionRenderInfo; }
+	inline const Structure::CollisionRenderInfo& GetCollisionRenderInfoRef() const { return *mp_collisionRenderInfo; }
 	inline bool IsActive() { return m_isActive; }
 	void SetPosition(const Structure::Vector2<int>& _position);
 
 	// Destruction
 	virtual void Denitialize();
+	~SceneObject() { delete mp_collisionRenderInfo; }
 
 protected:
 	// Static Variables
 	static ObjectManager* sp_objectManager;
 
 	// Member Variables
-	Structure::CollisionRenderInfo m_collisionRenderInfo;
-	Structure::Vector2<float> m_realPosition;
+	Structure::CollisionRenderInfo* mp_collisionRenderInfo;
+	Structure::Vector2<float> m_realPosition;					// The object's real position, not contained to the cells
+	Structure::Vector2<int> m_position;							// The object's cellular position, which is referenced in the CollisionRenderInfo (e.g. Snake's head, food's position)
 
 private:
 	// Member Variables
