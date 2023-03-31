@@ -4,7 +4,7 @@
 #include "Manager.h"
 #include "NetworkManager.h"
 #include "ObjectManager.h"
-#include "RenderManager.h"
+#include "CollisionRenderManager.h"
 #include "SceneManager.h"
 #include "SharedMemory.h"
 #include "Structure.h"
@@ -34,7 +34,7 @@ int main()
 
 	SharedMemory sharedMemory;
 
-	enum class ManagerType { Input, Network, Render, Scene, NumberOfTypes };
+	enum class ManagerType { CollisionRender, Input, Network, Scene, NumberOfTypes };
 
 	// Generate managers
 	Manager** managers = new Manager * [static_cast<int>(ManagerType::NumberOfTypes)]
@@ -42,9 +42,9 @@ int main()
 		// NOTE/WARNING: windowHandle is not being used in InputManager
 		// because this instance was retrieved before the window was active.
 		// Leaving this here for posterity
+		new CollisionRenderManager(windowHandle, sharedMemory, bufferSizeCR),
 		new InputManager(windowHandle, sharedMemory),
 		new NetworkManager(),
-		new RenderManager(windowHandle, sharedMemory, bufferSizeCR),
 		new SceneManager(sharedMemory)
 	};
 

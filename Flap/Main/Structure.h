@@ -12,12 +12,6 @@ namespace Structure
 	{
 
 	};
-	struct Input
-	{
-	public:
-		Enums::InputPressState m_inputPressState;
-		int m_inputIndex;;
-	};
 	template<typename T> struct Vector2
 	{
 	public:
@@ -30,102 +24,98 @@ namespace Structure
 		Vector2() : m_normalizationResult(Consts::NO_VALUE_F), m_x(Consts::NO_VALUE), m_y(Consts::NO_VALUE) { return; }
 		Vector2(T _x, T _y) : m_normalizationResult(Consts::NO_VALUE_F), m_x(_x), m_y(_y) { return; }
 	};
-	struct SpriteInfo
+	class CollisionRenderInfo final
 	{
 	public:
 		// Container
-		struct BodyNode
+		struct Node
 		{
 		public:
 			// Member Variables
-			Enums::Direction m_directionToNextPosition;
-			int m_numberOfConnectorsToNextNode;
-			Vector2<int> m_position;
+			const Node* m_previous;
+			Structure::Vector2<int> m_position;
 
 			// Initialization
-			BodyNode() : // Used for the head
-				m_directionToNextPosition(Enums::Direction::NA), 
-				m_numberOfConnectorsToNextNode(Consts::NO_VALUE)
+			Node() : m_previous(nullptr)
 			{
 				m_position.m_x = Consts::NO_VALUE;
 				m_position.m_y = Consts::NO_VALUE;
 			}
-			BodyNode(int _x, int _y) :	// Used for a kink/link/turn
-				m_directionToNextPosition(Enums::Direction::NA),
-				m_numberOfConnectorsToNextNode(Consts::NO_VALUE)
+			Node(const Node* _previous) : m_previous(_previous)
 			{
-				m_position.m_x = _x;
-				m_position.m_y = _y;
+				m_position.m_x = Consts::NO_VALUE;
+				m_position.m_y = Consts::NO_VALUE;
 			}
 		};
 
 		// Member Variables
+		std::list<Node*> m_nodes;
+		Enums::ObjectType m_objectType;
 		short m_color;
-		std::list<BodyNode*> m_bodyNodes;
-		std::list<BodyNode*>::const_iterator m_lastNode;
 
 		// Initialization
-		SpriteInfo() : m_color(10)
+		CollisionRenderInfo(Enums::ObjectType _objectType) : m_objectType(_objectType), m_color(10)
 		{
 			// Create new head
-			m_bodyNodes.push_back(new BodyNode);
+			m_nodes.push_back(new Node);
+
+			// It's also the new tail
+			m_tailIterator = m_nodes.begin();
+		}
+
+		// Updates
+		void UpdatePosition(const Vector2<float>& _position)
+		{
+			m_convertedPosition.m_x = static_cast<int>(_position.m_x);
+			m_convertedPosition.m_y = static_cast<int>(_position.m_y);
+
+			UpdatePosition(m_convertedPosition);
+		}
+		void UpdatePosition(const Vector2<int>& _position)
+		{
+			// Starting from the tail, forward
+			for (m_nodeIterator = m_tailIterator; m_nodeIterator != m_nodes.begin(); --m_nodeIterator)
+			{
+				// Next position is previous node's current position
+				(*m_nodeIterator)->m_position = (*m_nodeIterator)->m_previous->m_position;
+			}
+
+			// Update first node's position
+			(*m_nodeIterator)->m_position.m_x = _position.m_x;
+			(*m_nodeIterator)->m_position.m_y = _position.m_y;
 		}
 
 		// Functionality
-		void AddNewBodyNode(BodyNode& _bodyNode)
+		void AddTail()
 		{
-			m_lastNode = m_bodyNodes.end();
+			// Create new tail
+			m_nodes.push_back(new Node(*m_tailIterator));
 
-			_bodyNode.m_numberOfConnectorsToNextNode = _bodyNode.m_position.m_x - (*m_lastNode)->m_position.m_x;
-
-			// If no differences on the x-axis
-			if (_bodyNode.m_numberOfConnectorsToNextNode == Consts::NO_VALUE)
-			{
-				// Then it's a difference on the y-axis
-				_bodyNode.m_numberOfConnectorsToNextNode = _bodyNode.m_position.m_y - (*m_lastNode)->m_position.m_y;
-
-				// If value is negative
-				if (_bodyNode.m_numberOfConnectorsToNextNode < Consts::NO_VALUE)
-				{
-					_bodyNode.m_directionToNextPosition = Enums::Direction::Up;
-					_bodyNode.m_numberOfConnectorsToNextNode = -_bodyNode.m_numberOfConnectorsToNextNode;
-				}
-
-				// If value is positive
-				else
-				{
-					_bodyNode.m_directionToNextPosition = Enums::Direction::Down;
-				}
-			}
-			else
-			{
-
-				// If value is negative
-				if (_bodyNode.m_numberOfConnectorsToNextNode < Consts::NO_VALUE)
-				{
-					_bodyNode.m_directionToNextPosition = Enums::Direction::Left;
-					_bodyNode.m_numberOfConnectorsToNextNode = -_bodyNode.m_numberOfConnectorsToNextNode;
-				}
-
-				// If value is positive
-				else
-				{
-					_bodyNode.m_directionToNextPosition = Enums::Direction::Right;
-				}
-			}
-
-			m_bodyNodes.push_back(&_bodyNode);
+			// Move iterator back to it
+			++m_tailIterator;
 		}
 
 		// Destruction
-		~SpriteInfo()
+		~CollisionRenderInfo()
 		{
-			while (m_bodyNodes.empty() == false)
+			while (m_nodes.empty() == false)
 			{
-				delete m_bodyNodes.front();
-				m_bodyNodes.pop_front();
+				delete m_nodes.front();
+				m_nodes.pop_front();
 			}
 		}
+
+	private:
+		// Member Variables
+		std::list<Node*>::iterator m_nodeIterator;
+		std::list<Node*>::iterator m_tailIterator;
+		Structure::Vector2<int> m_convertedPosition;
+	};
+	struct Input
+	{
+	public:
+		Enums::InputPressState m_inputPressState;
+		int m_inputIndex;;
 	};
 }
 

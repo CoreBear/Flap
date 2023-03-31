@@ -7,7 +7,7 @@
 #pragma region Static Initialization
 ObjectManager* SceneObject::sp_objectManager = nullptr;
 
-SceneObject::SceneObject()
+SceneObject::SceneObject(Enums::ObjectType _objectType) : m_collisionRenderInfo(_objectType)
 {
 	m_isActive = false;
 }
@@ -25,11 +25,10 @@ void SceneObject::Initialize(const Structure::Generic& _genericContainer)
 #pragma region Public Functionality
 void SceneObject::SetPosition(const Structure::Vector2<int>& _position)
 {
-	m_position.m_x = static_cast<float>(_position.m_x);
-	m_position.m_y = static_cast<float>(_position.m_y);
+	m_realPosition.m_x = static_cast<float>(_position.m_x);
+	m_realPosition.m_y = static_cast<float>(_position.m_y);
 
-	m_spriteInfo.m_bodyNodes.front()->m_position.m_x = static_cast<int>(m_position.m_x);
-	m_spriteInfo.m_bodyNodes.front()->m_position.m_y = static_cast<int>(m_position.m_y);
+	m_collisionRenderInfo.UpdatePosition(_position);
 }
 #pragma endregion
 

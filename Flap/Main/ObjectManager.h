@@ -40,14 +40,14 @@ private:
 
 	// HACK: Initialize with values
 	std::list<SceneObject*> m_sceneObjectsList;
-	std::list<SceneObject*>::iterator m_sceneObjectsOtherUpdatesIterator;
-	std::list<SceneObject*>::iterator& mr_sceneObjectsFixedUpdateIterator;
+	std::list<SceneObject*>::const_iterator m_sceneObjectsOtherUpdatesIterator;
+	std::list<SceneObject*>::const_iterator& mr_sceneObjectsFixedUpdateIterator;
 
 	// HACK: Initialize with values
 	std::queue<SceneObject*> m_addToSceneObjects;
 	std::queue<SceneObject*> m_removeFromSceneObjects;
 	SceneObject*** mpp_pooledObject;
 	SharedMemory* mp_sharedMemory;
-	std::unique_lock<std::mutex> m_renderIteratorUniqueLock;
+	std::unique_lock<std::mutex> m_collisionRenderIteratorUniqueLock;
 };
 #endif OBJECT_MANAGER_H

@@ -5,13 +5,16 @@
 
 namespace Consts
 {
+	// Chars
+	constexpr char EMPTY_SPACE_CHAR = ' ';
+
 	// Floats
 	constexpr float GRAVITY_FORCE_F = 2.0F;// 9.8F;
 	constexpr float MULTIPLICATIVE_HALF_F = 0.5F;
 	constexpr float NO_VALUE_F = 0.0F;
 
 	// Ints
-	constexpr int FPS_TARGET = 10;
+	constexpr int FPS_TARGET = 60;
 	constexpr int MAX_NUMBER_OF_PLAYERS = 2;
 	constexpr int NO_VALUE = 0;
 	constexpr int NUMBER_OF_INPUTS = 4;

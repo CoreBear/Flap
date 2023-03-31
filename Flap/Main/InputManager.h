@@ -25,12 +25,12 @@ public:
 
 private:
 	// Member Variables
+	bool m_inputMatched;
 	DWORD m_bufferLength;
 	HANDLE m_windowHandle;
 	Structure::Input m_newInput;
-	INPUT_RECORD m_inputRecords[UCHAR_MAX];
+	INPUT_RECORD m_inputRecords[Consts::MAX_NUMBER_OF_PLAYERS * Consts::NUMBER_OF_INPUTS];
 	Enums::InputPressState** mpp_inputPressStates;
-	bool m_inputMatched;
 	int m_numberOfEventsRead;
 	int m_reusableIterator_1;
 	int m_reusableIterator_2;

@@ -9,8 +9,8 @@
 #pragma region Initialization
 InputManager::InputManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory) :
 	m_inputMatched(false),
-	m_bufferLength(sizeof(INPUT_RECORD) * UCHAR_MAX),
 	m_windowHandle(GetStdHandle(STD_INPUT_HANDLE)),
+	m_bufferLength(Consts::MAX_NUMBER_OF_PLAYERS* Consts::NUMBER_OF_INPUTS),
 	mpp_inputPressStates(new Enums::InputPressState*[Consts::MAX_NUMBER_OF_PLAYERS]),
 	m_numberOfEventsRead(Consts::NO_VALUE),
 	m_reusableIterator_1(Consts::NO_VALUE),
@@ -38,6 +38,9 @@ void InputManager::Update()
 {
 	//https://learn.microsoft.com/en-us/windows/console/readconsoleinput
 	// NOTE: If this returns 0, error occurred
+	//ReadConsoleInput(m_windowHandle, m_inputRecords, m_bufferLength, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
+
+	// Read input
 	ReadConsoleInput(m_windowHandle, m_inputRecords, m_bufferLength, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
 
 	// For each record
@@ -96,9 +99,9 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 				mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Held;
 			}
 		}
-		// NOTE/WARNING: Notice this return! Dead frames shouldn't be enqueues
 		return;
 		
+		// NOTE/WARNING: Notice this return! Dead frames shouldn't be enqueues
 		case Enums::InputPressState::PressedThisFrame:
 		{
 			mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Dead;

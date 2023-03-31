@@ -1,17 +1,4 @@
-﻿  Avatar.cpp
-  Food.cpp
-  GameManager.cpp
-  InputReceiver.cpp
-  SharedMemory.cpp
-  Snake.cpp
+﻿  GameManager.cpp
   InputManager.cpp
-  ObjectManager.cpp
-  RenderManager.cpp
-  SceneManager.cpp
-C:\Flap\Flap\Main\SceneManager.cpp(33,24): warning C4267: '=': conversion from 'size_t' to 'T', possible loss of data
-          with
-          [
-              T=int
-          ]
   Generating Code...
-C:\Flap\Flap\Main\Avatar.cpp : fatal  error C1090: PDB API call failed, error code '3': C:\Flap\Flap\Main\x64\Debug\vc143.pdb
+  Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe

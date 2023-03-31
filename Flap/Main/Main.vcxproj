@@ -137,7 +137,7 @@
     <ClCompile Include="NetworkManager.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="OverlayManager.cpp" />
-    <ClCompile Include="RenderManager.cpp" />
+    <ClCompile Include="CollisionRenderManager.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="Tools.cpp" />
@@ -157,8 +157,7 @@
     <ClInclude Include="NetworkManager.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="OverlayManager.h" />
-    <ClInclude Include="RenderManager.h" />
-    <ClInclude Include="RenderObject.h" />
+    <ClInclude Include="CollisionRenderManager.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="Tools.h" />
