@@ -7,10 +7,10 @@
 #pragma endregion
 
 #pragma region Initialization
-InputManager::InputManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory) :
+InputManager::InputManager(SharedMemory& _sharedMemory) :
 	m_inputMatched(false),
-	m_windowHandle(GetStdHandle(STD_INPUT_HANDLE)),
-	m_bufferLength(Consts::MAX_NUMBER_OF_PLAYERS* Consts::NUMBER_OF_INPUTS),
+	m_bufferLength(Consts::MAX_NUMBER_OF_PLAYERS * Consts::NUMBER_OF_INPUTS),
+	m_inputWindowHandle(GetStdHandle(STD_INPUT_HANDLE)),
 	mpp_inputPressStates(new Enums::InputPressState*[Consts::MAX_NUMBER_OF_PLAYERS]),
 	m_numberOfEventsRead(Consts::NO_VALUE),
 	m_reusableIterator_1(Consts::NO_VALUE),
@@ -41,7 +41,7 @@ void InputManager::Update()
 	//ReadConsoleInput(m_windowHandle, m_inputRecords, m_bufferLength, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
 
 	// Read input
-	ReadConsoleInput(m_windowHandle, m_inputRecords, m_bufferLength, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
+	ReadConsoleInput(m_inputWindowHandle, m_inputRecords, m_bufferLength, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
 
 	// For each record
 	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < m_numberOfEventsRead; m_reusableIterator_1++)
@@ -94,7 +94,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		break;
 		case Enums::InputPressState::Dead:
 		{
-			if (SceneManager::s_simFrameCount >= mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3])
+			if (SceneManager::s_fixedFrameCount == mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3])
 			{
 				mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Held;
 			}
@@ -108,7 +108,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 
 			// Arbitrary value, represents click-to-hold number of frames
 			const unsigned int NUMBER_OF_DEAD_FRAMES = 15;
-			mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3] = SceneManager::s_simFrameCount + NUMBER_OF_DEAD_FRAMES;
+			mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3] = SceneManager::s_fixedFrameCount + NUMBER_OF_DEAD_FRAMES;
 		}
 		break;
 		}

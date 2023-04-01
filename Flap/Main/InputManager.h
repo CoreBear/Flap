@@ -7,6 +7,7 @@
 
 #include <mutex>
 #include <queue>
+
 #include <Windows.h>
 
 class SharedMemory;
@@ -15,7 +16,7 @@ class InputManager final : public Manager
 {
 public:
 	// Initialization
-	InputManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory);
+	InputManager(SharedMemory& _sharedMemory);
 		
 	// Updates
 	void Update() override;
@@ -24,10 +25,13 @@ public:
 	~InputManager() override;
 
 private:
+	// Static Variables
+	static constexpr unsigned int NUMBER_OF_DEAD_FRAMES = 15;		// Arbitrary value, represents click-to-hold number of frames
+	
 	// Member Variables
 	bool m_inputMatched;
 	DWORD m_bufferLength;
-	HANDLE m_windowHandle;
+	const HANDLE m_inputWindowHandle;
 	Structure::Input m_newInput;
 	INPUT_RECORD m_inputRecords[Consts::MAX_NUMBER_OF_PLAYERS * Consts::NUMBER_OF_INPUTS];
 	Enums::InputPressState** mpp_inputPressStates;

@@ -20,19 +20,19 @@ static bool gs_applicationIsRunning;
 
 #pragma region Prototypes
 void ManagerThreadEntry(int _threadIndex, Manager** const _managers);
-void SetupConsole(Structure::Vector2<int>& _bufferSizeCR, HANDLE& _windowHandle);
+void SetupConsole(HANDLE& _outputWindowHandle, Structure::Vector2& _bufferSizeCR);
 #pragma endregion
 
 int main()
 {
 	gs_applicationIsRunning = true;
 	
-	HANDLE windowHandle;
-	Structure::Vector2<int> bufferSizeCR;
+	HANDLE outputWindowHandle;
+	Structure::Vector2 bufferSizeCR;
 
-	SetupConsole(bufferSizeCR, windowHandle);
+	SetupConsole(outputWindowHandle, bufferSizeCR);
 
-	SharedMemory sharedMemory;
+	SharedMemory sharedMemory(bufferSizeCR);
 
 	enum class ManagerType { CollisionRender, Input, Network, Scene, NumberOfTypes };
 
@@ -42,13 +42,13 @@ int main()
 		// NOTE/WARNING: windowHandle is not being used in InputManager
 		// because this instance was retrieved before the window was active.
 		// Leaving this here for posterity
-		new CollisionRenderManager(windowHandle, sharedMemory, bufferSizeCR),
-		new InputManager(windowHandle, sharedMemory),
+		new CollisionRenderManager(outputWindowHandle, sharedMemory, bufferSizeCR),
+		new InputManager(sharedMemory),
 		new NetworkManager(),
 		new SceneManager(sharedMemory)
 	};
 
-	// Generate manager handles
+	// Generate manager threads
 	std::thread managerThreads[static_cast<int>(ManagerType::NumberOfTypes)];
 
 	// Start manager threads
@@ -81,7 +81,7 @@ void ManagerThreadEntry(int _threadIndex, Manager** const _managers)
 		_managers[_threadIndex]->Update();
 	}
 }
-void SetupConsole(Structure::Vector2<int>& _bufferSizeCR, HANDLE& _windowHandle)
+void SetupConsole(HANDLE& _outputWindowHandle, Structure::Vector2& _bufferSizeCR)
 {
 	// https://learn.microsoft.com/en-us/windows/console/console-functions
 
@@ -89,9 +89,10 @@ void SetupConsole(Structure::Vector2<int>& _bufferSizeCR, HANDLE& _windowHandle)
 	HWND consoleWindow = GetConsoleWindow();
 	SetWindowPos(consoleWindow, 0, -8, -1, 0, 0, SWP_SHOWWINDOW);
 
+	_outputWindowHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
 	// Generate max buffer and screen size
-	_windowHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-	COORD largestBufferSizeCR = GetLargestConsoleWindowSize(_windowHandle);
+	COORD largestBufferSizeCR = GetLargestConsoleWindowSize(_outputWindowHandle);
 	SMALL_RECT windowRect
 	{
 		static_cast<SHORT>(Consts::NO_VALUE),
@@ -99,8 +100,8 @@ void SetupConsole(Structure::Vector2<int>& _bufferSizeCR, HANDLE& _windowHandle)
 		static_cast<SHORT>(largestBufferSizeCR.X - Consts::OFF_BY_ONE),
 		static_cast<SHORT>(largestBufferSizeCR.Y - Consts::OFF_BY_ONE)
 	};
-	SetConsoleScreenBufferSize(_windowHandle, largestBufferSizeCR);
-	SetConsoleWindowInfo(_windowHandle, true, &windowRect);
+	SetConsoleScreenBufferSize(_outputWindowHandle, largestBufferSizeCR);
+	SetConsoleWindowInfo(_outputWindowHandle, true, &windowRect);
 
 	_bufferSizeCR.m_x = largestBufferSizeCR.X;
 	_bufferSizeCR.m_y = largestBufferSizeCR.Y;
@@ -116,8 +117,8 @@ void SetupConsole(Structure::Vector2<int>& _bufferSizeCR, HANDLE& _windowHandle)
 	// Hides cursor
 	{
 		CONSOLE_CURSOR_INFO cci;
-		GetConsoleCursorInfo(_windowHandle, &cci);
+		GetConsoleCursorInfo(_outputWindowHandle, &cci);
 		cci.bVisible = false;
-		SetConsoleCursorInfo(_windowHandle, &cci);
+		SetConsoleCursorInfo(_outputWindowHandle, &cci);
 	}
 }

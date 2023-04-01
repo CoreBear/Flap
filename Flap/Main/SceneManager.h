@@ -13,7 +13,7 @@ class SceneManager final : public Manager
 {
 public:
 	// Static Variables
-	static unsigned int s_simFrameCount;
+	static unsigned int s_fixedFrameCount;
 
 	// Initialization
 	SceneManager(SharedMemory& _sharedMemory);

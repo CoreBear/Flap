@@ -11,7 +11,7 @@
 #include "Structure.h"
 
 #pragma region Initialization
-unsigned int SceneManager::s_simFrameCount = Consts::NO_VALUE;
+unsigned int SceneManager::s_fixedFrameCount = Consts::NO_VALUE;
 
 SceneManager::SceneManager(SharedMemory& _sharedMemory) : mp_sharedMemory(&_sharedMemory), m_sceneType(SceneType::Game)
 {
@@ -22,27 +22,32 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) : mp_sharedMemory(&_shar
 
 	// HACK:
 	{
-		Structure::Vector2<int> position;
-		position.m_x = 0;
-		position.m_y = 0;
-
 		Structure::Generic g;
+		Structure::Vector2 position;
 
-		for (size_t i = 0; i < 1; i++)
+		// Spawn snake(s)
 		{
-			position.m_x = i * 4;
-			mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, position, g);
+			position.m_x = 0;
+			position.m_y = 0;
+
+			g.m_int = 10;
+
+			for (size_t i = 0; i < 1; i++)
+			{
+				position.m_x = i * 4;
+				mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, position, g);
+			}
 		}
 
-		position.m_x = 20;
-		position.m_y = 20;
-		mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, g);
-
-		/*for (size_t i = 0; i < 2; i++)
+		// Spawn food(s)
 		{
-			position.m_x = (i + 1) * 15;
-			mp_objectManager->SpawnObject(Enums::ObjectType::Snake, position, g);
-		}*/
+			position.m_x = 10;
+			position.m_y = 10;
+
+			g.m_int = 2;
+
+			mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, g);
+		}
 	}
 }
 #pragma endregion
@@ -69,7 +74,7 @@ void SceneManager::Update()
 		m_lastTime = m_currentTime;
 
 		// Update counter
-		++s_simFrameCount;
+		++s_fixedFrameCount;
 
 		if (m_sceneType == SceneType::Game)
 		{

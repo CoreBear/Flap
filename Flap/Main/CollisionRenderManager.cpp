@@ -11,17 +11,17 @@
 #pragma endregion
 
 #pragma region Initialization
-CollisionRenderManager::CollisionRenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory, const Structure::Vector2<int>& _bufferSize) :
+CollisionRenderManager::CollisionRenderManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory, const Structure::Vector2& _bufferSize) :
 	m_frameWritingIsComplete(false),
 	m_writeSpritesIntoBuffer(false),
 	mp_bufferCell(nullptr),
 	mp_bufferSwapper(nullptr),
-	m_snakeCollisionRenderInfo(nullptr),
-	mp_windowHandle(&_windowHandle), 
+	mr_outputWindowHandle(_outputWindowHandle),
 	m_bufferSize(_bufferSize.m_x * _bufferSize.m_y),
 	m_reusableIterator(Consts::NO_VALUE), 
 	mr_nullIterator(_sharedMemory.GetNullIteratorRef()),
 	mp_sharedMemory(&_sharedMemory),
+	m_snakeCollisionRenderInfo(nullptr),
 	m_collisionRenderIteratorUniqueLock(_sharedMemory.GetCollisionRenderIteratorMutexRef())
 {
 	int numberOfWindowColumns = _bufferSize.m_x;
@@ -160,7 +160,7 @@ void CollisionRenderManager::Update()
 			}
 		}
 
-		WriteConsoleOutput(*mp_windowHandle, mp_textBuffer, m_screenBufferCR, m_topLeftCellCR, &m_writeRegionRect);
+		WriteConsoleOutput(mr_outputWindowHandle, mp_textBuffer, m_screenBufferCR, m_topLeftCellCR, &m_writeRegionRect);
 	}
 }
 #pragma endregion

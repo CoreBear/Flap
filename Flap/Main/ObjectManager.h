@@ -27,7 +27,7 @@ public:
 	// Functionality
 	inline void AddToSceneObjects(SceneObject* _sceneObject) { m_addToSceneObjects.push(_sceneObject); }
 	inline void RemoveFromSceneObjects(SceneObject* _sceneObject) { m_removeFromSceneObjects.push(_sceneObject); }
-	void SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2<int>& _position, const Structure::Generic& _genericContainer);
+	void SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic& _genericContainer);
 
 	// Desturction
 	~ObjectManager();

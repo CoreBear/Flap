@@ -2,11 +2,7 @@
 #include "Snake.h"
 
 #include "Consts.h"
-#pragma endregion
-
-#pragma region Static Initialization
-// NOTE: This value will be the ratio of the window
-const Structure::Vector2<float> Snake::s_velocity(static_cast<float>(10 * Consts::FIXED_DELTA_TIME_F), static_cast<float>(7.5 * Consts::FIXED_DELTA_TIME_F));
+#include "SceneManager.h"
 #pragma endregion
 
 #pragma region Initialization
@@ -16,16 +12,18 @@ void Snake::Initialize(const Structure::Generic& _genericContainer)
 
 	m_currentDirection = Enums::Direction::NA;
 	m_newDirection = Enums::Direction::NA;
+
+	UpdateMoveSpeed(_genericContainer.m_int);
 }
 Snake::Snake() : 
 	// NOTE/WARNING: Allocated memory is destroyed in the SceneObject destructor
-	SceneObject(dynamic_cast<Structure::CollisionRenderInfo*>(new Structure::SnakeCollisionRenderInfo(m_listOfBodyPositions, Enums::ObjectType::Snake, m_position))), 
+	SceneObject(dynamic_cast<Structure::CollisionRenderInfo*>(new Structure::SnakeCollisionRenderInfo(m_listOfBodyPositions, Enums::ObjectType::Snake, m_position)), nullptr), 
 	m_currentDirection(Enums::Direction::NA), 
 	m_newDirection(Enums::Direction::NA), 
-	m_realHeadPosition(Consts::NO_VALUE_F, Consts::NO_VALUE_F)
+	m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
 {
-	// Create new head
-	m_listOfBodyPositions.push_back(m_newBodyPosition);
+	// Create head
+	m_listOfBodyPositions.push_back(m_newTailPosition);
 
 	// It's also the new tail
 	m_tailIterator = m_listOfBodyPositions.begin();
@@ -37,26 +35,53 @@ void Snake::FixedUpdate()
 {
 	HandleInput();
 
-	Move();
+	// If movement frame
+	if (SceneManager::s_fixedFrameCount == m_moveTargetFrame)
+	{
+		// Reset movement target
+		m_moveTargetFrame = SceneManager::s_fixedFrameCount + m_numberOfFramesPerCell;
+
+		// If a tail should be added
+		if (m_numberOfTailSectionsToAdd > Consts::NO_VALUE)
+		{
+			// Add tail
+			m_listOfBodyPositions.push_back(m_newTailPosition);
+
+			// Move iterator to this new tail
+			++m_tailIterator;
+
+			// Account for this tail's addition
+			--m_numberOfTailSectionsToAdd;
+
+			// Set new tail position, in-case another tail needs to be added
+			m_newTailPosition.m_x = m_tailIterator->m_x;
+			m_newTailPosition.m_y = m_tailIterator->m_y;
+		}
+
+		Move();
+	}
 }
 #pragma endregion
 
 #pragma region Public Functionality
 void Snake::Collision(const SceneObject& _otherCollidingObject)
 {
-	int h = 0;
+	mp_collisionPackage = _otherCollidingObject.GetCollisionPackagePtr();
+
+	if (mp_collisionPackage != nullptr)
+	{
+		if (mp_collisionPackage->m_objectType == Enums::ObjectType::Food)
+		{
+			m_numberOfTailSectionsToAdd = mp_collisionPackage->m_int;
+			
+			m_newTailPosition.m_x = m_tailIterator->m_x;
+			m_newTailPosition.m_y = m_tailIterator->m_y;
+		}
+	}
 }
 #pragma endregion
 
 #pragma region Private Functionality
-void Snake::AddTail()
-{
-	// Create new tail
-	m_listOfBodyPositions.push_back(*m_tailIterator);
-
-	// Move iterator back to it
-	++m_tailIterator;
-}
 void Snake::HandleInput()
 {
 	switch (m_currentDirection)
@@ -70,10 +95,7 @@ void Snake::HandleInput()
 		{
 		case Enums::Direction::Left:
 		case Enums::Direction::Right:
-		{
-			// Change direction
-			m_currentDirection = m_newDirection;
-		}
+			HorizontalTurn();
 		break;
 		}
 	}
@@ -88,10 +110,7 @@ void Snake::HandleInput()
 		{
 		case Enums::Direction::Down:
 		case Enums::Direction::Up:
-		{
-			// Change direction
-			m_currentDirection = m_newDirection;
-		}
+			VerticalTurn();
 		break;
 		}
 	}
@@ -99,9 +118,32 @@ void Snake::HandleInput()
 
 	// If not currently moving (game just started), change direction
 	default:
-		m_currentDirection = m_newDirection;
+	{
+		switch (m_newDirection)
+		{
+		case Enums::Direction::Down:
+		case Enums::Direction::Up:
+			VerticalTurn();
+			break;
+		case Enums::Direction::Left:
+		case Enums::Direction::Right:
+			HorizontalTurn();
+			break;
+
+		// NOTE: No direction has been pressed
+		default:
+			break;
+		}
+	}
 		break;
 	}
+}
+void Snake::HorizontalTurn()
+{
+	// Store speed type
+	m_numberOfFramesPerCell = m_numberOfFramesPerCellHorizontal;
+
+	Turn();
 }
 void Snake::Move()
 {
@@ -109,16 +151,16 @@ void Snake::Move()
 	switch (m_currentDirection)
 	{
 	case Enums::Direction::Down:
-		m_realPosition.m_y += s_velocity.m_y;
+		++m_position.m_y;
 		break;
 	case Enums::Direction::Left:
-		m_realPosition.m_x -= s_velocity.m_x;
+		--m_position.m_x;
 		break;
 	case Enums::Direction::Right:
-		m_realPosition.m_x += s_velocity.m_x;
+		++m_position.m_x;
 		break;
 	case Enums::Direction::Up:
-		m_realPosition.m_y -= s_velocity.m_y;
+		--m_position.m_y;
 		break;
 
 		// NOTE: Notice the snake will not move due to the return
@@ -141,13 +183,36 @@ void Snake::Move()
 			(*m_tailTraversingIterator).m_x = (*m_headTraversingIterator).m_x;
 			(*m_tailTraversingIterator).m_y = (*m_headTraversingIterator).m_y;
 		}
+
+		// Move the position closer to the tail, to the position closer to the head
+		(*m_tailTraversingIterator).m_x = (*m_headTraversingIterator).m_x;
+		(*m_tailTraversingIterator).m_y = (*m_headTraversingIterator).m_y;
 	}
 
 	// Update first (head) position
-	(*m_headTraversingIterator).m_x = m_realPosition.m_x;
-	(*m_headTraversingIterator).m_y = m_realPosition.m_y;
+	(*m_headTraversingIterator).m_x = m_position.m_x;
+	(*m_headTraversingIterator).m_y = m_position.m_y;
+}
+void Snake::Turn()
+{
+	// Change direction
+	m_currentDirection = m_newDirection;
 
-	m_position.m_x = static_cast<int>(m_realHeadPosition.m_x);
-	m_position.m_y = static_cast<int>(m_realHeadPosition.m_y);
+	// Set speed
+	m_moveTargetFrame = SceneManager::s_fixedFrameCount + m_numberOfFramesPerCell;
+}
+void Snake::UpdateMoveSpeed(int _speed)
+{
+	m_numberOfFramesPerCellVertical = static_cast<unsigned int>(Consts::FPS_TARGET / _speed);
+
+	// HACK: Hardcoded...
+	m_numberOfFramesPerCellHorizontal = static_cast<unsigned int>(m_numberOfFramesPerCellVertical);// / 3.7F);
+}
+void Snake::VerticalTurn()
+{
+	// Store speed type
+	m_numberOfFramesPerCell = m_numberOfFramesPerCellVertical;
+
+	Turn();
 }
 #pragma endregion

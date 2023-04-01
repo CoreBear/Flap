@@ -127,7 +127,7 @@ void ObjectManager::Update()
 #pragma endregion
 
 #pragma region Public Functionality
-void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2<int>& _position, const Structure::Generic& _genericContainer)
+void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic& _genericContainer)
 {
 	m_numberOfObjectsPooledForThisType = mp_numberOfObjectsToPoolPerType[static_cast<int>(_objectType)];
 

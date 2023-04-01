@@ -1,20 +1,6 @@
-﻿  Snake.cpp
-C:\Flap\Flap\Main\Snake.cpp(147,50): warning C4244: '=': conversion from 'T' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-          and
-          [
-              T=int
-          ]
-C:\Flap\Flap\Main\Snake.cpp(148,50): warning C4244: '=': conversion from 'T' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-          and
-          [
-              T=int
-          ]
+﻿  GameManager.cpp
+  InputManager.cpp
+  SceneManager.cpp
+C:\Flap\Flap\Main\SceneManager.cpp(37,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  Generating Code...
   Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe

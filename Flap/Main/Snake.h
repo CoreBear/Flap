@@ -12,10 +12,10 @@ class Snake : public SceneObject
 {
 public:
 	// Member Variables
-	std::list<Structure::Vector2<int>> m_listOfBodyPositions;
-	std::list<Structure::Vector2<int>>::iterator m_headTraversingIterator;
-	std::list<Structure::Vector2<int>>::iterator m_tailTraversingIterator;
-	std::list<Structure::Vector2<int>>::iterator m_tailIterator;
+	std::list<Structure::Vector2> m_listOfBodyPositions;
+	std::list<Structure::Vector2>::iterator m_headTraversingIterator;
+	std::list<Structure::Vector2>::iterator m_tailTraversingIterator;
+	std::list<Structure::Vector2>::iterator m_tailIterator;
 
 	// Initialization
 	void Initialize(const Structure::Generic& _genericContainer) override;
@@ -31,23 +31,32 @@ protected:
 	// Member Variables
 
 	// Functionality
-	void BeginDown() { m_newDirection = Enums::Direction::Down; }
-	void BeginLeft() { m_newDirection = Enums::Direction::Left; }
-	void BeginRight() { m_newDirection = Enums::Direction::Right; }
-	void BeginUp() { m_newDirection = Enums::Direction::Up; }
+	inline void BeginDown() { m_newDirection = Enums::Direction::Down; }
+	inline void BeginLeft() { m_newDirection = Enums::Direction::Left; }
+	inline void BeginRight() { m_newDirection = Enums::Direction::Right; }
+	inline void BeginUp() { m_newDirection = Enums::Direction::Up; }
 
 private:
-	// Static Variables
+	// Member Variables
 	Enums::Direction m_currentDirection;
 	Enums::Direction m_newDirection;
-	Structure::Vector2<int> m_newBodyPosition;
-	Structure::Vector2<float> m_realHeadPosition;
-	const static Structure::Vector2<float> s_velocity;
+	const Structure::Generic* mp_collisionPackage;
+	int m_moveTargetFrame;
+	int m_numberOfTailSectionsToAdd;
+	unsigned int m_numberOfFramesPerCell;
+	unsigned int m_numberOfFramesPerCellHorizontal;
+	unsigned int m_numberOfFramesPerCellVertical;
+	Structure::Vector2 m_newTailPosition;
+
+	// Static Variables
 
 	// Functionality
-	void AddTail();
 	void HandleInput();
+	void HorizontalTurn();
 	void Move();
+	void Turn();
+	void UpdateMoveSpeed(int _speed);			
+	void VerticalTurn();
 };
 
 #endif BIRD_H

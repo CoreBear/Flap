@@ -10,30 +10,39 @@ namespace Structure
 {
 	struct Generic
 	{
-
+	public:
+		Enums::ObjectType m_objectType;
+		int m_int;
 	};
-	template<typename T> struct Vector2
+	struct Vector2
 	{
 	public:
 		// Member Variables
-		float m_normalizationResult;
-		T m_x;
-		T m_y;
+		int m_x;
+		int m_y;
 
 		// Initialization
-		Vector2() : m_normalizationResult(Consts::NO_VALUE_F), m_x(Consts::NO_VALUE), m_y(Consts::NO_VALUE) { return; }
-		Vector2(T _x, T _y) : m_normalizationResult(Consts::NO_VALUE_F), m_x(_x), m_y(_y) { return; }
+		Vector2() : m_x(Consts::NO_VALUE), m_y(Consts::NO_VALUE) { return; }
+		Vector2(int _x, int _y) : m_x(_x), m_y(_y) { return; }
 	};
 	class CollisionRenderInfo
 	{
 	public:
 		// Member Variables
+		char m_character;
 		const Enums::ObjectType m_objectType;
 		const short m_color;
-		Vector2<int>& mr_position;
+		Vector2& mr_position;
 
 		// Initialization
-		inline CollisionRenderInfo(Enums::ObjectType _objectType, Vector2<int>& _position) : m_objectType(_objectType), m_color(10), mr_position(_position) { return; }
+		inline CollisionRenderInfo(Enums::ObjectType _objectType, Vector2& _position) :
+			m_character(Consts::EMPTY_SPACE_CHAR), 
+			m_objectType(_objectType), 
+			m_color(10), 
+			mr_position(_position) 
+		{ 
+			return; 
+		}
 
 		// Destruction
 		virtual ~CollisionRenderInfo() { return; }
@@ -48,10 +57,10 @@ namespace Structure
 	{
 	public:
 		// Member Variables
-		const std::list<Vector2<int>>& mr_listOfBodyPositions;
+		const std::list<Vector2>& mr_listOfBodyPositions;
 
 		// Initialization
-		inline SnakeCollisionRenderInfo(std::list<Vector2<int>>& _listOfBodyPositions, Enums::ObjectType _objectType, Vector2<int>& _position) : CollisionRenderInfo(_objectType, _position), mr_listOfBodyPositions(_listOfBodyPositions) { return; }
+		inline SnakeCollisionRenderInfo(std::list<Vector2>& _listOfBodyPositions, Enums::ObjectType _objectType, Vector2& _position) : CollisionRenderInfo(_objectType, _position), mr_listOfBodyPositions(_listOfBodyPositions) { return; }
 	};
 }
 

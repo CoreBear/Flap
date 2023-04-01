@@ -15,7 +15,7 @@ class CollisionRenderManager final : public Manager
 {
 public:
 	// Initialization
-	CollisionRenderManager(HANDLE& _windowHandle, SharedMemory& _sharedMemory, const Structure::Vector2<int>& _bufferSize);
+	CollisionRenderManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory, const Structure::Vector2& _bufferSize);
 
 	// Updates
 	void Update() override;
@@ -53,17 +53,17 @@ private:
 	BufferCell* mp_bufferForWriting;
 	BufferCell* mp_bufferSwapper;
 	CHAR_INFO* mp_textBuffer;
-	const Structure::SnakeCollisionRenderInfo* m_snakeCollisionRenderInfo;
 	COORD m_screenBufferCR;
 	COORD m_topLeftCellCR;
-	HANDLE* mp_windowHandle;
+	const HANDLE& mr_outputWindowHandle;
 	int m_bufferSize;
 	int m_reusableIterator;
 	const std::list<SceneObject*>::const_iterator& mr_nullIterator;
-	std::list<Structure::Vector2<int>>::const_iterator m_positionIterator;
+	std::list<Structure::Vector2>::const_iterator m_positionIterator;
 	SharedMemory* mp_sharedMemory;
 	short m_colorWhite;
 	SMALL_RECT m_writeRegionRect;
+	const Structure::SnakeCollisionRenderInfo* m_snakeCollisionRenderInfo;
 	std::unique_lock<std::mutex> m_collisionRenderIteratorUniqueLock;
 
 	// Functionality
