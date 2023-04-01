@@ -4,11 +4,19 @@
 class Manager
 {
 public:
+	// Initialization
+	Manager(const Manager&) = delete;
+	Manager& operator=(const Manager&) = delete;
+
 	// Updates
 	virtual void Update() { return; }
 
 	// Destruction
-	virtual ~Manager() { return; }
+	virtual ~Manager() = default;
+
+protected:
+	// Initialization
+	Manager() = default;
 };
 
 #endif MANAGER_H

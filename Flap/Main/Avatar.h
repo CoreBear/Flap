@@ -11,6 +11,8 @@ class Avatar final : public InputReceiver, public Snake
 public:
 	// Initialization
 	Avatar(SharedMemory& _sharedMemory);
+	Avatar(const Avatar&) = delete;
+	Avatar& operator=(const Avatar&) = delete;
 
 	// Updates
 	void Update() override final;

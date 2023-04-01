@@ -17,6 +17,8 @@ public:
 
 	// Initialization
 	SceneManager(SharedMemory& _sharedMemory);
+	SceneManager(const SceneManager&) = delete;
+	SceneManager& operator=(const SceneManager&) = delete;
 
 	// Updates
 	void Update() override;

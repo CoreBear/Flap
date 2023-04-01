@@ -14,7 +14,8 @@ public:
 
 	// Initialization
 	virtual void Initialize(const Structure::Generic& _genericContainer);
-	SceneObject(Structure::CollisionRenderInfo* _collisionRenderInfo);
+	SceneObject(const SceneObject&) = delete;
+	SceneObject& operator=(const SceneObject&) = delete;
 
 	// Updates
 	virtual void FixedUpdate() { return; }
@@ -39,6 +40,9 @@ protected:
 	Structure::CollisionRenderInfo* mp_collisionRenderInfo;
 	Structure::Generic m_collisionPackage;
 	Structure::Vector2 m_position;							
+
+	// Initialization
+	SceneObject(Structure::CollisionRenderInfo* _collisionRenderInfo);
 
 private:
 	// Member Variables

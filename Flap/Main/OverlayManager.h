@@ -6,6 +6,11 @@
 class OverlayManager final : public Manager
 {
 public:
+	// Initialzation
+	OverlayManager() = default;
+	OverlayManager(const OverlayManager&) = delete;
+	OverlayManager& operator=(const OverlayManager&) = delete;
+
 	// Updates
 	void FixedUpdate() { return; }
 };

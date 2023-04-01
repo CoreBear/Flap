@@ -17,6 +17,8 @@ class InputManager final : public Manager
 public:
 	// Initialization
 	InputManager(SharedMemory& _sharedMemory);
+	InputManager(const InputManager&) = delete;
+	InputManager& operator=(const InputManager&) = delete;
 		
 	// Updates
 	void Update() override;

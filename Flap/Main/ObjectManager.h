@@ -18,6 +18,8 @@ class ObjectManager final : public Manager
 public:
 	// Initialization
 	ObjectManager(SharedMemory& _sharedMemory);
+	ObjectManager(const ObjectManager&) = delete;
+	ObjectManager& operator=(const ObjectManager&) = delete;
 
 	// Updates
 	void FixedUpdate();

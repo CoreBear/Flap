@@ -8,6 +8,8 @@ class Food final : public SceneObject
 public:
 	// Initialization
 	Food();
+	Food(const Food&) = delete;
+	Food& operator=(const Food&) = delete;
 	void Initialize(const Structure::Generic& _genericContainer) override final;
 
 	// Functionality

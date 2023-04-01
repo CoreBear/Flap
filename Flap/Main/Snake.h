@@ -22,6 +22,8 @@ public:
 	// Initialization
 	void Initialize(const Structure::Generic& _genericContainer) override;
 	Snake();
+	Snake(const Snake&) = delete;
+	Snake& operator=(const Snake&) = delete;
 
 	// Updates
 	void FixedUpdate() override final;

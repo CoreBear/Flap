@@ -1,2 +1,16 @@
-﻿  Snake.cpp
+﻿  Avatar.cpp
+  CollisionRenderManager.cpp
+  Food.cpp
+  GameManager.cpp
+  InputManager.cpp
+  InputReceiver.cpp
+  NetworkManager.cpp
+  ObjectManager.cpp
+  OverlayManager.cpp
+  SceneManager.cpp
+C:\Flap\Flap\Main\SceneManager.cpp(39,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  SceneObject.cpp
+  SharedMemory.cpp
+  Snake.cpp
+  Generating Code...
   Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe

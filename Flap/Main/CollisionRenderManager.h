@@ -16,6 +16,8 @@ class CollisionRenderManager final : public Manager
 public:
 	// Initialization
 	CollisionRenderManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory);
+	CollisionRenderManager(const CollisionRenderManager&) = delete;
+	CollisionRenderManager& operator=(const CollisionRenderManager&) = delete;
 
 	// Updates
 	void Update() override;

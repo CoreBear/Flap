@@ -17,6 +17,8 @@ class SharedMemory final
 public:
 	// Initialization
 	SharedMemory(const COORD& _bufferSize);
+	SharedMemory(const SharedMemory&) = delete;
+	SharedMemory& operator=(const SharedMemory&) = delete;
 
 	// Member Variables
 	bool m_threadWaitingFlag;

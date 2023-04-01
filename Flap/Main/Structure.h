@@ -49,7 +49,7 @@ namespace Structure
 		}
 
 		// Destruction
-		virtual ~CollisionRenderInfo() { return; }
+		virtual ~CollisionRenderInfo() = default;
 	};
 	struct Input
 	{

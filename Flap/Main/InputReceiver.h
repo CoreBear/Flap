@@ -9,11 +9,19 @@
 
 class InputReceiver
 {
+public:
+	// Initialization
+	InputReceiver(const InputReceiver&) = delete;
+	InputReceiver& operator=(const InputReceiver&) = delete;
+
 protected:
 	// Member Variables
 	Structure::Input m_currentInput;
 	std::mutex* mp_inputQueueMutex;					// Has to be a pointer, because they cannot be initialized via initializer list
 	std::queue<Structure::Input>* mp_inputQueue;	// Has to be a pointer, because they cannot be initialized via initializer list
+
+	// Initialization
+	InputReceiver() = default;
 
 	// Functionality
 	void HandleInput();
