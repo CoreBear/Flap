@@ -1,6 +1,2 @@
 ﻿  GameManager.cpp
-  InputManager.cpp
-  SceneManager.cpp
-C:\Flap\Flap\Main\SceneManager.cpp(37,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  Generating Code...
   Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe

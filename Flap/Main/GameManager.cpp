@@ -32,7 +32,7 @@ int main()
 
 	SetupConsole(outputWindowHandle, bufferSizeCR);
 
-	SharedMemory sharedMemory(bufferSizeCR);
+	SharedMemory sharedMemory;
 
 	enum class ManagerType { CollisionRender, Input, Network, Scene, NumberOfTypes };
 
