@@ -25,12 +25,14 @@ public:
 	~SceneManager() override;
 
 private:
-	// Member Variables
-	SharedMemory* mp_sharedMemory;
+	// Static Variables
 	enum class SceneType { Game, Overlay };
+
+	// Member Variables
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	ObjectManager* mp_objectManager;
 	OverlayManager* mp_overlayManager;
 	SceneType m_sceneType;
+	SharedMemory* mp_sharedMemory;
 };
 #endif SCENE_MANAGER_H

@@ -138,8 +138,13 @@ void CollisionRenderManager::Update()
 			{
 			case BufferCell::State::Collision:
 			{
-				(*mp_bufferForReading[m_reusableIterator].m_objectsInCellIterators[Consts::NO_VALUE])->Collision(*(*mp_bufferForReading[m_reusableIterator].m_objectsInCellIterators[Consts::OFF_BY_ONE]));
-				(*mp_bufferForReading[m_reusableIterator].m_objectsInCellIterators[Consts::OFF_BY_ONE])->Collision(*(*mp_bufferForReading[m_reusableIterator].m_objectsInCellIterators[Consts::NO_VALUE]));
+				// Get column and row
+				m_collisionCellCR.m_x = m_reusableIterator % m_screenBufferCR.X;
+				m_collisionCellCR.m_y = m_reusableIterator / m_screenBufferCR.X;
+
+				// Send each object, the other object and the collision cell's column and row
+				(*mp_bufferForReading[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE])->Collision(*(*mp_bufferForReading[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE]), m_collisionCellCR);
+				(*mp_bufferForReading[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE])->Collision(*(*mp_bufferForReading[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE]), m_collisionCellCR);
 			}
 			// NOTE/WARNING: Falls through into snake coloring
 			case BufferCell::State::Snake:
@@ -176,6 +181,8 @@ void CollisionRenderManager::WriteIntoBuffer(const Structure::CollisionRenderInf
 		// Write into buffer
 		WriteIntoBufferCell(_collisionRenderInfo);
 	}
+
+	// If snake
 	else
 	{
 		m_snakeCollisionRenderInfo = dynamic_cast<const Structure::SnakeCollisionRenderInfo*>(&_collisionRenderInfo);
@@ -193,7 +200,8 @@ void CollisionRenderManager::WriteIntoBuffer(const Structure::CollisionRenderInf
 }
 void CollisionRenderManager::WriteIntoBufferCell(const Structure::CollisionRenderInfo& _collisionRenderInfo)
 {
-	mp_bufferCell->m_objectsInCellIterators[mp_bufferCell->m_objectInCellIndex++] = mp_sharedMemory->m_collisionRenderIterator;
+	// NOTE: Notice the increment
+	mp_bufferCell->mp_objectsInCellIterators[mp_bufferCell->m_objectInCellIndex++] = mp_sharedMemory->m_collisionRenderIterator;
 
 	// What is currently in the cell
 	switch (mp_bufferCell->m_state)
@@ -203,13 +211,13 @@ void CollisionRenderManager::WriteIntoBufferCell(const Structure::CollisionRende
 
 	case BufferCell::State::Empty:
 		mp_bufferCell->m_state = (_collisionRenderInfo.m_objectType == Enums::ObjectType::Food) ? BufferCell::State::Food : BufferCell::State::Snake;
-	break;
+		break;
 	case BufferCell::State::Food:
 	case BufferCell::State::Snake:
 		mp_bufferCell->m_state = BufferCell::State::Collision;
-	break;
+		break;
 	}
-	
+
 	//const char* BODY_CHAR = "_";
 	//
 	//// Write character into buffer

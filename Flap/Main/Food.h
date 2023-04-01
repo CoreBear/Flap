@@ -11,7 +11,7 @@ public:
 	void Initialize(const Structure::Generic& _genericContainer) override final;
 
 	// Functionality
-	void Collision(const SceneObject& _otherCollidingObject) final;
+	void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR) final;
 
 private:
 	// Functionality

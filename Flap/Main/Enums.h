@@ -3,6 +3,7 @@
 
 namespace Enums
 {
+	enum class CollisionType { HeadToBody, HeadToFruit, HeadToHead };
 	enum class Dimension { Column, Row, NumberOfDimensions };
 	enum class Direction { Down, Left, Right, Up, NumberOfDirections, NA };
 	enum class InputPressState { Click, Dead, Held, PressedThisFrame, Released };

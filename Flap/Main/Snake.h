@@ -11,12 +11,6 @@
 class Snake : public SceneObject
 {
 public:
-	// Member Variables
-	std::list<Structure::Vector2> m_listOfBodyPositions;
-	std::list<Structure::Vector2>::iterator m_headTraversingIterator;
-	std::list<Structure::Vector2>::iterator m_tailTraversingIterator;
-	std::list<Structure::Vector2>::iterator m_tailIterator;
-
 	// Initialization
 	void Initialize(const Structure::Generic& _genericContainer) override;
 	Snake();
@@ -25,7 +19,7 @@ public:
 	void FixedUpdate() override final;
 
 	// Functionality
-	void Collision(const SceneObject& _otherCollidingObject) final;
+	void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR) final;
 
 protected:
 	// Member Variables
@@ -43,6 +37,10 @@ private:
 	const Structure::Generic* mp_collisionPackage;
 	int m_moveTargetFrame;
 	int m_numberOfTailSectionsToAdd;
+	std::list<Structure::Vector2> m_listOfBodyPositions;
+	std::list<Structure::Vector2>::iterator m_headTraversingIterator;
+	std::list<Structure::Vector2>::iterator m_tailTraversingIterator;
+	std::list<Structure::Vector2>::iterator m_tailIterator;
 	unsigned int m_numberOfFramesPerCell;
 	unsigned int m_numberOfFramesPerCellHorizontal;
 	unsigned int m_numberOfFramesPerCellVertical;
@@ -51,6 +49,7 @@ private:
 	// Static Variables
 
 	// Functionality
+	void Death();
 	void HandleInput();
 	void HorizontalTurn();
 	void Move();

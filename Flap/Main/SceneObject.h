@@ -14,15 +14,15 @@ public:
 
 	// Initialization
 	virtual void Initialize(const Structure::Generic& _genericContainer);
-	SceneObject(Structure::CollisionRenderInfo* _collisionRenderInfo, Structure::Generic* _collisionPackage);
+	SceneObject(Structure::CollisionRenderInfo* _collisionRenderInfo);
 
 	// Updates
 	virtual void FixedUpdate() { return; }
 	virtual void Update() { return; }
 
 	// Functionality
-	virtual void Collision(const SceneObject& _otherCollidingObject) = 0;
-	inline const Structure::Generic* GetCollisionPackagePtr() const { return mp_collisionPackage; }
+	virtual void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR) = 0;
+	inline const Structure::Generic& GetCollisionPackageRef() const { return m_collisionPackage; }
 	inline const Structure::CollisionRenderInfo& GetCollisionRenderInfoRef() const { return *mp_collisionRenderInfo; }
 	inline bool IsActive() { return m_isActive; }
 	void SetPosition(const Structure::Vector2& _position);
@@ -37,7 +37,7 @@ protected:
 
 	// Member Variables
 	Structure::CollisionRenderInfo* mp_collisionRenderInfo;
-	Structure::Generic* mp_collisionPackage;
+	Structure::Generic m_collisionPackage;
 	Structure::Vector2 m_position;							
 
 private:

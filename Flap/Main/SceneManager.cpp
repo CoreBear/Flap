@@ -13,7 +13,9 @@
 #pragma region Initialization
 unsigned int SceneManager::s_fixedFrameCount = Consts::NO_VALUE;
 
-SceneManager::SceneManager(SharedMemory& _sharedMemory) : mp_sharedMemory(&_sharedMemory), m_sceneType(SceneType::Game)
+SceneManager::SceneManager(SharedMemory& _sharedMemory) : 
+	m_sceneType(SceneType::Game),
+	mp_sharedMemory(&_sharedMemory)
 {
 	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
 
@@ -32,7 +34,7 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) : mp_sharedMemory(&_shar
 
 			g.m_int = 10;
 
-			for (size_t i = 0; i < 1; i++)
+			for (size_t i = 0; i < 2; i++)
 			{
 				position.m_x = i * 4;
 				mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, position, g);
@@ -44,7 +46,7 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) : mp_sharedMemory(&_shar
 			position.m_x = 10;
 			position.m_y = 10;
 
-			g.m_int = 2;
+			g.m_int = 20;
 
 			mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, g);
 		}

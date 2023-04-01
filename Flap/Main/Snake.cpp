@@ -14,10 +14,12 @@ void Snake::Initialize(const Structure::Generic& _genericContainer)
 	m_newDirection = Enums::Direction::NA;
 
 	UpdateMoveSpeed(_genericContainer.m_int);
+
+	(*m_listOfBodyPositions.begin()) = m_position;
 }
 Snake::Snake() : 
 	// NOTE/WARNING: Allocated memory is destroyed in the SceneObject destructor
-	SceneObject(dynamic_cast<Structure::CollisionRenderInfo*>(new Structure::SnakeCollisionRenderInfo(m_listOfBodyPositions, Enums::ObjectType::Snake, m_position)), nullptr), 
+	SceneObject(dynamic_cast<Structure::CollisionRenderInfo*>(new Structure::SnakeCollisionRenderInfo(m_listOfBodyPositions, Enums::ObjectType::Snake, m_position))), 
 	m_currentDirection(Enums::Direction::NA), 
 	m_newDirection(Enums::Direction::NA), 
 	m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
@@ -54,8 +56,7 @@ void Snake::FixedUpdate()
 			--m_numberOfTailSectionsToAdd;
 
 			// Set new tail position, in-case another tail needs to be added
-			m_newTailPosition.m_x = m_tailIterator->m_x;
-			m_newTailPosition.m_y = m_tailIterator->m_y;
+			m_newTailPosition = *m_tailIterator;
 		}
 
 		Move();
@@ -64,24 +65,51 @@ void Snake::FixedUpdate()
 #pragma endregion
 
 #pragma region Public Functionality
-void Snake::Collision(const SceneObject& _otherCollidingObject)
+void Snake::Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR)
 {
-	mp_collisionPackage = _otherCollidingObject.GetCollisionPackagePtr();
-
-	if (mp_collisionPackage != nullptr)
+	// If didn't collide with self
+	if (&_otherCollidingObject != this)
 	{
+		mp_collisionPackage = &_otherCollidingObject.GetCollisionPackageRef();
+
+		// Eating food
 		if (mp_collisionPackage->m_objectType == Enums::ObjectType::Food)
 		{
 			m_numberOfTailSectionsToAdd = mp_collisionPackage->m_int;
-			
-			m_newTailPosition.m_x = m_tailIterator->m_x;
-			m_newTailPosition.m_y = m_tailIterator->m_y;
+
+			m_newTailPosition = *m_tailIterator;
 		}
+
+		// Collided with another snake
+		else
+		{
+			// If this snake collided with its head
+			if (m_position == _collisionCellCR)
+			{
+				Death();
+			}
+
+			// If this snake did not collide with its head
+			else
+			{
+				// Increase this player's points
+			}
+		}
+	}
+
+	// If collided with self
+	else
+	{
+		Death();
 	}
 }
 #pragma endregion
 
 #pragma region Private Functionality
+void Snake::Death()
+{
+	// Game over
+}
 void Snake::HandleInput()
 {
 	switch (m_currentDirection)
@@ -180,18 +208,15 @@ void Snake::Move()
 		for (m_tailTraversingIterator = m_tailIterator; m_headTraversingIterator != m_listOfBodyPositions.begin(); --m_headTraversingIterator, --m_tailTraversingIterator)
 		{
 			// Move the position closer to the tail, to the position closer to the head
-			(*m_tailTraversingIterator).m_x = (*m_headTraversingIterator).m_x;
-			(*m_tailTraversingIterator).m_y = (*m_headTraversingIterator).m_y;
+			(*m_tailTraversingIterator) = (*m_headTraversingIterator);
 		}
 
 		// Move the position closer to the tail, to the position closer to the head
-		(*m_tailTraversingIterator).m_x = (*m_headTraversingIterator).m_x;
-		(*m_tailTraversingIterator).m_y = (*m_headTraversingIterator).m_y;
+		(*m_tailTraversingIterator) = (*m_headTraversingIterator);
 	}
 
 	// Update first (head) position
-	(*m_headTraversingIterator).m_x = m_position.m_x;
-	(*m_headTraversingIterator).m_y = m_position.m_y;
+	(*m_headTraversingIterator) = m_position;
 }
 void Snake::Turn()
 {

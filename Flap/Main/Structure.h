@@ -24,6 +24,10 @@ namespace Structure
 		// Initialization
 		Vector2() : m_x(Consts::NO_VALUE), m_y(Consts::NO_VALUE) { return; }
 		Vector2(int _x, int _y) : m_x(_x), m_y(_y) { return; }
+
+		// Functionality
+		inline void operator=(const Vector2& _rhs) { m_x = _rhs.m_x; m_y = _rhs.m_y; }
+		inline bool operator==(const Vector2& _rhs) { return (m_x == _rhs.m_x && m_y == _rhs.m_y); }
 	};
 	class CollisionRenderInfo
 	{

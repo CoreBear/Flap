@@ -4,9 +4,9 @@
 
 #pragma region Initialization
 // NOTE/WARNING: Allocated memory is destroyed in the SceneObject destructor
-Food::Food() : SceneObject(new Structure::CollisionRenderInfo(Enums::ObjectType::Food, m_position), new Structure::Generic)
+Food::Food() : SceneObject(new Structure::CollisionRenderInfo(Enums::ObjectType::Food, m_position))
 {
-	mp_collisionPackage->m_objectType = Enums::ObjectType::Food;
+	m_collisionPackage.m_objectType = Enums::ObjectType::Food;
 }
 void Food::Initialize(const Structure::Generic& _genericContainer)
 {
@@ -17,7 +17,7 @@ void Food::Initialize(const Structure::Generic& _genericContainer)
 #pragma endregion
 
 #pragma region Public Functionality
-void Food::Collision(const SceneObject& _otherCollidingObject)
+void Food::Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR)
 {
 	Denitialize();
 }
@@ -26,7 +26,7 @@ void Food::Collision(const SceneObject& _otherCollidingObject)
 #pragma region Private Functionality
 void Food::UpdateValue(int _value)
 {
-	mp_collisionPackage->m_int = _value;
+	m_collisionPackage.m_int = _value;
 
 	constexpr int ASCII_OFFSET = static_cast<int>('0');
 	mp_collisionRenderInfo->m_character = static_cast<char>(_value + ASCII_OFFSET);

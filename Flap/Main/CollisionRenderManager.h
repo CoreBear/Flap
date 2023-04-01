@@ -28,20 +28,22 @@ private:
 	struct BufferCell
 	{
 	public:
-		// Member Variables
-		enum class State { Collision, Empty, Food, Snake };
-		int m_objectInCellIndex;
+		// Static Variables
 		static constexpr int MAX_NUMBER_OF_OBJECTS_IN_CELL = 2;
-		std::list<SceneObject*>::const_iterator m_objectsInCellIterators[MAX_NUMBER_OF_OBJECTS_IN_CELL];
+		enum class State { Collision, Empty, Food, Snake };
+
+		// Member Variables
+		int m_objectInCellIndex;
+		std::list<SceneObject*>::const_iterator mp_objectsInCellIterators[MAX_NUMBER_OF_OBJECTS_IN_CELL];
 		State m_state;
 
 		// Functionality
 		void ResetCell(const std::list<SceneObject*>::const_iterator& _nullIterator)
 		{
-			m_objectInCellIndex = Consts::NO_VALUE;
-			m_objectsInCellIterators[0] = _nullIterator;
-			m_objectsInCellIterators[1] = _nullIterator;
 			m_state = State::Empty;
+			m_objectInCellIndex = Consts::NO_VALUE;
+			mp_objectsInCellIterators[Consts::NO_VALUE] = _nullIterator;
+			mp_objectsInCellIterators[Consts::OFF_BY_ONE] = _nullIterator;
 		}
 	};
 
@@ -65,6 +67,7 @@ private:
 	SMALL_RECT m_writeRegionRect;
 	const Structure::SnakeCollisionRenderInfo* m_snakeCollisionRenderInfo;
 	std::unique_lock<std::mutex> m_collisionRenderIteratorUniqueLock;
+	Structure::Vector2 m_collisionCellCR;
 
 	// Functionality
 	void WriteIntoBuffer(const Structure::CollisionRenderInfo& _collisionRenderInfo);
