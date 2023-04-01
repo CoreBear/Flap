@@ -37,7 +37,7 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 			switch ((Enums::ObjectType)objectTypeIndex)
 			{
 			case Enums::ObjectType::Avatar:
-				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Avatar();
+				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Avatar(_sharedMemory);
 				break;
 			case Enums::ObjectType::Food:
 				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Food();

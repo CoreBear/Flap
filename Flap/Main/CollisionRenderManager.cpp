@@ -11,22 +11,19 @@
 #pragma endregion
 
 #pragma region Initialization
-CollisionRenderManager::CollisionRenderManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory, const Structure::Vector2& _bufferSize) :
+CollisionRenderManager::CollisionRenderManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory) :
 	m_frameWritingIsComplete(false),
 	m_writeSpritesIntoBuffer(false),
 	mp_bufferCell(nullptr),
 	mp_bufferSwapper(nullptr),
 	mr_outputWindowHandle(_outputWindowHandle),
-	m_bufferSize(_bufferSize.m_x * _bufferSize.m_y),
+	m_bufferSize(_sharedMemory.mr_screenBufferCR.X * _sharedMemory.mr_screenBufferCR.Y),
 	m_reusableIterator(Consts::NO_VALUE), 
 	mr_nullIterator(_sharedMemory.GetNullIteratorRef()),
 	mp_sharedMemory(&_sharedMemory),
 	m_snakeCollisionRenderInfo(nullptr),
 	m_collisionRenderIteratorUniqueLock(_sharedMemory.GetCollisionRenderIteratorMutexRef())
 {
-	int numberOfWindowColumns = _bufferSize.m_x;
-	int numberOfWindowRows = _bufferSize.m_y;
-
 	mp_bufferForReading = new BufferCell[m_bufferSize];
 	mp_bufferForWriting = new BufferCell[m_bufferSize];
 	mp_textBuffer = new CHAR_INFO[m_bufferSize];
@@ -38,16 +35,14 @@ CollisionRenderManager::CollisionRenderManager(const HANDLE& _outputWindowHandle
 		mp_textBuffer[m_reusableIterator].Char.UnicodeChar = Consts::EMPTY_SPACE_CHAR;
 	}
 
-	m_screenBufferCR.X = numberOfWindowColumns;
-	m_screenBufferCR.Y = numberOfWindowRows;
 	m_topLeftCellCR.X = static_cast<SHORT>(Consts::NO_VALUE);
 	m_topLeftCellCR.X = static_cast<SHORT>(Consts::NO_VALUE);
 
 	m_colorWhite = static_cast<short>(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED);
 
-	m_writeRegionRect.Bottom = static_cast<SHORT>(numberOfWindowRows - Consts::OFF_BY_ONE);
+	m_writeRegionRect.Bottom = static_cast<SHORT>(_sharedMemory.mr_screenBufferCR.Y - Consts::OFF_BY_ONE);
 	m_writeRegionRect.Left = static_cast<SHORT>(Consts::NO_VALUE);
-	m_writeRegionRect.Right = static_cast<SHORT>(numberOfWindowColumns - Consts::OFF_BY_ONE);
+	m_writeRegionRect.Right = static_cast<SHORT>(_sharedMemory.mr_screenBufferCR.X - Consts::OFF_BY_ONE);
 	m_writeRegionRect.Top = static_cast<SHORT>(Consts::NO_VALUE);
 
 	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
@@ -139,8 +134,8 @@ void CollisionRenderManager::Update()
 			case BufferCell::State::Collision:
 			{
 				// Get column and row
-				m_collisionCellCR.m_x = m_reusableIterator % m_screenBufferCR.X;
-				m_collisionCellCR.m_y = m_reusableIterator / m_screenBufferCR.X;
+				m_collisionCellCR.m_x = m_reusableIterator % mp_sharedMemory->mr_screenBufferCR.X;
+				m_collisionCellCR.m_y = m_reusableIterator / mp_sharedMemory->mr_screenBufferCR.X;
 
 				// Send each object, the other object and the collision cell's column and row
 				(*mp_bufferForReading[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE])->Collision(*(*mp_bufferForReading[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE]), m_collisionCellCR);
@@ -165,7 +160,7 @@ void CollisionRenderManager::Update()
 			}
 		}
 
-		WriteConsoleOutput(mr_outputWindowHandle, mp_textBuffer, m_screenBufferCR, m_topLeftCellCR, &m_writeRegionRect);
+		WriteConsoleOutput(mr_outputWindowHandle, mp_textBuffer, mp_sharedMemory->mr_screenBufferCR, m_topLeftCellCR, &m_writeRegionRect);
 	}
 }
 #pragma endregion
@@ -176,7 +171,7 @@ void CollisionRenderManager::WriteIntoBuffer(const Structure::CollisionRenderInf
 	if (_collisionRenderInfo.m_objectType == Enums::ObjectType::Food)
 	{
 		// Store the memory address of the cell that's being updated
-		mp_bufferCell = &mp_bufferForWriting[(_collisionRenderInfo.mr_position.m_y * m_screenBufferCR.X) + _collisionRenderInfo.mr_position.m_x];
+		mp_bufferCell = &mp_bufferForWriting[(_collisionRenderInfo.mr_position.m_y * mp_sharedMemory->mr_screenBufferCR.X) + _collisionRenderInfo.mr_position.m_x];
 
 		// Write into buffer
 		WriteIntoBufferCell(_collisionRenderInfo);
@@ -191,7 +186,7 @@ void CollisionRenderManager::WriteIntoBuffer(const Structure::CollisionRenderInf
 		for (m_positionIterator = m_snakeCollisionRenderInfo->mr_listOfBodyPositions.begin(); m_positionIterator != m_snakeCollisionRenderInfo->mr_listOfBodyPositions.end(); ++m_positionIterator)
 		{
 			// Store the memory address of the cell that's being updated
-			mp_bufferCell = &mp_bufferForWriting[(m_positionIterator->m_y * m_screenBufferCR.X) + m_positionIterator->m_x];
+			mp_bufferCell = &mp_bufferForWriting[(m_positionIterator->m_y * mp_sharedMemory->mr_screenBufferCR.X) + m_positionIterator->m_x];
 
 			// Write into buffer
 			WriteIntoBufferCell(_collisionRenderInfo);
@@ -221,7 +216,7 @@ void CollisionRenderManager::WriteIntoBufferCell(const Structure::CollisionRende
 	//const char* BODY_CHAR = "_";
 	//
 	//// Write character into buffer
-	//memcpy(&mp_bufferForWriting[(m_writePosition->m_y * m_screenBufferCR.X) + m_writePosition->m_x].m_character, BODY_CHAR, Consts::OFF_BY_ONE);
+	//memcpy(&mp_bufferForWriting[(m_writePosition->m_y * mr_screenBufferCR.X) + m_writePosition->m_x].m_character, BODY_CHAR, Consts::OFF_BY_ONE);
 }
 #pragma endregion
 

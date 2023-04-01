@@ -7,22 +7,13 @@
 #include <mutex>
 #include <queue>
 
-class SharedMemory;
-
 class InputReceiver
 {
-public:
-	// Static Initialization
-	static void AssignSharedMemory(SharedMemory& _sharedMemory) { sp_sharedMemory = &_sharedMemory; }
-
 protected:
-	// Static Variables
-	static SharedMemory* sp_sharedMemory;
-	
 	// Member Variables
 	Structure::Input m_currentInput;
-	std::mutex* mp_inputQueueMutex;
-	std::queue<Structure::Input>* mp_inputQueue;
+	std::mutex* mp_inputQueueMutex;					// Has to be a pointer, because they cannot be initialized via initializer list
+	std::queue<Structure::Input>* mp_inputQueue;	// Has to be a pointer, because they cannot be initialized via initializer list
 
 	// Functionality
 	void HandleInput();

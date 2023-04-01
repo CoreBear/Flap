@@ -7,7 +7,6 @@
 #include "CollisionRenderManager.h"
 #include "SceneManager.h"
 #include "SharedMemory.h"
-#include "Structure.h"
 
 #include <thread>
 #include <Windows.h>
@@ -20,19 +19,19 @@ static bool gs_applicationIsRunning;
 
 #pragma region Prototypes
 void ManagerThreadEntry(int _threadIndex, Manager** const _managers);
-void SetupConsole(HANDLE& _outputWindowHandle, Structure::Vector2& _bufferSizeCR);
+void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle);
 #pragma endregion
 
 int main()
 {
 	gs_applicationIsRunning = true;
 	
+	COORD bufferSizeCR;
 	HANDLE outputWindowHandle;
-	Structure::Vector2 bufferSizeCR;
 
-	SetupConsole(outputWindowHandle, bufferSizeCR);
+	SetupConsole(bufferSizeCR, outputWindowHandle);
 
-	SharedMemory sharedMemory;
+	SharedMemory sharedMemory(bufferSizeCR);
 
 	enum class ManagerType { CollisionRender, Input, Network, Scene, NumberOfTypes };
 
@@ -42,7 +41,7 @@ int main()
 		// NOTE/WARNING: windowHandle is not being used in InputManager
 		// because this instance was retrieved before the window was active.
 		// Leaving this here for posterity
-		new CollisionRenderManager(outputWindowHandle, sharedMemory, bufferSizeCR),
+		new CollisionRenderManager(outputWindowHandle, sharedMemory),
 		new InputManager(sharedMemory),
 		new NetworkManager(),
 		new SceneManager(sharedMemory)
@@ -81,7 +80,7 @@ void ManagerThreadEntry(int _threadIndex, Manager** const _managers)
 		_managers[_threadIndex]->Update();
 	}
 }
-void SetupConsole(HANDLE& _outputWindowHandle, Structure::Vector2& _bufferSizeCR)
+void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle)
 {
 	// https://learn.microsoft.com/en-us/windows/console/console-functions
 
@@ -89,22 +88,20 @@ void SetupConsole(HANDLE& _outputWindowHandle, Structure::Vector2& _bufferSizeCR
 	HWND consoleWindow = GetConsoleWindow();
 	SetWindowPos(consoleWindow, 0, -8, -1, 0, 0, SWP_SHOWWINDOW);
 
+	// NOTE/WARNING: THE ORDER OF THESE TWO ARE IMPORTANT!
 	_outputWindowHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	_bufferSizeCR = GetLargestConsoleWindowSize(_outputWindowHandle);
 
 	// Generate max buffer and screen size
-	COORD largestBufferSizeCR = GetLargestConsoleWindowSize(_outputWindowHandle);
 	SMALL_RECT windowRect
 	{
 		static_cast<SHORT>(Consts::NO_VALUE),
 		static_cast<SHORT>(Consts::NO_VALUE),
-		static_cast<SHORT>(largestBufferSizeCR.X - Consts::OFF_BY_ONE),
-		static_cast<SHORT>(largestBufferSizeCR.Y - Consts::OFF_BY_ONE)
+		static_cast<SHORT>(_bufferSizeCR.X - Consts::OFF_BY_ONE),
+		static_cast<SHORT>(_bufferSizeCR.Y - Consts::OFF_BY_ONE)
 	};
-	SetConsoleScreenBufferSize(_outputWindowHandle, largestBufferSizeCR);
+	SetConsoleScreenBufferSize(_outputWindowHandle, _bufferSizeCR);
 	SetConsoleWindowInfo(_outputWindowHandle, true, &windowRect);
-
-	_bufferSizeCR.m_x = largestBufferSizeCR.X;
-	_bufferSizeCR.m_y = largestBufferSizeCR.Y;
 
 	// Removes the minimize & maximize options
 	{

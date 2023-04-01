@@ -1,12 +1,16 @@
 #pragma region Includes
 #include "SharedMemory.h"
 
-#include "InputReceiver.h"
+#include "Snake.h"
+
+#include <Windows.h>
 #pragma endregion
 
 #pragma region Initialization
-SharedMemory::SharedMemory() : m_threadWaitingFlag(false)
+SharedMemory::SharedMemory(const COORD& _bufferSize) :
+	m_threadWaitingFlag(false),
+	mr_screenBufferCR(_bufferSize)
 {
-	InputReceiver::AssignSharedMemory(*this);
+	Snake::AssignSharedMemory(*this);
 }
 #pragma endregion

@@ -8,6 +8,7 @@
 #include <list>
 #include <mutex>
 #include <queue>
+#include <Windows.h>
 
 class SceneObject;
 
@@ -15,10 +16,11 @@ class SharedMemory final
 {
 public:
 	// Initialization
-	SharedMemory();
+	SharedMemory(const COORD& _bufferSize);
 
 	// Member Variables
 	bool m_threadWaitingFlag;
+	const COORD& mr_screenBufferCR;
 	std::condition_variable m_collisionRenderIteratorConVar;
 	std::list<SceneObject*>::const_iterator m_collisionRenderIterator;
 

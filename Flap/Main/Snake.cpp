@@ -3,6 +3,11 @@
 
 #include "Consts.h"
 #include "SceneManager.h"
+#include "SharedMemory.h"
+#pragma endregion
+
+#pragma region Static Initialization
+SharedMemory* Snake::sp_sharedMemory = nullptr;
 #pragma endregion
 
 #pragma region Initialization
@@ -109,6 +114,7 @@ void Snake::Collision(const SceneObject& _otherCollidingObject, const Structure:
 void Snake::Death()
 {
 	// Game over
+	int h = 0;
 }
 void Snake::HandleInput()
 {
@@ -179,16 +185,56 @@ void Snake::Move()
 	switch (m_currentDirection)
 	{
 	case Enums::Direction::Down:
-		++m_position.m_y;
+	{
+		// Bind to screen or die
+		if (m_position.m_y + Consts::OFF_BY_ONE < sp_sharedMemory->mr_screenBufferCR.Y)
+		{
+			++m_position.m_y;
+		}
+		else
+		{
+			Death();
+		}
+	}
 		break;
 	case Enums::Direction::Left:
-		--m_position.m_x;
+	{
+		// Bind to screen or die
+		if (m_position.m_x - Consts::OFF_BY_ONE > Consts::NO_VALUE)
+		{
+			--m_position.m_x;
+		}
+		else
+		{
+			Death();
+		}
+	}
 		break;
 	case Enums::Direction::Right:
-		++m_position.m_x;
+	{
+		// Bind to screen or die
+		if (m_position.m_x + Consts::OFF_BY_ONE < sp_sharedMemory->mr_screenBufferCR.X)
+		{
+			++m_position.m_x;
+		}
+		else
+		{
+			Death();
+		}
+	}
 		break;
 	case Enums::Direction::Up:
-		--m_position.m_y;
+	{
+		// Bind to screen or die
+		if (m_position.m_y - Consts::OFF_BY_ONE > Consts::NO_VALUE)
+		{
+			--m_position.m_y;
+		}
+		else
+		{
+			Death();
+		}
+	}
 		break;
 
 		// NOTE: Notice the snake will not move due to the return

@@ -15,7 +15,7 @@ class CollisionRenderManager final : public Manager
 {
 public:
 	// Initialization
-	CollisionRenderManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory, const Structure::Vector2& _bufferSize);
+	CollisionRenderManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory);
 
 	// Updates
 	void Update() override;
@@ -55,7 +55,6 @@ private:
 	BufferCell* mp_bufferForWriting;
 	BufferCell* mp_bufferSwapper;
 	CHAR_INFO* mp_textBuffer;
-	COORD m_screenBufferCR;
 	COORD m_topLeftCellCR;
 	const HANDLE& mr_outputWindowHandle;
 	int m_bufferSize;

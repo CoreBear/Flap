@@ -5,11 +5,11 @@
 #pragma endregion
 
 #pragma region Initialization
-Avatar::Avatar()
+Avatar::Avatar(SharedMemory& _sharedMemory)
 {
 	static int assignInputReceiverIndex = Consts::NO_VALUE;
-	mp_inputQueueMutex = &sp_sharedMemory->GetInputQueueMutexRef(assignInputReceiverIndex);
-	mp_inputQueue = &sp_sharedMemory->GetInputQueueRef(assignInputReceiverIndex++);
+	mp_inputQueueMutex = &_sharedMemory.GetInputQueueMutexRef(assignInputReceiverIndex);
+	mp_inputQueue = &_sharedMemory.GetInputQueueRef(assignInputReceiverIndex++);
 }
 #pragma endregion
 

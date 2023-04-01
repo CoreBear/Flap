@@ -1,11 +1,5 @@
 #pragma region Includes
 #include "InputReceiver.h"
-
-#include "SharedMemory.h"
-#pragma endregion
-
-#pragma region Static Initializatino
-SharedMemory* InputReceiver::sp_sharedMemory = nullptr;
 #pragma endregion
 
 #pragma region Protected Functionality

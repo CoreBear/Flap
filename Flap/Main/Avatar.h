@@ -4,11 +4,13 @@
 #include "InputReceiver.h"
 #include "Snake.h"
 
+class SharedMemory;
+
 class Avatar final : public InputReceiver, public Snake
 {
 public:
 	// Initialization
-	Avatar();
+	Avatar(SharedMemory& _sharedMemory);
 
 	// Updates
 	void Update() override final;

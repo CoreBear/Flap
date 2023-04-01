@@ -8,9 +8,17 @@
 
 #include <list>
 
+class SharedMemory;
+
 class Snake : public SceneObject
 {
 public:
+	// Static Variables
+	static SharedMemory* sp_sharedMemory;
+
+	// Static Initialization
+	inline static void AssignSharedMemory(SharedMemory& _sharedMemory) { sp_sharedMemory = &_sharedMemory; }
+
 	// Initialization
 	void Initialize(const Structure::Generic& _genericContainer) override;
 	Snake();
