@@ -44,7 +44,7 @@ private:
 	// Member Variables
 	Enums::Direction m_currentDirection;
 	Enums::Direction m_newDirection;
-	const Structure::Generic* mp_otherCollisionPackage;
+	const Structure::Generic* OTHER_COLLISION_PACKAGE;
 	int m_moveTargetFrame;
 	int m_numberOfTailSectionsToAdd;
 	std::list<Structure::Vector2> m_listOfBodyPositions;

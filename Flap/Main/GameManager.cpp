@@ -33,7 +33,7 @@ int main()
 
 	SharedMemory sharedMemory(bufferSizeCR);
 
-	enum class ManagerType { CollisionRender, Input, Network, Scene, NumberOfTypes };
+	enum class ManagerType { CollisionRender, Input, /*Network,*/ Scene, NumberOfTypes };
 
 	// Generate managers
 	Manager** managers = new Manager * [static_cast<int>(ManagerType::NumberOfTypes)]
@@ -43,7 +43,7 @@ int main()
 		// Leaving this here for posterity
 		new CollisionRenderManager(outputWindowHandle, sharedMemory),
 		new InputManager(sharedMemory),
-		new NetworkManager(),
+		//new NetworkManager(),
 		new SceneManager(sharedMemory)
 	};
 

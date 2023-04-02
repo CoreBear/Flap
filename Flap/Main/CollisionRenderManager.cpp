@@ -15,31 +15,32 @@ CollisionRenderManager::CollisionRenderManager(const HANDLE& _outputWindowHandle
 	m_frameWritingIsComplete(false),
 	m_writeSpritesIntoBuffer(false),
 	mp_bufferCell(nullptr),
-	m_bufferSize(_sharedMemory.mr_screenBufferCR.X * _sharedMemory.mr_screenBufferCR.Y),
+	m_bufferSize(_sharedMemory.SCREEN_BUFFER_CR.X* _sharedMemory.SCREEN_BUFFER_CR.Y),
 	mp_frameBuffer(new BufferCell[m_bufferSize]),
 	mp_textBuffer(new CHAR_INFO[m_bufferSize]),
-	mr_outputWindowHandle(_outputWindowHandle),
-	m_reusableIterator(Consts::NO_VALUE), 
-	mr_nullIterator(_sharedMemory.GetNullIteratorRef()),
+	OUTPUT_WINDOW_HANDLE(_outputWindowHandle),
+	m_reusableIterator(Consts::NO_VALUE),
+	NULL_ITERATOR(_sharedMemory.GetNullIteratorRef()),
 	mp_sharedMemory(&_sharedMemory),
-	m_snakeCollisionRenderInfo(nullptr),
+	FOOD_COLOR(static_cast<short>(BACKGROUND_BLUE | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED)),
+	SNAKE_BODY_COLOR(static_cast<short>(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED)),
+	SNAKE_HEAD_COLOR(static_cast<short>(BACKGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED)),
+	SNAKE_COLLISION_RENDER_INFO(nullptr),
 	m_collisionRenderIteratorUniqueLock(_sharedMemory.GetCollisionRenderIteratorMutexRef())
 {
 
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
 	{
-		mp_frameBuffer[m_reusableIterator].ResetCell(mr_nullIterator);
+		mp_frameBuffer[m_reusableIterator].ResetCell(NULL_ITERATOR);
 		mp_textBuffer[m_reusableIterator].Char.UnicodeChar = Consts::EMPTY_SPACE_CHAR;
 	}
 
 	m_topLeftCellCR.X = static_cast<SHORT>(Consts::NO_VALUE);
 	m_topLeftCellCR.X = static_cast<SHORT>(Consts::NO_VALUE);
 
-	m_colorWhite = static_cast<short>(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED);
-
-	m_writeRegionRect.Bottom = static_cast<SHORT>(_sharedMemory.mr_screenBufferCR.Y - Consts::OFF_BY_ONE);
+	m_writeRegionRect.Bottom = static_cast<SHORT>(_sharedMemory.SCREEN_BUFFER_CR.Y - Consts::OFF_BY_ONE);
 	m_writeRegionRect.Left = static_cast<SHORT>(Consts::NO_VALUE);
-	m_writeRegionRect.Right = static_cast<SHORT>(_sharedMemory.mr_screenBufferCR.X - Consts::OFF_BY_ONE);
+	m_writeRegionRect.Right = static_cast<SHORT>(_sharedMemory.SCREEN_BUFFER_CR.X - Consts::OFF_BY_ONE);
 	m_writeRegionRect.Top = static_cast<SHORT>(Consts::NO_VALUE);
 
 	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
@@ -103,7 +104,7 @@ void CollisionRenderManager::Update()
 
 		// Check to see if all scene objects have been written in (frame write is complete)
 		m_collisionRenderIteratorUniqueLock.lock();
-		m_frameWritingIsComplete = mp_sharedMemory->m_collisionRenderIterator == mr_nullIterator;
+		m_frameWritingIsComplete = mp_sharedMemory->m_collisionRenderIterator == NULL_ITERATOR;
 		m_collisionRenderIteratorUniqueLock.unlock();
 	}
 
@@ -112,55 +113,59 @@ void CollisionRenderManager::Update()
 		// For each cell
 		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
 		{
-			switch (mp_frameBuffer[m_reusableIterator].m_state)
-			{
-			case BufferCell::State::Collision:
+			if (mp_frameBuffer[m_reusableIterator].m_state == BufferCell::State::Collision)
 			{
 				// Get column and row
-				m_collisionCellCR.m_x = m_reusableIterator % mp_sharedMemory->mr_screenBufferCR.X;
-				m_collisionCellCR.m_y = m_reusableIterator / mp_sharedMemory->mr_screenBufferCR.X;
+				m_collisionCellCR.m_x = m_reusableIterator % mp_sharedMemory->SCREEN_BUFFER_CR.X;
+				m_collisionCellCR.m_y = m_reusableIterator / mp_sharedMemory->SCREEN_BUFFER_CR.X;
 
 				// Send each object, the other object and the collision cell's column and row
 				(*mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE])->Collision(*(*mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE]), m_collisionCellCR);
 				(*mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE])->Collision(*(*mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE]), m_collisionCellCR);
 			}
-			// NOTE/WARNING: Falls through into snake coloring
-			case BufferCell::State::Snake:
-			{
-				mp_textBuffer[m_reusableIterator].Attributes = m_colorWhite;
-			}
-			break;
-			case BufferCell::State::Empty:
-			{
-				mp_textBuffer[m_reusableIterator].Attributes = NULL;
-			}
-			break;
-			case BufferCell::State::Food:
-			{
-				mp_textBuffer[m_reusableIterator].Attributes = BACKGROUND_RED;
-			}
-			break;
-			}
+
+			mp_textBuffer[m_reusableIterator].Attributes = mp_frameBuffer[m_reusableIterator].m_colorBFGround;
+			mp_textBuffer[m_reusableIterator].Char.UnicodeChar = mp_frameBuffer[m_reusableIterator].m_character;
 		}
 
-		WriteConsoleOutput(mr_outputWindowHandle, mp_textBuffer, mp_sharedMemory->mr_screenBufferCR, m_topLeftCellCR, &m_writeRegionRect);
+		// Render from buffer
+		WriteConsoleOutput(OUTPUT_WINDOW_HANDLE, mp_textBuffer, mp_sharedMemory->SCREEN_BUFFER_CR, m_topLeftCellCR, &m_writeRegionRect);
 	}
 
 	// Reset the buffer
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
 	{
-		mp_frameBuffer[m_reusableIterator].ResetCell(mr_nullIterator);
+		mp_frameBuffer[m_reusableIterator].ResetCell(NULL_ITERATOR);
 	}
 }
 #pragma endregion
 
 #pragma region Private Functionality
+void CollisionRenderManager::SetSnakeWriteAttributes(const Structure::CollisionRenderInfo& _collisionRenderInfo)
+{
+	// If snake head, flip flag and write player number
+	if (m_firstWriteInForObject)
+	{
+		m_firstWriteInForObject = false;
+
+		mp_bufferCell->m_character = _collisionRenderInfo.m_character;
+		mp_bufferCell->m_colorBFGround = SNAKE_HEAD_COLOR;
+	}
+
+	// If snake body
+	else
+	{
+
+		mp_bufferCell->m_character = Consts::EMPTY_SPACE_CHAR;
+		mp_bufferCell->m_colorBFGround = SNAKE_BODY_COLOR;
+	}
+}
 void CollisionRenderManager::WriteIntoBuffer(const Structure::CollisionRenderInfo& _collisionRenderInfo)
 {
-	if (_collisionRenderInfo.m_objectType == Enums::ObjectType::Food)
+	if (_collisionRenderInfo.OBJECT_TYPE == Enums::ObjectType::Food)
 	{
 		// Store the memory address of the cell that's being updated
-		mp_bufferCell = &mp_frameBuffer[(_collisionRenderInfo.mr_position.m_y * mp_sharedMemory->mr_screenBufferCR.X) + _collisionRenderInfo.mr_position.m_x];
+		mp_bufferCell = &mp_frameBuffer[(_collisionRenderInfo.POSITION.m_y * mp_sharedMemory->SCREEN_BUFFER_CR.X) + _collisionRenderInfo.POSITION.m_x];
 
 		// Write into buffer
 		WriteIntoBufferCell(_collisionRenderInfo);
@@ -169,13 +174,15 @@ void CollisionRenderManager::WriteIntoBuffer(const Structure::CollisionRenderInf
 	// If snake
 	else
 	{
-		m_snakeCollisionRenderInfo = dynamic_cast<const Structure::SnakeCollisionRenderInfo*>(&_collisionRenderInfo);
+		m_firstWriteInForObject = true;
+
+		SNAKE_COLLISION_RENDER_INFO = dynamic_cast<const Structure::SnakeCollisionRenderInfo*>(&_collisionRenderInfo);
 
 		// For each node
-		for (m_positionIterator = m_snakeCollisionRenderInfo->mr_listOfBodyPositions.begin(); m_positionIterator != m_snakeCollisionRenderInfo->mr_listOfBodyPositions.end(); ++m_positionIterator)
+		for (m_positionIterator = SNAKE_COLLISION_RENDER_INFO->LIST_OF_BODY_POSITIONS.begin(); m_positionIterator != SNAKE_COLLISION_RENDER_INFO->LIST_OF_BODY_POSITIONS.end(); ++m_positionIterator)
 		{
 			// Store the memory address of the cell that's being updated
-			mp_bufferCell = &mp_frameBuffer[(m_positionIterator->m_y * mp_sharedMemory->mr_screenBufferCR.X) + m_positionIterator->m_x];
+			mp_bufferCell = &mp_frameBuffer[(m_positionIterator->m_y * mp_sharedMemory->SCREEN_BUFFER_CR.X) + m_positionIterator->m_x];
 
 			// Write into buffer
 			WriteIntoBufferCell(_collisionRenderInfo);
@@ -194,18 +201,37 @@ void CollisionRenderManager::WriteIntoBufferCell(const Structure::CollisionRende
 	//case BufferCell::State::Collision:
 
 	case BufferCell::State::Empty:
-		mp_bufferCell->m_state = (_collisionRenderInfo.m_objectType == Enums::ObjectType::Food) ? BufferCell::State::Food : BufferCell::State::Snake;
-		break;
+	{
+		if (_collisionRenderInfo.OBJECT_TYPE == Enums::ObjectType::Food)
+		{
+			mp_bufferCell->m_character = _collisionRenderInfo.m_character;
+			mp_bufferCell->m_colorBFGround = FOOD_COLOR;
+			mp_bufferCell->m_state = BufferCell::State::Food;
+		}
+
+		// If snake
+		else
+		{
+			SetSnakeWriteAttributes(_collisionRenderInfo);
+
+			mp_bufferCell->m_state = BufferCell::State::Snake;
+		}
+	}
+	break;
+
+	// NOTE: Only the snake matters in this collision, because the food will disappear
 	case BufferCell::State::Food:
 	case BufferCell::State::Snake:
-		mp_bufferCell->m_state = BufferCell::State::Collision;
-		break;
-	}
+	{
+		if (_collisionRenderInfo.OBJECT_TYPE == Enums::ObjectType::Snake)
+		{
+			SetSnakeWriteAttributes(_collisionRenderInfo);
+		}
 
-	//const char* BODY_CHAR = "_";
-	//
-	//// Write character into buffer
-	//memcpy(&mp_frameBuffer[(m_writePosition->m_y * mr_screenBufferCR.X) + m_writePosition->m_x].m_character, BODY_CHAR, Consts::OFF_BY_ONE);
+		mp_bufferCell->m_state = BufferCell::State::Collision;
+	}
+	break;
+	}
 }
 #pragma endregion
 

@@ -9,7 +9,7 @@
 #pragma region Initialization
 SharedMemory::SharedMemory(const COORD& _bufferSize) :
 	m_threadWaitingFlag(false),
-	mr_screenBufferCR(_bufferSize)
+	SCREEN_BUFFER_CR(_bufferSize)
 {
 	Snake::AssignSharedMemory(*this);
 }

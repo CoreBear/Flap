@@ -36,6 +36,9 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) :
 			for (size_t i = 0; i < 2; i++)
 			{
 				position.m_x = i * 4;
+
+				g.m_int2 = i + Consts::OFF_BY_ONE;
+
 				mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, position, g);
 			}
 		}
@@ -45,7 +48,7 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) :
 			position.m_x = 10;
 			position.m_y = 10;
 
-			g.m_int = 20;
+			g.m_int = 9;
 
 			mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, g);
 		}

@@ -32,8 +32,8 @@ private:
 	
 	// Member Variables
 	bool m_inputMatched;
-	const DWORD m_bufferLength;
-	const HANDLE m_inputWindowHandle;
+	const DWORD BUFFER_LENGTH;
+	const HANDLE INPUT_WINDOW_HANDLE;
 	Structure::Input m_newInput;
 	INPUT_RECORD m_inputRecords[Consts::MAX_NUMBER_OF_PLAYERS * Consts::NUMBER_OF_INPUTS];
 	Enums::InputPressState** mpp_inputPressStates;

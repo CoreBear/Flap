@@ -21,6 +21,8 @@ void Snake::Initialize(const Structure::Generic& _genericContainer)
 	UpdateMoveSpeed(_genericContainer.m_int);
 
 	(*m_listOfBodyPositions.begin()) = m_position;
+
+	mp_collisionRenderInfo->m_character = static_cast<char>(_genericContainer.m_int2 + Consts::ASCII_OFFSET);
 }
 Snake::Snake() : 
 	// NOTE/WARNING: Allocated memory is destroyed in the SceneObject destructor
@@ -75,12 +77,12 @@ void Snake::Collision(const SceneObject& _otherCollidingObject, const Structure:
 	// If didn't collide with self
 	if (&_otherCollidingObject != this)
 	{
-		mp_otherCollisionPackage = &_otherCollidingObject.GetCollisionPackageRef();
+		OTHER_COLLISION_PACKAGE = &_otherCollidingObject.GetCollisionPackageRef();
 
 		// Eating food
-		if (mp_otherCollisionPackage->m_objectType == Enums::ObjectType::Food)
+		if (OTHER_COLLISION_PACKAGE->m_objectType == Enums::ObjectType::Food)
 		{
-			m_numberOfTailSectionsToAdd = mp_otherCollisionPackage->m_int;
+			m_numberOfTailSectionsToAdd = OTHER_COLLISION_PACKAGE->m_int;
 
 			m_newTailPosition = *m_tailIterator;
 		}
@@ -187,7 +189,7 @@ void Snake::Move()
 	case Enums::Direction::Down:
 	{
 		// Bind to screen or die (this needs to be off by one'd)
-		if (m_position.m_y + Consts::OFF_BY_ONE < sp_sharedMemory->mr_screenBufferCR.Y)
+		if (m_position.m_y + Consts::OFF_BY_ONE < sp_sharedMemory->SCREEN_BUFFER_CR.Y)
 		{
 			++m_position.m_y;
 		}
@@ -213,7 +215,7 @@ void Snake::Move()
 	case Enums::Direction::Right:
 	{
 		// Bind to screen or die (this needs to be off by one'd)
-		if (m_position.m_x + Consts::OFF_BY_ONE < sp_sharedMemory->mr_screenBufferCR.X)
+		if (m_position.m_x + Consts::OFF_BY_ONE < sp_sharedMemory->SCREEN_BUFFER_CR.X)
 		{
 			++m_position.m_x;
 		}

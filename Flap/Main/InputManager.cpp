@@ -9,8 +9,8 @@
 #pragma region Initialization
 InputManager::InputManager(SharedMemory& _sharedMemory) :
 	m_inputMatched(false),
-	m_bufferLength(Consts::MAX_NUMBER_OF_PLAYERS * Consts::NUMBER_OF_INPUTS),
-	m_inputWindowHandle(GetStdHandle(STD_INPUT_HANDLE)),
+	BUFFER_LENGTH(Consts::MAX_NUMBER_OF_PLAYERS * Consts::NUMBER_OF_INPUTS),
+	INPUT_WINDOW_HANDLE(GetStdHandle(STD_INPUT_HANDLE)),
 	mpp_inputPressStates(new Enums::InputPressState*[Consts::MAX_NUMBER_OF_PLAYERS]),
 	m_numberOfEventsRead(Consts::NO_VALUE),
 	m_reusableIterator_1(Consts::NO_VALUE),
@@ -38,10 +38,10 @@ void InputManager::Update()
 {
 	//https://learn.microsoft.com/en-us/windows/console/readconsoleinput
 	// NOTE: If this returns 0, error occurred
-	//ReadConsoleInput(m_windowHandle, m_inputRecords, m_bufferLength, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
+	//ReadConsoleInput(m_windowHandle, m_inputRecords, BUFFER_LENGTH, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
 
 	// Read input
-	ReadConsoleInput(m_inputWindowHandle, m_inputRecords, m_bufferLength, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
+	ReadConsoleInput(INPUT_WINDOW_HANDLE, m_inputRecords, BUFFER_LENGTH, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
 
 	// For each record
 	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < m_numberOfEventsRead; m_reusableIterator_1++)

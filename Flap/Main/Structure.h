@@ -13,6 +13,7 @@ namespace Structure
 	public:
 		Enums::ObjectType m_objectType;
 		int m_int;
+		int m_int2;
 	};
 	struct Vector2
 	{
@@ -34,16 +35,16 @@ namespace Structure
 	public:
 		// Member Variables
 		char m_character;
-		const Enums::ObjectType m_objectType;
-		const short m_color;
-		const Vector2& mr_position;
+		const Enums::ObjectType OBJECT_TYPE;
+		const short COLOR;
+		const Vector2& POSITION;
 
 		// Initialization
 		inline CollisionRenderInfo(Enums::ObjectType _objectType, Vector2& _position) :
 			m_character(Consts::EMPTY_SPACE_CHAR), 
-			m_objectType(_objectType), 
-			m_color(10), 
-			mr_position(_position) 
+			OBJECT_TYPE(_objectType),
+			COLOR(10),
+			POSITION(_position)
 		{ 
 			return; 
 		}
@@ -61,10 +62,10 @@ namespace Structure
 	{
 	public:
 		// Member Variables
-		const std::list<Vector2>& mr_listOfBodyPositions;
+		const std::list<Vector2>& LIST_OF_BODY_POSITIONS;
 
 		// Initialization
-		inline SnakeCollisionRenderInfo(std::list<Vector2>& _listOfBodyPositions, Enums::ObjectType _objectType, Vector2& _position) : CollisionRenderInfo(_objectType, _position), mr_listOfBodyPositions(_listOfBodyPositions) { return; }
+		inline SnakeCollisionRenderInfo(std::list<Vector2>& _listOfBodyPositions, Enums::ObjectType _objectType, Vector2& _position) : CollisionRenderInfo(_objectType, _position), LIST_OF_BODY_POSITIONS(_listOfBodyPositions) { return; }
 	};
 }
 

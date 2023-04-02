@@ -1,5 +1,7 @@
 #pragma region Includes
 #include "Food.h"
+
+#include "Consts.h"
 #pragma endregion
 
 #pragma region Initialization
@@ -28,7 +30,6 @@ void Food::UpdateValue(int _value)
 {
 	m_collisionPackage.m_int = _value;
 
-	constexpr int ASCII_OFFSET = static_cast<int>('0');
-	mp_collisionRenderInfo->m_character = static_cast<char>(_value + ASCII_OFFSET);
+	mp_collisionRenderInfo->m_character = static_cast<char>(_value + Consts::ASCII_OFFSET);
 }
 #pragma endregion

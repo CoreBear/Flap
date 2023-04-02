@@ -14,6 +14,7 @@ namespace Consts
 	constexpr float NO_VALUE_F = 0.0F;
 
 	// Ints
+	constexpr int ASCII_OFFSET = static_cast<int>('0');
 	constexpr int FPS_TARGET = 60;
 	constexpr int MAX_NUMBER_OF_PLAYERS = 2;
 	constexpr int NO_VALUE = 0;

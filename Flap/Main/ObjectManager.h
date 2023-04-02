@@ -38,7 +38,7 @@ private:
 	// Member Variables
 	int m_numberOfObjectsPooledForThisType;
 	int m_reusableIterator;
-	const int* mc_numberOfObjectsToPoolPerType;
+	const int* NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE;
 
 	// HACK: Initialize with values
 	std::list<SceneObject*> m_sceneObjectsList;

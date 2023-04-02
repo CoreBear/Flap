@@ -22,7 +22,7 @@ public:
 
 	// Member Variables
 	bool m_threadWaitingFlag;
-	const COORD& mr_screenBufferCR;
+	const COORD& SCREEN_BUFFER_CR;
 	std::condition_variable m_collisionRenderIteratorConVar;
 	std::list<SceneObject*>::const_iterator m_collisionRenderIterator;
 
