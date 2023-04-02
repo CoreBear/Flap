@@ -36,7 +36,7 @@ namespace Structure
 		char m_character;
 		const Enums::ObjectType m_objectType;
 		const short m_color;
-		Vector2& mr_position;
+		const Vector2& mr_position;
 
 		// Initialization
 		inline CollisionRenderInfo(Enums::ObjectType _objectType, Vector2& _position) :

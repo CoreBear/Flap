@@ -53,15 +53,15 @@ private:
 	bool m_frameWritingIsComplete;
 	bool m_writeSpritesIntoBuffer;
 	BufferCell* mp_bufferCell;
-	BufferCell* mp_frameBuffer;
-	CHAR_INFO* mp_textBuffer;
+	int m_bufferSize;							// NOTE/WARNING: This needs to be here, because it needs to initialize before the buffers
+	BufferCell* const mp_frameBuffer;
+	CHAR_INFO* const mp_textBuffer;
 	COORD m_topLeftCellCR;
 	const HANDLE& mr_outputWindowHandle;
-	int m_bufferSize;
 	int m_reusableIterator;
 	const std::list<SceneObject*>::const_iterator& mr_nullIterator;
 	std::list<Structure::Vector2>::const_iterator m_positionIterator;
-	SharedMemory* mp_sharedMemory;
+	SharedMemory* const mp_sharedMemory;
 	short m_colorWhite;
 	SMALL_RECT m_writeRegionRect;
 	const Structure::SnakeCollisionRenderInfo* m_snakeCollisionRenderInfo;

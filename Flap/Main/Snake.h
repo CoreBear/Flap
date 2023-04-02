@@ -20,7 +20,7 @@ public:
 	inline static void AssignSharedMemory(SharedMemory& _sharedMemory) { sp_sharedMemory = &_sharedMemory; }
 
 	// Initialization
-	void Initialize(const Structure::Generic& _genericContainer) override;
+	void Initialize(const Structure::Generic& _genericContainer) override final;
 	Snake();
 	Snake(const Snake&) = delete;
 	Snake& operator=(const Snake&) = delete;
@@ -29,7 +29,7 @@ public:
 	void FixedUpdate() override final;
 
 	// Functionality
-	void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR) final;
+	void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR) override final;
 
 protected:
 	// Member Variables
@@ -44,7 +44,7 @@ private:
 	// Member Variables
 	Enums::Direction m_currentDirection;
 	Enums::Direction m_newDirection;
-	const Structure::Generic* mp_collisionPackage;
+	const Structure::Generic* mp_otherCollisionPackage;
 	int m_moveTargetFrame;
 	int m_numberOfTailSectionsToAdd;
 	std::list<Structure::Vector2> m_listOfBodyPositions;
@@ -55,8 +55,6 @@ private:
 	unsigned int m_numberOfFramesPerCellHorizontal;
 	unsigned int m_numberOfFramesPerCellVertical;
 	Structure::Vector2 m_newTailPosition;
-
-	// Static Variables
 
 	// Functionality
 	void Death();

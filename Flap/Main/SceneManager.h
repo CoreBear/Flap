@@ -32,9 +32,9 @@ private:
 
 	// Member Variables
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
-	ObjectManager* mp_objectManager;
-	OverlayManager* mp_overlayManager;
+	ObjectManager* const mp_objectManager;
+	OverlayManager* const mp_overlayManager;
 	SceneType m_sceneType;
-	SharedMemory* mp_sharedMemory;
+	SharedMemory* const mp_sharedMemory;
 };
 #endif SCENE_MANAGER_H

@@ -38,7 +38,7 @@ private:
 	// Member Variables
 	int m_numberOfObjectsPooledForThisType;
 	int m_reusableIterator;
-	int* mp_numberOfObjectsToPoolPerType;
+	const int* mc_numberOfObjectsToPoolPerType;
 
 	// HACK: Initialize with values
 	std::list<SceneObject*> m_sceneObjectsList;
@@ -49,7 +49,7 @@ private:
 	std::queue<SceneObject*> m_addToSceneObjects;
 	std::queue<SceneObject*> m_removeFromSceneObjects;
 	SceneObject*** mpp_pooledObject;
-	SharedMemory* mp_sharedMemory;
+	SharedMemory* const mp_sharedMemory;
 	std::unique_lock<std::mutex> m_collisionRenderIteratorUniqueLock;
 };
 #endif OBJECT_MANAGER_H

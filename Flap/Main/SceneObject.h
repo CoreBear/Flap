@@ -25,7 +25,7 @@ public:
 	virtual void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR) = 0;
 	inline const Structure::Generic& GetCollisionPackageRef() const { return m_collisionPackage; }
 	inline const Structure::CollisionRenderInfo& GetCollisionRenderInfoRef() const { return *mp_collisionRenderInfo; }
-	inline bool IsActive() { return m_isActive; }
+	inline bool IsActive() const { return m_isActive; }
 	void SetPosition(const Structure::Vector2& _position);
 
 	// Destruction
@@ -37,7 +37,7 @@ protected:
 	static ObjectManager* sp_objectManager;
 
 	// Member Variables
-	Structure::CollisionRenderInfo* mp_collisionRenderInfo;
+	Structure::CollisionRenderInfo* const mp_collisionRenderInfo;
 	Structure::Generic m_collisionPackage;
 	Structure::Vector2 m_position;							
 

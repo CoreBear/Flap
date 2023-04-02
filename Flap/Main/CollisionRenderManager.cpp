@@ -15,16 +15,16 @@ CollisionRenderManager::CollisionRenderManager(const HANDLE& _outputWindowHandle
 	m_frameWritingIsComplete(false),
 	m_writeSpritesIntoBuffer(false),
 	mp_bufferCell(nullptr),
-	mr_outputWindowHandle(_outputWindowHandle),
 	m_bufferSize(_sharedMemory.mr_screenBufferCR.X * _sharedMemory.mr_screenBufferCR.Y),
+	mp_frameBuffer(new BufferCell[m_bufferSize]),
+	mp_textBuffer(new CHAR_INFO[m_bufferSize]),
+	mr_outputWindowHandle(_outputWindowHandle),
 	m_reusableIterator(Consts::NO_VALUE), 
 	mr_nullIterator(_sharedMemory.GetNullIteratorRef()),
 	mp_sharedMemory(&_sharedMemory),
 	m_snakeCollisionRenderInfo(nullptr),
 	m_collisionRenderIteratorUniqueLock(_sharedMemory.GetCollisionRenderIteratorMutexRef())
 {
-	mp_frameBuffer = new BufferCell[m_bufferSize];
-	mp_textBuffer = new CHAR_INFO[m_bufferSize];
 
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
 	{

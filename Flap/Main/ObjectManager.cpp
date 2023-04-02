@@ -18,7 +18,7 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 	SceneObject::AssignObjectManager(*this);
 
 	// NOTE: Only MAX_NUMBER_OF_PLAYERS number of avatars
-	mp_numberOfObjectsToPoolPerType = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { Consts::MAX_NUMBER_OF_PLAYERS, 20, 20 };
+	mc_numberOfObjectsToPoolPerType = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { Consts::MAX_NUMBER_OF_PLAYERS, 20, 20 };
 
 	// Generate pointers for each type
 	mpp_pooledObject = new SceneObject ** [static_cast<int>(Enums::ObjectType::NumberOfTypes)];
@@ -26,7 +26,7 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 	// For each object type
 	for (int objectTypeIndex = Consts::NO_VALUE; objectTypeIndex < (int)Enums::ObjectType::NumberOfTypes; objectTypeIndex++)
 	{
-		m_numberOfObjectsPooledForThisType = mp_numberOfObjectsToPoolPerType[objectTypeIndex];
+		m_numberOfObjectsPooledForThisType = mc_numberOfObjectsToPoolPerType[objectTypeIndex];
 
 		// Generate space for clones
 		mpp_pooledObject[objectTypeIndex] = new SceneObject * [m_numberOfObjectsPooledForThisType];
@@ -129,7 +129,7 @@ void ObjectManager::Update()
 #pragma region Public Functionality
 void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic& _genericContainer)
 {
-	m_numberOfObjectsPooledForThisType = mp_numberOfObjectsToPoolPerType[static_cast<int>(_objectType)];
+	m_numberOfObjectsPooledForThisType = mc_numberOfObjectsToPoolPerType[static_cast<int>(_objectType)];
 
 	// For each pooled object of this type
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_numberOfObjectsPooledForThisType; m_reusableIterator++)
@@ -154,7 +154,7 @@ ObjectManager::~ObjectManager()
 	// For each object type
 	for (int objectTypeIndex = Consts::NO_VALUE; objectTypeIndex < (int)Enums::ObjectType::NumberOfTypes; objectTypeIndex++)
 	{
-		m_numberOfObjectsPooledForThisType = mp_numberOfObjectsToPoolPerType[objectTypeIndex];
+		m_numberOfObjectsPooledForThisType = mc_numberOfObjectsToPoolPerType[objectTypeIndex];
 
 		// For each clone
 		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_numberOfObjectsPooledForThisType; m_reusableIterator++)
@@ -165,7 +165,7 @@ ObjectManager::~ObjectManager()
 		delete[] mpp_pooledObject[objectTypeIndex];
 	}
 
-	delete[] mp_numberOfObjectsToPoolPerType;
+	delete[] mc_numberOfObjectsToPoolPerType;
 	delete[] mpp_pooledObject;
 }
 #pragma endregion

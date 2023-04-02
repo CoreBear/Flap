@@ -75,12 +75,12 @@ void Snake::Collision(const SceneObject& _otherCollidingObject, const Structure:
 	// If didn't collide with self
 	if (&_otherCollidingObject != this)
 	{
-		mp_collisionPackage = &_otherCollidingObject.GetCollisionPackageRef();
+		mp_otherCollisionPackage = &_otherCollidingObject.GetCollisionPackageRef();
 
 		// Eating food
-		if (mp_collisionPackage->m_objectType == Enums::ObjectType::Food)
+		if (mp_otherCollisionPackage->m_objectType == Enums::ObjectType::Food)
 		{
-			m_numberOfTailSectionsToAdd = mp_collisionPackage->m_int;
+			m_numberOfTailSectionsToAdd = mp_otherCollisionPackage->m_int;
 
 			m_newTailPosition = *m_tailIterator;
 		}
@@ -186,7 +186,7 @@ void Snake::Move()
 	{
 	case Enums::Direction::Down:
 	{
-		// Bind to screen or die
+		// Bind to screen or die (this needs to be off by one'd)
 		if (m_position.m_y + Consts::OFF_BY_ONE < sp_sharedMemory->mr_screenBufferCR.Y)
 		{
 			++m_position.m_y;
@@ -200,7 +200,7 @@ void Snake::Move()
 	case Enums::Direction::Left:
 	{
 		// Bind to screen or die
-		if (m_position.m_x - Consts::OFF_BY_ONE > Consts::NO_VALUE)
+		if (m_position.m_x - Consts::OFF_BY_ONE > -Consts::OFF_BY_ONE)
 		{
 			--m_position.m_x;
 		}
@@ -212,7 +212,7 @@ void Snake::Move()
 		break;
 	case Enums::Direction::Right:
 	{
-		// Bind to screen or die
+		// Bind to screen or die (this needs to be off by one'd)
 		if (m_position.m_x + Consts::OFF_BY_ONE < sp_sharedMemory->mr_screenBufferCR.X)
 		{
 			++m_position.m_x;
@@ -226,7 +226,7 @@ void Snake::Move()
 	case Enums::Direction::Up:
 	{
 		// Bind to screen or die
-		if (m_position.m_y - Consts::OFF_BY_ONE > Consts::NO_VALUE)
+		if (m_position.m_y - Consts::OFF_BY_ONE > -Consts::OFF_BY_ONE)
 		{
 			--m_position.m_y;
 		}

@@ -15,14 +15,14 @@ public:
 	Avatar& operator=(const Avatar&) = delete;
 
 	// Updates
-	void Update() override final;
+	void Update() override;
 
 protected:
 	// Functionality
-	void InputDown(Enums::InputPressState _inputPressState) override final;
-	void InputLeft(Enums::InputPressState _inputPressState) override final;
-	void InputRight(Enums::InputPressState _inputPressState) override final;
-	void InputUp(Enums::InputPressState _inputPressState) override final;
+	void InputDown(Enums::InputPressState _inputPressState) override;
+	void InputLeft(Enums::InputPressState _inputPressState) override;
+	void InputRight(Enums::InputPressState _inputPressState) override;
+	void InputUp(Enums::InputPressState _inputPressState) override;
 };
 
 #endif AVATAR_H

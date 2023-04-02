@@ -32,7 +32,7 @@ private:
 	
 	// Member Variables
 	bool m_inputMatched;
-	DWORD m_bufferLength;
+	const DWORD m_bufferLength;
 	const HANDLE m_inputWindowHandle;
 	Structure::Input m_newInput;
 	INPUT_RECORD m_inputRecords[Consts::MAX_NUMBER_OF_PLAYERS * Consts::NUMBER_OF_INPUTS];
@@ -41,7 +41,7 @@ private:
 	int m_reusableIterator_1;
 	int m_reusableIterator_2;
 	int m_reusableIterator_3;
-	std::mutex* mp_inputQueueMutex;
+	std::mutex* const mp_inputQueueMutex;
 	std::queue<Structure::Input>* mp_inputQueue;
 	unsigned int** mpp_deadFramesTargetFrames;
 
