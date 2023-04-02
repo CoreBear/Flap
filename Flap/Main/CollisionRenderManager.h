@@ -53,9 +53,7 @@ private:
 	bool m_frameWritingIsComplete;
 	bool m_writeSpritesIntoBuffer;
 	BufferCell* mp_bufferCell;
-	BufferCell* mp_bufferForReading;
-	BufferCell* mp_bufferForWriting;
-	BufferCell* mp_bufferSwapper;
+	BufferCell* mp_frameBuffer;
 	CHAR_INFO* mp_textBuffer;
 	COORD m_topLeftCellCR;
 	const HANDLE& mr_outputWindowHandle;
