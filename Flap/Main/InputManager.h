@@ -31,7 +31,6 @@ private:
 	static constexpr unsigned int NUMBER_OF_DEAD_FRAMES = 15;		// Arbitrary value, represents click-to-hold number of frames
 	
 	// Member Variables
-	bool m_inputMatched;
 	const DWORD BUFFER_LENGTH;
 	const HANDLE INPUT_WINDOW_HANDLE;
 	Structure::Input m_newInput;

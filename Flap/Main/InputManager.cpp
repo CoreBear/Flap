@@ -8,7 +8,6 @@
 
 #pragma region Initialization
 InputManager::InputManager(SharedMemory& _sharedMemory) :
-	m_inputMatched(false),
 	BUFFER_LENGTH(Consts::MAX_NUMBER_OF_PLAYERS * Consts::NUMBER_OF_INPUTS),
 	INPUT_WINDOW_HANDLE(GetStdHandle(STD_INPUT_HANDLE)),
 	mpp_inputPressStates(new Enums::InputPressState*[Consts::MAX_NUMBER_OF_PLAYERS]),
@@ -51,14 +50,11 @@ void InputManager::Update()
 		// Only handle key input
 		if (m_inputRecords[m_reusableIterator_1].EventType == KEY_EVENT)
 		{
-			// Flip flag
-			m_inputMatched = false;
-
 			// For each player
-			for (m_reusableIterator_2 = Consts::NO_VALUE; m_inputMatched == false && m_reusableIterator_2 < Consts::MAX_NUMBER_OF_PLAYERS; m_reusableIterator_2++)
+			for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < Consts::MAX_NUMBER_OF_PLAYERS; m_reusableIterator_2++)
 			{
 				// For each player's inputs being watched
-				for (m_reusableIterator_3 = Consts::NO_VALUE; m_inputMatched == false && m_reusableIterator_3 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_3++)
+				for (m_reusableIterator_3 = Consts::NO_VALUE; m_reusableIterator_3 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_3++)
 				{
 					// If input that caused event is an input being watched
 					if (m_inputRecords[m_reusableIterator_1].Event.KeyEvent.wVirtualKeyCode == Consts::INPUTS[m_reusableIterator_2][m_reusableIterator_3])
@@ -66,7 +62,7 @@ void InputManager::Update()
 						ReadAndEnqueueInput(m_inputRecords[m_reusableIterator_1].Event.KeyEvent);
 
 						// Stop looking for input
-						m_inputMatched = true;
+						return;
 					}
 				}
 			}
