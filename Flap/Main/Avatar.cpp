@@ -34,7 +34,7 @@ void Avatar::InputDown(Enums::InputPressState _inputPressState)
 	case Enums::InputPressState::Held:
 		break;
 	case Enums::InputPressState::PressedThisFrame:
-		Snake::TryTurnDown();
+		Snake::InputDown();
 		break;
 	case Enums::InputPressState::Released:
 		break;
@@ -51,7 +51,7 @@ void Avatar::InputLeft(Enums::InputPressState _inputPressState)
 	case Enums::InputPressState::Held:
 		break;
 	case Enums::InputPressState::PressedThisFrame:
-		Snake::TryTurnLeft();
+		Snake::InputLeft();
 		break;
 	case Enums::InputPressState::Released:
 		break;
@@ -68,7 +68,7 @@ void Avatar::InputRight(Enums::InputPressState _inputPressState)
 	case Enums::InputPressState::Held:
 		break;
 	case Enums::InputPressState::PressedThisFrame:
-		Snake::TryTurnRight();
+		Snake::InputRight();
 		break;
 	case Enums::InputPressState::Released:
 		break;
@@ -85,7 +85,7 @@ void Avatar::InputUp(Enums::InputPressState _inputPressState)
 	case Enums::InputPressState::Held:
 		break;
 	case Enums::InputPressState::PressedThisFrame:
-		Snake::TryTurnUp();
+		Snake::InputUp();
 		break;
 	case Enums::InputPressState::Released:
 		break;

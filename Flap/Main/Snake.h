@@ -35,10 +35,10 @@ protected:
 	// Member Variables
 
 	// Functionality
-	inline void TryTurnDown() { m_newDirection = Enums::Direction::Down; }
-	inline void TryTurnLeft() { m_newDirection = Enums::Direction::Left; }
-	inline void TryTurnRight() { m_newDirection = Enums::Direction::Right; }
-	inline void TryTurnUp() { m_newDirection = Enums::Direction::Up; }
+	inline void InputDown() { m_newDirection = Enums::Direction::Down; }
+	inline void InputLeft() { m_newDirection = Enums::Direction::Left; }
+	inline void InputRight() { m_newDirection = Enums::Direction::Right; }
+	inline void InputUp() { m_newDirection = Enums::Direction::Up; }
 
 private:
 	// Member Variables
