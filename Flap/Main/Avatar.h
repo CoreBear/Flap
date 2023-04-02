@@ -15,7 +15,7 @@ public:
 	Avatar& operator=(const Avatar&) = delete;
 
 	// Updates
-	void Update() override;
+	void FixedUpdate() override;
 
 protected:
 	// Functionality

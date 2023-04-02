@@ -40,6 +40,7 @@ void InputManager::Update()
 	//ReadConsoleInput(m_windowHandle, m_inputRecords, BUFFER_LENGTH, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
 
 	// Read input
+	// NOTE: This call blocks, which is fine, since input is on its own thread
 	ReadConsoleInput(INPUT_WINDOW_HANDLE, m_inputRecords, BUFFER_LENGTH, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
 
 	// For each record

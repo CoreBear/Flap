@@ -47,19 +47,28 @@ int main()
 		new SceneManager(sharedMemory)
 	};
 
-	// Generate manager threads
+	bool detachThread[static_cast<int>(ManagerType::NumberOfTypes)]{ false, true, false };
 	std::thread managerThreads[static_cast<int>(ManagerType::NumberOfTypes)];
 
-	// Start manager threads
+	// Start manager threads and detach (if applicable)
 	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ManagerType::NumberOfTypes; threadIndex++)
 	{
 		managerThreads[threadIndex] = std::thread(ManagerThreadEntry, threadIndex, managers);
+
+		// Detach if applicable
+		if (detachThread[threadIndex])
+		{
+			managerThreads[threadIndex].detach();
+		}
 	}
 
-	// Join manager threads
+	// Join manager threads (if applicable)
 	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ManagerType::NumberOfTypes; threadIndex++)
 	{
-		managerThreads[threadIndex].join();
+		if (detachThread[threadIndex] == false)
+		{
+			managerThreads[threadIndex].join();
+		}
 	}
 
 	// Delete manager pointers

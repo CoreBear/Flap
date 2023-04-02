@@ -14,9 +14,11 @@ Avatar::Avatar(SharedMemory& _sharedMemory)
 #pragma endregion
 
 #pragma region Updates
-void Avatar::Update()
+void Avatar::FixedUpdate()
 {
 	InputReceiver::HandleInput();
+
+	Snake::FixedUpdate();
 }
 #pragma endregion
 
@@ -32,7 +34,7 @@ void Avatar::InputDown(Enums::InputPressState _inputPressState)
 	case Enums::InputPressState::Held:
 		break;
 	case Enums::InputPressState::PressedThisFrame:
-		Snake::BeginDown();
+		Snake::TryTurnDown();
 		break;
 	case Enums::InputPressState::Released:
 		break;
@@ -49,7 +51,7 @@ void Avatar::InputLeft(Enums::InputPressState _inputPressState)
 	case Enums::InputPressState::Held:
 		break;
 	case Enums::InputPressState::PressedThisFrame:
-		Snake::BeginLeft();
+		Snake::TryTurnLeft();
 		break;
 	case Enums::InputPressState::Released:
 		break;
@@ -66,7 +68,7 @@ void Avatar::InputRight(Enums::InputPressState _inputPressState)
 	case Enums::InputPressState::Held:
 		break;
 	case Enums::InputPressState::PressedThisFrame:
-		Snake::BeginRight();
+		Snake::TryTurnRight();
 		break;
 	case Enums::InputPressState::Released:
 		break;
@@ -83,7 +85,7 @@ void Avatar::InputUp(Enums::InputPressState _inputPressState)
 	case Enums::InputPressState::Held:
 		break;
 	case Enums::InputPressState::PressedThisFrame:
-		Snake::BeginUp();
+		Snake::TryTurnUp();
 		break;
 	case Enums::InputPressState::Released:
 		break;

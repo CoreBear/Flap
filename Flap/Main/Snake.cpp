@@ -18,6 +18,10 @@ void Snake::Initialize(const Structure::Generic& _genericContainer)
 	m_currentDirection = Enums::Direction::NA;
 	m_newDirection = Enums::Direction::NA;
 
+	// Causes snake to check for first input, each frame, at the start
+	m_numberOfFramesPerCell = static_cast<unsigned int>(Consts::OFF_BY_ONE);
+	m_moveTargetFrame = SceneManager::s_fixedFrameCount + m_numberOfFramesPerCell;
+
 	UpdateMoveSpeed(_genericContainer.m_int);
 
 	(*m_listOfBodyPositions.begin()) = m_position;
@@ -42,29 +46,15 @@ Snake::Snake() :
 #pragma region Updates
 void Snake::FixedUpdate()
 {
-	HandleInput();
-
 	// If movement frame
 	if (SceneManager::s_fixedFrameCount == m_moveTargetFrame)
 	{
 		// Reset movement target
 		m_moveTargetFrame = SceneManager::s_fixedFrameCount + m_numberOfFramesPerCell;
 
-		// If a tail should be added
-		if (m_numberOfTailSectionsToAdd > Consts::NO_VALUE)
-		{
-			// Add tail
-			m_listOfBodyPositions.push_back(m_newTailPosition);
+		TryAddTail();
 
-			// Move iterator to this new tail
-			++m_tailIterator;
-
-			// Account for this tail's addition
-			--m_numberOfTailSectionsToAdd;
-
-			// Set new tail position, in-case another tail needs to be added
-			m_newTailPosition = *m_tailIterator;
-		}
+		TryTurn();
 
 		Move();
 	}
@@ -117,62 +107,6 @@ void Snake::Death()
 {
 	// Game over
 	int h = 0;
-}
-void Snake::HandleInput()
-{
-	switch (m_currentDirection)
-	{
-	// Currently moving vertical
-	case Enums::Direction::Down:
-	case Enums::Direction::Up:
-	{
-		// If new direction is horizontal
-		switch (m_newDirection)
-		{
-		case Enums::Direction::Left:
-		case Enums::Direction::Right:
-			HorizontalTurn();
-		break;
-		}
-	}
-	break;
-
-	// Currently moving horizontal
-	case Enums::Direction::Left:
-	case Enums::Direction::Right:
-	{
-		// If new direction is vertical
-		switch (m_newDirection)
-		{
-		case Enums::Direction::Down:
-		case Enums::Direction::Up:
-			VerticalTurn();
-		break;
-		}
-	}
-	break;
-
-	// If not currently moving (game just started), change direction
-	default:
-	{
-		switch (m_newDirection)
-		{
-		case Enums::Direction::Down:
-		case Enums::Direction::Up:
-			VerticalTurn();
-			break;
-		case Enums::Direction::Left:
-		case Enums::Direction::Right:
-			HorizontalTurn();
-			break;
-
-		// NOTE: No direction has been pressed
-		default:
-			break;
-		}
-	}
-		break;
-	}
 }
 void Snake::HorizontalTurn()
 {
@@ -265,6 +199,80 @@ void Snake::Move()
 
 	// Update first (head) position
 	(*m_headTraversingIterator) = m_position;
+}
+void Snake::TryAddTail()
+{
+	// If a tail should be added
+	if (m_numberOfTailSectionsToAdd > Consts::NO_VALUE)
+	{
+		// Add tail
+		m_listOfBodyPositions.push_back(m_newTailPosition);
+
+		// Move iterator to this new tail
+		++m_tailIterator;
+
+		// Account for this tail's addition
+		--m_numberOfTailSectionsToAdd;
+
+		// Set new tail position, in-case another tail needs to be added
+		m_newTailPosition = *m_tailIterator;
+	}
+}
+void Snake::TryTurn()
+{
+	switch (m_currentDirection)
+	{
+		// Currently moving vertical
+	case Enums::Direction::Down:
+	case Enums::Direction::Up:
+	{
+		// If new direction is horizontal
+		switch (m_newDirection)
+		{
+		case Enums::Direction::Left:
+		case Enums::Direction::Right:
+			HorizontalTurn();
+			break;
+		}
+	}
+	break;
+
+	// Currently moving horizontal
+	case Enums::Direction::Left:
+	case Enums::Direction::Right:
+	{
+		// If new direction is vertical
+		switch (m_newDirection)
+		{
+		case Enums::Direction::Down:
+		case Enums::Direction::Up:
+			VerticalTurn();
+			break;
+		}
+	}
+	break;
+
+	// If not currently moving (game just started), change direction
+	default:
+	{
+		switch (m_newDirection)
+		{
+		case Enums::Direction::Down:
+		case Enums::Direction::Up:
+			VerticalTurn();
+			break;
+		case Enums::Direction::Left:
+		case Enums::Direction::Right:
+			HorizontalTurn();
+			break;
+
+			// NOTE: No direction has been pressed
+		default:
+			break;
+		}
+	}
+	break;
+	}
 }
 void Snake::Turn()
 {
