@@ -5,6 +5,7 @@
 
 #include <chrono>
 
+class CollisionManager;
 class ObjectManager;
 class OverlayManager;
 class SharedMemory;
@@ -31,6 +32,7 @@ private:
 	enum class SceneType { Game, Overlay };
 
 	// Member Variables
+	CollisionManager* const mp_collisionManager;
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	ObjectManager* const mp_objectManager;
 	OverlayManager* const mp_overlayManager;

@@ -13,13 +13,13 @@ class Snake : public SceneObject
 {
 public:
 	// Static Variables
-	static SharedMemory* sp_sharedMemory;
+	static Structure::Generic s_genericContainer;
 
 	// Static Initialization
 	inline static void AssignSharedMemory(SharedMemory& _sharedMemory) { sp_sharedMemory = &_sharedMemory; }
 
 	// Initialization
-	void Initialize(const Structure::Generic& _genericContainer) override final;
+	void Initialize(const Structure::Generic* const _genericContainer) override final;
 	Snake();
 	Snake(const Snake&) = delete;
 	Snake& operator=(const Snake&) = delete;
@@ -31,8 +31,6 @@ public:
 	void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR) override final;
 
 protected:
-	// Member Variables
-
 	// Functionality
 	inline void InputDown() { m_newDirection = Enums::Direction::Down; }
 	inline void InputLeft() { m_newDirection = Enums::Direction::Left; }
@@ -40,6 +38,9 @@ protected:
 	inline void InputUp() { m_newDirection = Enums::Direction::Up; }
 
 private:
+	// Static Variables
+	static SharedMemory* sp_sharedMemory;
+
 	// Member Variables
 	DList<Structure::Vector2> m_bodyNodes;
 	DList<Structure::Vector2>::Iterator m_headTraversingIterator;

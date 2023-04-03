@@ -1,6 +1,7 @@
 #pragma region Includes
 #include "SceneManager.h"
 
+#include "CollisionManager.h"
 #include "Consts.h"
 #include "ObjectManager.h"
 #include "OverlayManager.h"
@@ -14,6 +15,7 @@
 unsigned int SceneManager::s_fixedFrameCount = Consts::NO_VALUE;
 
 SceneManager::SceneManager(SharedMemory& _sharedMemory) : 
+	mp_collisionManager(new CollisionManager()),
 	mp_objectManager(new ObjectManager(_sharedMemory)),
 	mp_overlayManager(new OverlayManager()),
 	m_sceneType(SceneType::Game),
@@ -39,7 +41,7 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) :
 
 				g.m_int2 = i + Consts::OFF_BY_ONE;
 
-				mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, position, g);
+				mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, position, &g);
 			}
 		}
 
@@ -50,7 +52,7 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) :
 
 			g.m_int = 2;
 
-			mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, g);
+			mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, &g);
 		}
 	}
 }
@@ -59,16 +61,6 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) :
 #pragma region Updates
 void SceneManager::Update() 
 {
-	// Backend/Regular update
-	if (m_sceneType == SceneType::Game)
-	{
-		mp_objectManager->Update();
-	}
-	else
-	{
-		mp_overlayManager->Update();
-	}
-
 	// Fixed Update
 	m_currentTime = std::chrono::high_resolution_clock::now();
 
@@ -83,11 +75,23 @@ void SceneManager::Update()
 		if (m_sceneType == SceneType::Game)
 		{
 			mp_objectManager->FixedUpdate();
+
+			mp_collisionManager->CheckForCollisions();
 		}
 		else
 		{
 			mp_overlayManager->FixedUpdate();
 		}
+	}
+
+	// Backend/Regular update
+	if (m_sceneType == SceneType::Game)
+	{
+		mp_objectManager->Update();
+	}
+	else
+	{
+		mp_overlayManager->Update();
 	}
 
 	// Last Update
@@ -101,6 +105,7 @@ void SceneManager::Update()
 #pragma region Destruction
 SceneManager::~SceneManager()
 {
+	delete mp_collisionManager;
 	delete mp_objectManager;
 	delete mp_overlayManager;
 }

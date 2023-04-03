@@ -129,6 +129,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Avatar.cpp" />
+    <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="Food.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="InputReceiver.cpp" />
@@ -138,13 +139,14 @@
     <ClCompile Include="NetworkManager.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="OverlayManager.cpp" />
-    <ClCompile Include="CollisionRenderManager.cpp" />
+    <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="Tools.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Avatar.h" />
+    <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="DList.h" />
     <ClInclude Include="Food.h" />
     <ClInclude Include="InputReceiver.h" />
@@ -159,7 +161,7 @@
     <ClInclude Include="NetworkManager.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="OverlayManager.h" />
-    <ClInclude Include="CollisionRenderManager.h" />
+    <ClInclude Include="RenderManager.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="Tools.h" />

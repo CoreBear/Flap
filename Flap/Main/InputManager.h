@@ -40,8 +40,8 @@ private:
 	int m_reusableIterator_1;
 	int m_reusableIterator_2;
 	int m_reusableIterator_3;
-	std::mutex* const mp_inputQueueMutex;
-	std::queue<Structure::Input>* mp_inputQueue;
+	std::mutex* const mp_inputQueueMutex;					// Needs to be a pointer, because it's an array
+	std::queue<Structure::Input>* const mp_inputQueue;		// Needs to be a pointer, because it's an array
 	unsigned int** mpp_deadFramesTargetFrames;
 
 	// Functionality

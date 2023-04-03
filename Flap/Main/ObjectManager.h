@@ -27,9 +27,9 @@ public:
 	void Update() override;
 
 	// Functionality
-	inline void AddToSceneObjects(SceneObject* _sceneObject) { m_addToSceneObjects.push(_sceneObject); }
-	inline void RemoveFromSceneObjects(SceneObject* _sceneObject) { m_removeFromSceneObjects.push(_sceneObject); }
-	void SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic& _genericContainer);
+	inline void AddToSceneObjects(SceneObject* const _sceneObject) { m_addToSceneObjects.push(_sceneObject); }
+	inline void RemoveFromSceneObjects(SceneObject* const _sceneObject) { m_removeFromSceneObjects.push(_sceneObject); }
+	void SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic* const _genericContainer = nullptr);
 
 	// Desturction
 	~ObjectManager();
@@ -46,6 +46,6 @@ private:
 	std::queue<SceneObject*> m_removeFromSceneObjects;
 	SceneObject*** mpp_pooledObject;
 	SharedMemory* const mp_sharedMemory;
-	std::unique_lock<std::mutex> m_collisionRenderIteratorUniqueLock;
+	std::unique_lock<std::mutex> m_renderIteratorUniqueLock;
 };
 #endif OBJECT_MANAGER_H

@@ -10,7 +10,7 @@ public:
 	Food();
 	Food(const Food&) = delete;
 	Food& operator=(const Food&) = delete;
-	void Initialize(const Structure::Generic& _genericContainer) override;
+	void Initialize(const Structure::Generic* const _genericContainer) override;
 
 	// Functionality
 	void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR);

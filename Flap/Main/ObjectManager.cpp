@@ -13,7 +13,7 @@
 ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 	mr_sceneObjectsFixedUpdateIterator(_sharedMemory.GetSceneObjectsIteratorRef()), 
 	mp_sharedMemory(&_sharedMemory),
-	m_collisionRenderIteratorUniqueLock(_sharedMemory.GetCollisionRenderIteratorMutexRef())
+	m_renderIteratorUniqueLock(_sharedMemory.GetRenderIteratorMutexRef())
 {
 	SceneObject::AssignObjectManager(*this);
 
@@ -51,11 +51,10 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 
 	// Set pointers to the beginning of the container
 	mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.End();
-	mp_sharedMemory->m_collisionRenderIterator = m_sceneObjectsList.End();
-	mp_sharedMemory->SetNullIterator(m_sceneObjectsList.End());
+	mp_sharedMemory->m_renderIterator = m_sceneObjectsList.End();
 
 	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
-	m_collisionRenderIteratorUniqueLock.unlock();
+	m_renderIteratorUniqueLock.unlock();
 }
 #pragma endregion
 
@@ -64,40 +63,39 @@ void ObjectManager::FixedUpdate()
 {
 	if (m_sceneObjectsList.IsEmpty() == false)
 	{
-		m_collisionRenderIteratorUniqueLock.lock();
+		m_renderIteratorUniqueLock.lock();
 
-		// If CollisionRender thread is already waiting, release the this (Scene) thread
+		// If Render thread is already waiting, release the this (Scene) thread
 		if (mp_sharedMemory->m_threadWaitingFlag)
 		{
-			mp_sharedMemory->m_collisionRenderIteratorConVar.notify_one();
+			mp_sharedMemory->m_renderIteratorConVar.notify_one();
 		}
 
-		// If CollisionRender thread is not already waiting, flip flag and wait
+		// If Render thread is not already waiting, flip flag and wait
 		else
 		{
+			// Notify system that this (Scene) thread is waiting
 			mp_sharedMemory->m_threadWaitingFlag = true;
 
-			// When CollisionRender thread releases this (Scene) thread, flip flag
-			mp_sharedMemory->m_collisionRenderIteratorConVar.wait(m_collisionRenderIteratorUniqueLock);
+			// When Render thread releases this (Scene) thread, flip flag
+			mp_sharedMemory->m_renderIteratorConVar.wait(m_renderIteratorUniqueLock);
 
 			// Let it know it can release, because this (Scene) thread needs to go first
-			mp_sharedMemory->m_collisionRenderIteratorConVar.notify_one();
-
-			mp_sharedMemory->m_threadWaitingFlag = false;
+			mp_sharedMemory->m_renderIteratorConVar.notify_one();
 		}
 
 		// Reset iterators
 		mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.Begin();
-		mp_sharedMemory->m_collisionRenderIterator = m_sceneObjectsList.Begin();
+		mp_sharedMemory->m_renderIterator = m_sceneObjectsList.Begin();
 
 		// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
-		m_collisionRenderIteratorUniqueLock.unlock();
+		m_renderIteratorUniqueLock.unlock();
 
 		for (/*Initialization is done above, while within mutex*/; mr_sceneObjectsFixedUpdateIterator != m_sceneObjectsList.End(); ++mr_sceneObjectsFixedUpdateIterator)
 		{
-			m_collisionRenderIteratorUniqueLock.lock();
+			m_renderIteratorUniqueLock.lock();
 			(*mr_sceneObjectsFixedUpdateIterator)->FixedUpdate();
-			m_collisionRenderIteratorUniqueLock.unlock();
+			m_renderIteratorUniqueLock.unlock();
 		}
 	}
 }
@@ -127,7 +125,7 @@ void ObjectManager::Update()
 #pragma endregion
 
 #pragma region Public Functionality
-void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic& _genericContainer)
+void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic* const _genericContainer)
 {
 	m_numberOfObjectsPooledForThisType = NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE[static_cast<int>(_objectType)];
 

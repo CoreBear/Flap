@@ -17,14 +17,14 @@ public:
 		Type m_value;
 
 		// Initialization
-		Node(Type _value, Node* _next = nullptr, Node* _previous = nullptr) : m_next(_next), m_previous(_previous), m_value(_value) { return; }
+		Node(Type _value, Node* const _next = nullptr, Node* const _previous = nullptr) : m_next(_next), m_previous(_previous), m_value(_value) { return; }
 	};
 	class Iterator
 	{
 	public:
 		// Initialization
-		inline Iterator(Node* _node = nullptr) : m_current(_node) { return; }
-		inline Iterator(const Iterator& _rhs) : m_current(nullptr) { *this = _rhs; }
+		inline Iterator(Node* const _node = nullptr) : m_reusableIterator(Consts::NO_VALUE), m_current(_node) { return; }
+		inline Iterator(const Iterator& _rhs) : m_reusableIterator(Consts::NO_VALUE), m_current(nullptr) { *this = _rhs; }
 
 		// Functionality
 		Iterator& operator=(const Iterator& _rhs)
@@ -36,7 +36,6 @@ public:
 
 			return *this;
 		}
-
 		Iterator& operator++()	// Pre-fix
 		{
 			if (m_current != nullptr)
@@ -77,6 +76,22 @@ public:
 
 			return copy;
 		}
+		Iterator& operator+=(int _numberOfIncrements)
+		{
+			for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < _numberOfIncrements; m_reusableIterator++)
+			{
+				if (m_current != nullptr)
+				{
+					m_current = m_current->m_next;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			return *this;
+		}
 		inline bool operator==(const Iterator& _rhs) { return (m_current == _rhs.m_current); }
 		inline bool operator!=(const Iterator& _rhs) { return (m_current != _rhs.m_current); }
 		inline Type& operator*() { return m_current->m_value; }
@@ -85,18 +100,78 @@ public:
 	protected:
 		// Member Variables
 		Node* m_current;
+
+	private:
+		int m_reusableIterator;
 	};
 	class Const_Iterator final : public Iterator
 	{
 	public:
 		// Functionality
-		inline Const_Iterator(Node* _node = nullptr) : Iterator(_node) { return; }
+		inline Const_Iterator(Node* const _node = nullptr) : Iterator(_node) { return; }
 		inline Const_Iterator(const Iterator& _rhs) : Iterator(_rhs) { return; }
 		Const_Iterator& operator=(const Const_Iterator& _rhs)
 		{
 			if (this != &_rhs)
 			{
 				Iterator::m_current = _rhs.m_current;
+			}
+
+			return *this;
+		}
+
+		Const_Iterator& operator++()	// Pre-fix
+		{
+			if (Iterator::m_current != nullptr)
+			{
+				Iterator::m_current = Iterator::m_current->m_next;
+			}
+
+			return *this;
+		}
+		Const_Iterator operator++(int)	// Post-fix
+		{
+			Const_Iterator copy(Iterator::m_current);
+
+			if (Iterator::m_current != nullptr)
+			{
+				Iterator::m_current = Iterator::m_current->m_next;
+			}
+
+			return copy;
+		}
+		Const_Iterator& operator--()	// Pre-fix
+		{
+			if (Iterator::m_current != nullptr)
+			{
+				Iterator::m_current = Iterator::m_current->m_previous;
+			}
+
+			return *this;
+		}
+		Const_Iterator operator--(int)	// Post-fix
+		{
+			Const_Iterator copy(Iterator::m_current);
+
+			if (Iterator::m_current != nullptr)
+			{
+				Iterator::m_current = Iterator::m_current->m_previous;
+			}
+
+			return copy;
+		}
+		Const_Iterator& operator+=(int _numberOfIncrements)
+		{
+			for (Iterator::m_reusableIterator = Consts::NO_VALUE; Iterator::m_reusableIterator < _numberOfIncrements; Iterator::m_reusableIterator++)
+			{
+				if (Iterator::m_current != nullptr)
+				{
+					Iterator::m_current = Iterator::m_current->m_next;
+				}
+				else
+				{
+					break;
+				}
 			}
 
 			return *this;
@@ -158,7 +233,7 @@ public:
 	inline bool IsEmpty() { return (m_head == nullptr); }
 	void PushBack(Type _value)
 	{
-		Node* newNode = new Node(_value);
+		Node* const newNode = new Node(_value);
 
 		// If not an empty list, add node to the tail
 		if (m_tail != nullptr)

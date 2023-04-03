@@ -7,14 +7,14 @@
 #pragma region Static Initialization
 ObjectManager* SceneObject::sp_objectManager = nullptr;
 
-SceneObject::SceneObject(Structure::CollisionRenderInfo* _collisionRenderInfo) : mp_collisionRenderInfo(_collisionRenderInfo)
+SceneObject::SceneObject(Structure::RenderInfo* _renderInfo) : mp_renderInfo(_renderInfo)
 {
 	m_isActive = false;
 }
 #pragma endregion
 
 #pragma region Initialization
-void SceneObject::Initialize(const Structure::Generic& _genericContainer)
+void SceneObject::Initialize(const Structure::Generic* const _genericContainer)
 {
 	m_isActive = true;
 
@@ -38,6 +38,6 @@ void SceneObject::Denitialize()
 }
 SceneObject::~SceneObject() 
 { 
-	delete mp_collisionRenderInfo; 
+	delete mp_renderInfo; 
 }
 #pragma endregion

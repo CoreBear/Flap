@@ -17,8 +17,8 @@ public:
 protected:
 	// Member Variables
 	Structure::Input m_currentInput;
-	std::mutex* mp_inputQueueMutex;					// Has to be a pointer, because they cannot be initialized via initializer list
-	std::queue<Structure::Input>* mp_inputQueue;	// Has to be a pointer, because they cannot be initialized via initializer list
+	std::mutex* mp_inputQueueMutex;					// Needs to be a pointer, because it's an array
+	std::queue<Structure::Input>* mp_inputQueue;	// Needs to be a pointer, because it's an array
 
 	// Initialization
 	InputReceiver() = default;

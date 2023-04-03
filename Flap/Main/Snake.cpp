@@ -2,16 +2,18 @@
 #include "Snake.h"
 
 #include "Consts.h"
+#include "ObjectManager.h"
 #include "SceneManager.h"
 #include "SharedMemory.h"
 #pragma endregion
 
 #pragma region Static Initialization
+Structure::Generic Snake::s_genericContainer;
 SharedMemory* Snake::sp_sharedMemory = nullptr;
 #pragma endregion
 
 #pragma region Initialization
-void Snake::Initialize(const Structure::Generic& _genericContainer)
+void Snake::Initialize(const Structure::Generic* const _genericContainer)
 {
 	SceneObject::Initialize(_genericContainer);
 
@@ -22,15 +24,15 @@ void Snake::Initialize(const Structure::Generic& _genericContainer)
 	m_numberOfFramesPerCell = static_cast<unsigned int>(2);
 	m_moveTargetFrame = SceneManager::s_fixedFrameCount + m_numberOfFramesPerCell;
 
-	UpdateMoveSpeed(_genericContainer.m_int);
+	UpdateMoveSpeed(_genericContainer->m_int);
 
 	m_bodyNodes.PushBack(m_position);
 	
-	mp_collisionRenderInfo->m_character = static_cast<char>(_genericContainer.m_int2 + Consts::ASCII_OFFSET);
+	mp_renderInfo->m_character = static_cast<char>(_genericContainer->m_int2 + Consts::ASCII_OFFSET);
 }
 Snake::Snake() : 
 	// NOTE/WARNING: Allocated memory is destroyed in the SceneObject destructor
-	SceneObject(dynamic_cast<Structure::CollisionRenderInfo*>(new Structure::SnakeCollisionRenderInfo(m_bodyNodes, Enums::ObjectType::Snake, m_position))),
+	SceneObject(dynamic_cast<Structure::RenderInfo*>(new Structure::SnakeRenderInfo(m_bodyNodes, Enums::ObjectType::Snake, m_position))),
 	m_currentDirection(Enums::Direction::NA), 
 	m_newDirection(Enums::Direction::NA), 
 	m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
@@ -100,9 +102,18 @@ void Snake::Collision(const SceneObject& _otherCollidingObject, const Structure:
 
 #pragma region Private Functionality
 void Snake::Death()
-{
-	// Game over
-	int h = 0;
+{	
+	// Multi-player - This player's avatar/snake is turned into food and their inputs do nothing
+	constexpr int EVERY_OTHER_NODE = 2;
+	for (m_headTraversingIterator = m_bodyNodes.Begin(); m_headTraversingIterator != m_bodyNodes.End(); m_headTraversingIterator += EVERY_OTHER_NODE)
+	{
+		s_genericContainer.m_int = 1;
+		sp_objectManager->SpawnObject(Enums::ObjectType::Food, *m_headTraversingIterator, &s_genericContainer);
+	}
+
+	Denitialize();
+
+	// Single player - Game over
 }
 void Snake::HorizontalTurn()
 {

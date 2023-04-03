@@ -14,6 +14,12 @@ namespace Structure
 		int m_int;
 		int m_int2;
 	};
+	struct Input
+	{
+	public:
+		Enums::InputPressState m_inputPressState;
+		int m_inputIndex;
+	};
 	struct Vector2
 	{
 	public:
@@ -29,7 +35,7 @@ namespace Structure
 		inline void operator=(const Vector2& _rhs) { m_x = _rhs.m_x; m_y = _rhs.m_y; }
 		inline bool operator==(const Vector2& _rhs) { return (m_x == _rhs.m_x && m_y == _rhs.m_y); }
 	};
-	class CollisionRenderInfo
+	class RenderInfo
 	{
 	public:
 		// Member Variables
@@ -39,7 +45,7 @@ namespace Structure
 		const Vector2& POSITION;
 
 		// Initialization
-		inline CollisionRenderInfo(Enums::ObjectType _objectType, Vector2& _position) :
+		inline RenderInfo(Enums::ObjectType _objectType, Vector2& _position) :
 			m_character(Consts::EMPTY_SPACE_CHAR), 
 			OBJECT_TYPE(_objectType),
 			COLOR(10),
@@ -49,22 +55,16 @@ namespace Structure
 		}
 
 		// Destruction
-		virtual ~CollisionRenderInfo() = default;
+		virtual ~RenderInfo() = default;
 	};
-	struct Input
-	{
-	public:
-		Enums::InputPressState m_inputPressState;
-		int m_inputIndex;
-	};
-	class SnakeCollisionRenderInfo : public CollisionRenderInfo
+	class SnakeRenderInfo : public RenderInfo
 	{
 	public:
 		// Member Variables
 		const DList<Vector2>& LIST_OF_BODY_NODES;
 
 		// Initialization
-		inline SnakeCollisionRenderInfo(DList<Vector2>& _listOfBodyNodes, Enums::ObjectType _objectType, Vector2& _position) : CollisionRenderInfo(_objectType, _position), LIST_OF_BODY_NODES(_listOfBodyNodes) { return; }
+		inline SnakeRenderInfo(DList<Vector2>& _listOfBodyNodes, Enums::ObjectType _objectType, Vector2& _position) : RenderInfo(_objectType, _position), LIST_OF_BODY_NODES(_listOfBodyNodes) { return; }
 	};
 }
 

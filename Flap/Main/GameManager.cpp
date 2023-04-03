@@ -4,7 +4,7 @@
 #include "Manager.h"
 #include "NetworkManager.h"
 #include "ObjectManager.h"
-#include "CollisionRenderManager.h"
+#include "RenderManager.h"
 #include "SceneManager.h"
 #include "SharedMemory.h"
 
@@ -33,21 +33,17 @@ int main()
 
 	SharedMemory sharedMemory(bufferSizeCR);
 
-	enum class ManagerType { CollisionRender, Input, /*Network,*/ Scene, NumberOfTypes };
+	enum class ManagerType { Input, /*Network,*/Render, Scene, NumberOfTypes };
 
 	// Generate managers
 	Manager** managers = new Manager * [static_cast<int>(ManagerType::NumberOfTypes)]
 	{
-		// NOTE/WARNING: windowHandle is not being used in InputManager
-		// because this instance was retrieved before the window was active.
-		// Leaving this here for posterity
-		new CollisionRenderManager(outputWindowHandle, sharedMemory),
 		new InputManager(sharedMemory),
 		//new NetworkManager(),
+		new RenderManager(outputWindowHandle, sharedMemory),
 		new SceneManager(sharedMemory)
 	};
 
-	bool detachThread[static_cast<int>(ManagerType::NumberOfTypes)]{ false, true, false };
 	std::thread managerThreads[static_cast<int>(ManagerType::NumberOfTypes)];
 
 	// Start manager threads and detach (if applicable)
@@ -55,8 +51,7 @@ int main()
 	{
 		managerThreads[threadIndex] = std::thread(ManagerThreadEntry, threadIndex, managers);
 
-		// Detach if applicable
-		if (detachThread[threadIndex])
+		if (threadIndex == static_cast<int>(ManagerType::Input))
 		{
 			managerThreads[threadIndex].detach();
 		}
@@ -65,7 +60,7 @@ int main()
 	// Join manager threads (if applicable)
 	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ManagerType::NumberOfTypes; threadIndex++)
 	{
-		if (detachThread[threadIndex] == false)
+		if (threadIndex != static_cast<int>(ManagerType::Input))
 		{
 			managerThreads[threadIndex].join();
 		}

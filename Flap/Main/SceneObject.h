@@ -9,11 +9,10 @@ class ObjectManager;
 class SceneObject
 {
 public:
-	// Static Initialization
 	static void AssignObjectManager(ObjectManager& _objectManager) { sp_objectManager = &_objectManager; }
 
 	// Initialization
-	virtual void Initialize(const Structure::Generic& _genericContainer);
+	virtual void Initialize(const Structure::Generic* const _genericContainer);
 	SceneObject(const SceneObject&) = delete;
 	SceneObject& operator=(const SceneObject&) = delete;
 
@@ -24,7 +23,7 @@ public:
 	// Functionality
 	virtual void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR) = 0;
 	inline const Structure::Generic& GetCollisionPackageRef() const { return m_collisionPackage; }
-	inline const Structure::CollisionRenderInfo& GetCollisionRenderInfoRef() const { return *mp_collisionRenderInfo; }
+	inline const Structure::RenderInfo& GetRenderInfoRef() const { return *mp_renderInfo; }
 	inline bool IsActive() const { return m_isActive; }
 	void SetPosition(const Structure::Vector2& _position);
 
@@ -37,12 +36,12 @@ protected:
 	static ObjectManager* sp_objectManager;
 
 	// Member Variables
-	Structure::CollisionRenderInfo* const mp_collisionRenderInfo;
 	Structure::Generic m_collisionPackage;
+	Structure::RenderInfo* const mp_renderInfo;
 	Structure::Vector2 m_position;							
 
 	// Initialization
-	SceneObject(Structure::CollisionRenderInfo* _collisionRenderInfo);
+	SceneObject(Structure::RenderInfo* _renderInfo);
 
 private:
 	// Member Variables

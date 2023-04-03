@@ -6,15 +6,15 @@
 
 #pragma region Initialization
 // NOTE/WARNING: Allocated memory is destroyed in the SceneObject destructor
-Food::Food() : SceneObject(new Structure::CollisionRenderInfo(Enums::ObjectType::Food, m_position))
+Food::Food() : SceneObject(new Structure::RenderInfo(Enums::ObjectType::Food, m_position))
 {
 	m_collisionPackage.m_objectType = Enums::ObjectType::Food;
 }
-void Food::Initialize(const Structure::Generic& _genericContainer)
+void Food::Initialize(const Structure::Generic* const _genericContainer)
 {
 	SceneObject::Initialize(_genericContainer);
 
-	UpdateValue(_genericContainer.m_int);
+	UpdateValue(_genericContainer->m_int);
 }
 #pragma endregion
 
@@ -30,6 +30,6 @@ void Food::UpdateValue(int _value)
 {
 	m_collisionPackage.m_int = _value;
 
-	mp_collisionRenderInfo->m_character = static_cast<char>(_value + Consts::ASCII_OFFSET);
+	mp_renderInfo->m_character = static_cast<char>(_value + Consts::ASCII_OFFSET);
 }
 #pragma endregion
