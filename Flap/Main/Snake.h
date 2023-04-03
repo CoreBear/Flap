@@ -1,12 +1,11 @@
 #ifndef BIRD_H
 #define BIRD_H
 
+#include "DList.h"
 #include "Enums.h"
 #include "InputReceiver.h"
 #include "SceneObject.h"
 #include "Structure.h"
-
-#include <list>
 
 class SharedMemory;
 
@@ -42,13 +41,12 @@ protected:
 
 private:
 	// Member Variables
+	DList<Structure::Vector2> m_bodyNodes;
+	DList<Structure::Vector2>::Iterator m_headTraversingIterator;
+	DList<Structure::Vector2>::Iterator m_tailTraversingIterator;
 	Enums::Direction m_currentDirection;
 	Enums::Direction m_newDirection;
 	const Structure::Generic* OTHER_COLLISION_PACKAGE;
-	std::list<Structure::Vector2> m_listOfBodyPositions;
-	std::list<Structure::Vector2>::iterator m_headTraversingIterator;
-	std::list<Structure::Vector2>::iterator m_tailTraversingIterator;
-	std::list<Structure::Vector2>::iterator m_tailIterator;
 	unsigned int m_moveTargetFrame;
 	unsigned int m_numberOfFramesPerCell;
 	unsigned int m_numberOfFramesPerCellHorizontal;

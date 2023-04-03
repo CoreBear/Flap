@@ -1,11 +1,11 @@
 #ifndef OBJECT_MANAGER_H
 #define OBJECT_MANAGER_H
 
+#include "DList.h"
 #include "Enums.h"
 #include "Manager.h"
 #include "Structure.h"
 
-#include <list>
 #include <mutex>
 #include <queue>
 #include <Windows.h>
@@ -36,16 +36,12 @@ public:
 
 private:
 	// Member Variables
+	DList<SceneObject*> m_sceneObjectsList;
+	DList<SceneObject*>::Const_Iterator m_sceneObjectsOtherUpdatesIterator;
+	DList<SceneObject*>::Const_Iterator& mr_sceneObjectsFixedUpdateIterator;
 	int m_numberOfObjectsPooledForThisType;
 	int m_reusableIterator;
 	const int* NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE;
-
-	// HACK: Initialize with values
-	std::list<SceneObject*> m_sceneObjectsList;
-	std::list<SceneObject*>::const_iterator m_sceneObjectsOtherUpdatesIterator;
-	std::list<SceneObject*>::const_iterator& mr_sceneObjectsFixedUpdateIterator;
-
-	// HACK: Initialize with values
 	std::queue<SceneObject*> m_addToSceneObjects;
 	std::queue<SceneObject*> m_removeFromSceneObjects;
 	SceneObject*** mpp_pooledObject;

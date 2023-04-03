@@ -125,5 +125,8 @@
     <ClInclude Include="CollisionRenderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DList.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

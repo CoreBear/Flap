@@ -18,28 +18,24 @@ void Snake::Initialize(const Structure::Generic& _genericContainer)
 	m_currentDirection = Enums::Direction::NA;
 	m_newDirection = Enums::Direction::NA;
 
-	// Causes snake to check for first input, each frame, at the start
-	m_numberOfFramesPerCell = static_cast<unsigned int>(Consts::OFF_BY_ONE);
+	// HACK: Forces snake to check for first input, each frame, at the start
+	m_numberOfFramesPerCell = static_cast<unsigned int>(2);
 	m_moveTargetFrame = SceneManager::s_fixedFrameCount + m_numberOfFramesPerCell;
 
 	UpdateMoveSpeed(_genericContainer.m_int);
 
-	(*m_listOfBodyPositions.begin()) = m_position;
-
+	m_bodyNodes.PushBack(m_position);
+	
 	mp_collisionRenderInfo->m_character = static_cast<char>(_genericContainer.m_int2 + Consts::ASCII_OFFSET);
 }
 Snake::Snake() : 
 	// NOTE/WARNING: Allocated memory is destroyed in the SceneObject destructor
-	SceneObject(dynamic_cast<Structure::CollisionRenderInfo*>(new Structure::SnakeCollisionRenderInfo(m_listOfBodyPositions, Enums::ObjectType::Snake, m_position))), 
+	SceneObject(dynamic_cast<Structure::CollisionRenderInfo*>(new Structure::SnakeCollisionRenderInfo(m_bodyNodes, Enums::ObjectType::Snake, m_position))),
 	m_currentDirection(Enums::Direction::NA), 
 	m_newDirection(Enums::Direction::NA), 
 	m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
 {
-	// Create head
-	m_listOfBodyPositions.push_back(m_newTailPosition);
-
-	// It's also the new tail
-	m_tailIterator = m_listOfBodyPositions.begin();
+	return;
 }
 #pragma endregion
 
@@ -74,7 +70,7 @@ void Snake::Collision(const SceneObject& _otherCollidingObject, const Structure:
 		{
 			m_numberOfTailSectionsToAdd = OTHER_COLLISION_PACKAGE->m_int;
 
-			m_newTailPosition = *m_tailIterator;
+			m_newTailPosition = *(m_bodyNodes.GetTail());
 		}
 
 		// Collided with another snake
@@ -178,27 +174,28 @@ void Snake::Move()
 		return;
 	}
 
-	m_headTraversingIterator = m_tailIterator;
+	m_headTraversingIterator = m_bodyNodes.GetTail();
+	
 
 	// If snake's size is greater than 1
-	if (m_headTraversingIterator != m_listOfBodyPositions.begin())
+	if (m_headTraversingIterator != m_bodyNodes.Begin())
 	{
 		// Move iterator down
 		--m_headTraversingIterator;
 
 		// Move the snake from the tail to the position right before the head
-		for (m_tailTraversingIterator = m_tailIterator; m_headTraversingIterator != m_listOfBodyPositions.begin(); --m_headTraversingIterator, --m_tailTraversingIterator)
+		for (m_tailTraversingIterator = m_bodyNodes.GetTail(); m_headTraversingIterator != m_bodyNodes.Begin(); --m_headTraversingIterator, --m_tailTraversingIterator)
 		{
 			// Move the position closer to the tail, to the position closer to the head
-			(*m_tailTraversingIterator) = (*m_headTraversingIterator);
+			*m_tailTraversingIterator = *m_headTraversingIterator;
 		}
 
 		// Move the position closer to the tail, to the position closer to the head
-		(*m_tailTraversingIterator) = (*m_headTraversingIterator);
+		*m_tailTraversingIterator = *m_headTraversingIterator;
 	}
 
 	// Update first (head) position
-	(*m_headTraversingIterator) = m_position;
+	*m_headTraversingIterator = m_position;
 }
 void Snake::TryAddTail()
 {
@@ -206,16 +203,10 @@ void Snake::TryAddTail()
 	if (m_numberOfTailSectionsToAdd > Consts::NO_VALUE)
 	{
 		// Add tail
-		m_listOfBodyPositions.push_back(m_newTailPosition);
-
-		// Move iterator to this new tail
-		++m_tailIterator;
+		m_bodyNodes.PushBack(m_newTailPosition);
 
 		// Account for this tail's addition
 		--m_numberOfTailSectionsToAdd;
-
-		// Set new tail position, in-case another tail needs to be added
-		m_newTailPosition = *m_tailIterator;
 	}
 }
 void Snake::TryTurn()

@@ -20,7 +20,7 @@ CollisionRenderManager::CollisionRenderManager(const HANDLE& _outputWindowHandle
 	mp_textBuffer(new CHAR_INFO[m_bufferSize]),
 	OUTPUT_WINDOW_HANDLE(_outputWindowHandle),
 	m_reusableIterator(Consts::NO_VALUE),
-	NULL_ITERATOR(_sharedMemory.GetNullIteratorRef()),
+	NULL_ITERATOR(DList<SceneObject*>::Const_Iterator()),
 	mp_sharedMemory(&_sharedMemory),
 	FOOD_COLOR(static_cast<short>(BACKGROUND_BLUE | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED)),
 	SNAKE_BODY_COLOR(static_cast<short>(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED)),
@@ -104,7 +104,7 @@ void CollisionRenderManager::Update()
 
 		// Check to see if all scene objects have been written in (frame write is complete)
 		m_collisionRenderIteratorUniqueLock.lock();
-		m_frameWritingIsComplete = mp_sharedMemory->m_collisionRenderIterator == NULL_ITERATOR;
+		m_frameWritingIsComplete = mp_sharedMemory->m_collisionRenderIterator == mp_sharedMemory->GetNullIteratorRef();
 		m_collisionRenderIteratorUniqueLock.unlock();
 	}
 
@@ -179,7 +179,7 @@ void CollisionRenderManager::WriteIntoBuffer(const Structure::CollisionRenderInf
 		SNAKE_COLLISION_RENDER_INFO = dynamic_cast<const Structure::SnakeCollisionRenderInfo*>(&_collisionRenderInfo);
 
 		// For each node
-		for (m_positionIterator = SNAKE_COLLISION_RENDER_INFO->LIST_OF_BODY_POSITIONS.begin(); m_positionIterator != SNAKE_COLLISION_RENDER_INFO->LIST_OF_BODY_POSITIONS.end(); ++m_positionIterator)
+		for (m_positionIterator = SNAKE_COLLISION_RENDER_INFO->LIST_OF_BODY_NODES.Begin(); m_positionIterator != SNAKE_COLLISION_RENDER_INFO->LIST_OF_BODY_NODES.End(); ++m_positionIterator)
 		{
 			// Store the memory address of the cell that's being updated
 			mp_bufferCell = &mp_frameBuffer[(m_positionIterator->m_y * mp_sharedMemory->SCREEN_BUFFER_CR.X) + m_positionIterator->m_x];

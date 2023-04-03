@@ -1,6 +1,27 @@
 ﻿  Avatar.cpp
+C:\Flap\Flap\Main\SharedMemory.h(30,60): error C2440: 'return': cannot convert from 'const std::mutex [2]' to 'std::mutex *'
+C:\Flap\Flap\Main\SharedMemory.h(30,60): message : Conversion loses qualifiers
+  CollisionRenderManager.cpp
+C:\Flap\Flap\Main\SharedMemory.h(30,60): error C2440: 'return': cannot convert from 'const std::mutex [2]' to 'std::mutex *'
+C:\Flap\Flap\Main\SharedMemory.h(30,60): message : Conversion loses qualifiers
+  GameManager.cpp
+C:\Flap\Flap\Main\SharedMemory.h(30,60): error C2440: 'return': cannot convert from 'const std::mutex [2]' to 'std::mutex *'
+C:\Flap\Flap\Main\SharedMemory.h(30,60): message : Conversion loses qualifiers
+  InputManager.cpp
+C:\Flap\Flap\Main\SharedMemory.h(30,60): error C2440: 'return': cannot convert from 'const std::mutex [2]' to 'std::mutex *'
+C:\Flap\Flap\Main\SharedMemory.h(30,60): message : Conversion loses qualifiers
   ObjectManager.cpp
+C:\Flap\Flap\Main\SharedMemory.h(30,60): error C2440: 'return': cannot convert from 'const std::mutex [2]' to 'std::mutex *'
+C:\Flap\Flap\Main\SharedMemory.h(30,60): message : Conversion loses qualifiers
+  SceneManager.cpp
+C:\Flap\Flap\Main\SharedMemory.h(30,60): error C2440: 'return': cannot convert from 'const std::mutex [2]' to 'std::mutex *'
+C:\Flap\Flap\Main\SharedMemory.h(30,60): message : Conversion loses qualifiers
+C:\Flap\Flap\Main\SceneManager.cpp(38,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Flap\Flap\Main\SceneManager.cpp(40,38): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
   SharedMemory.cpp
+C:\Flap\Flap\Main\SharedMemory.h(30,60): error C2440: 'return': cannot convert from 'const std::mutex [2]' to 'std::mutex *'
+C:\Flap\Flap\Main\SharedMemory.h(30,60): message : Conversion loses qualifiers
   Snake.cpp
+C:\Flap\Flap\Main\SharedMemory.h(30,60): error C2440: 'return': cannot convert from 'const std::mutex [2]' to 'std::mutex *'
+C:\Flap\Flap\Main\SharedMemory.h(30,60): message : Conversion loses qualifiers
   Generating Code...
-  Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe

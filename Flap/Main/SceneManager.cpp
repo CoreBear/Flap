@@ -48,7 +48,7 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) :
 			position.m_x = 10;
 			position.m_y = 10;
 
-			g.m_int = 9;
+			g.m_int = 2;
 
 			mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, g);
 		}

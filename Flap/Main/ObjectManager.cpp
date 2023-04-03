@@ -50,9 +50,9 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 	}
 
 	// Set pointers to the beginning of the container
-	mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.end();
-	mp_sharedMemory->m_collisionRenderIterator = m_sceneObjectsList.end();
-	mp_sharedMemory->SetNullIterator(m_sceneObjectsList.end());
+	mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.End();
+	mp_sharedMemory->m_collisionRenderIterator = m_sceneObjectsList.End();
+	mp_sharedMemory->SetNullIterator(m_sceneObjectsList.End());
 
 	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
 	m_collisionRenderIteratorUniqueLock.unlock();
@@ -62,7 +62,7 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 #pragma region Updates
 void ObjectManager::FixedUpdate() 
 {
-	if (m_sceneObjectsList.empty() == false)
+	if (m_sceneObjectsList.IsEmpty() == false)
 	{
 		m_collisionRenderIteratorUniqueLock.lock();
 
@@ -87,13 +87,13 @@ void ObjectManager::FixedUpdate()
 		}
 
 		// Reset iterators
-		mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.begin();
-		mp_sharedMemory->m_collisionRenderIterator = m_sceneObjectsList.begin();
+		mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.Begin();
+		mp_sharedMemory->m_collisionRenderIterator = m_sceneObjectsList.Begin();
 
 		// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
 		m_collisionRenderIteratorUniqueLock.unlock();
 
-		for (/*Initialization is done above, while within mutex*/; mr_sceneObjectsFixedUpdateIterator != m_sceneObjectsList.end(); ++mr_sceneObjectsFixedUpdateIterator)
+		for (/*Initialization is done above, while within mutex*/; mr_sceneObjectsFixedUpdateIterator != m_sceneObjectsList.End(); ++mr_sceneObjectsFixedUpdateIterator)
 		{
 			m_collisionRenderIteratorUniqueLock.lock();
 			(*mr_sceneObjectsFixedUpdateIterator)->FixedUpdate();
@@ -106,20 +106,20 @@ void ObjectManager::LastUpdate()
 	// Remove all required scene objects
 	while (m_removeFromSceneObjects.empty() == false)
 	{
-		m_sceneObjectsList.remove(m_removeFromSceneObjects.front());
+		m_sceneObjectsList.Remove(m_removeFromSceneObjects.front());
 		m_removeFromSceneObjects.pop();
 	}
 
 	// Add all required scene objects
 	while (m_addToSceneObjects.empty() == false)
 	{
-		m_sceneObjectsList.push_back(m_addToSceneObjects.front());
+		m_sceneObjectsList.PushBack(m_addToSceneObjects.front());
 		m_addToSceneObjects.pop();
 	}
 }
 void ObjectManager::Update()
 {
-	for (m_sceneObjectsOtherUpdatesIterator = m_sceneObjectsList.begin(); m_sceneObjectsOtherUpdatesIterator != m_sceneObjectsList.end(); ++m_sceneObjectsOtherUpdatesIterator)
+	for (m_sceneObjectsOtherUpdatesIterator = m_sceneObjectsList.Begin(); m_sceneObjectsOtherUpdatesIterator != m_sceneObjectsList.End(); ++m_sceneObjectsOtherUpdatesIterator)
 	{
 		(*m_sceneObjectsOtherUpdatesIterator)->Update();
 	}

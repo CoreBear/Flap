@@ -1,10 +1,10 @@
 #ifndef RENDER_MANAGER_H
 #define RENDER_MANAGER_H
 
+#include "DList.h"
 #include "Manager.h"
 #include "Structure.h"
 
-#include <list>
 #include <mutex>
 #include <Windows.h>
 
@@ -37,12 +37,12 @@ private:
 		// Member Variables
 		char m_character;
 		int m_objectInCellIndex;
-		std::list<SceneObject*>::const_iterator mp_objectsInCellIterators[MAX_NUMBER_OF_OBJECTS_IN_CELL];
+		DList<SceneObject*>::Const_Iterator mp_objectsInCellIterators[MAX_NUMBER_OF_OBJECTS_IN_CELL];
 		short m_colorBFGround;
 		State m_state;
 
 		// Functionality
-		void ResetCell(const std::list<SceneObject*>::const_iterator& _nullIterator)
+		void ResetCell(const DList<SceneObject*>::Const_Iterator _nullIterator)
 		{
 			m_character = Consts::EMPTY_SPACE_CHAR;
 			m_state = State::Empty;
@@ -64,8 +64,8 @@ private:
 	COORD m_topLeftCellCR;
 	const HANDLE& OUTPUT_WINDOW_HANDLE;
 	int m_reusableIterator;
-	const std::list<SceneObject*>::const_iterator& NULL_ITERATOR;
-	std::list<Structure::Vector2>::const_iterator m_positionIterator;
+	DList<Structure::Vector2>::Const_Iterator m_positionIterator;
+	const DList<SceneObject*>::Const_Iterator& NULL_ITERATOR;
 	SharedMemory* const mp_sharedMemory;
 	const short FOOD_COLOR;
 	const short SNAKE_BODY_COLOR;

@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Avatar.h" />
+    <ClInclude Include="DList.h" />
     <ClInclude Include="Food.h" />
     <ClInclude Include="InputReceiver.h" />
     <ClInclude Include="SharedMemory.h" />

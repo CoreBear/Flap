@@ -2,9 +2,8 @@
 #define STRUCTURE_H
 
 #include "Consts.h"
+#include "DList.h"
 #include "Enums.h"
-
-#include <list>
 
 namespace Structure
 {
@@ -62,10 +61,10 @@ namespace Structure
 	{
 	public:
 		// Member Variables
-		const std::list<Vector2>& LIST_OF_BODY_POSITIONS;
+		const DList<Vector2>& LIST_OF_BODY_NODES;
 
 		// Initialization
-		inline SnakeCollisionRenderInfo(std::list<Vector2>& _listOfBodyPositions, Enums::ObjectType _objectType, Vector2& _position) : CollisionRenderInfo(_objectType, _position), LIST_OF_BODY_POSITIONS(_listOfBodyPositions) { return; }
+		inline SnakeCollisionRenderInfo(DList<Vector2>& _listOfBodyNodes, Enums::ObjectType _objectType, Vector2& _position) : CollisionRenderInfo(_objectType, _position), LIST_OF_BODY_NODES(_listOfBodyNodes) { return; }
 	};
 }
 
