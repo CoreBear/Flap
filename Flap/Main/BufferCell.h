@@ -20,6 +20,11 @@ public:
 	int m_objectInCellIndex;
 	short m_colorBFGround;
 
+	// Initialization
+	BufferCell() = default;
+	BufferCell(const BufferCell&) = delete;
+	BufferCell& operator=(const BufferCell&) = delete;
+
 	// Functionality
 	void ResetCell();
 };

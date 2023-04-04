@@ -18,7 +18,7 @@ SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedMemory& _sha
 	mp_collisionRenderManager(new CollisionRenderManager(_outputWindowHandle, _sharedMemory)),
 	mp_objectManager(new ObjectManager(_sharedMemory)),
 	mp_overlayManager(new OverlayManager()),
-	m_sceneType(SceneType::Game),
+	m_sceneType(SceneType::Overlay),
 	mp_sharedMemory(&_sharedMemory)
 {
 	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
@@ -33,12 +33,14 @@ SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedMemory& _sha
 			position.m_x = 0;
 			position.m_y = 0;
 
+			// Snake speed
 			g.m_int = 10;
 
 			for (size_t i = 0; i < 2; i++)
 			{
 				position.m_x = i * 4;
 
+				// Player numbers
 				g.m_int2 = i + Consts::OFF_BY_ONE;
 
 				mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, position, &g);
@@ -50,6 +52,7 @@ SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedMemory& _sha
 			position.m_x = 10;
 			position.m_y = 10;
 
+			// How many nodes to add to the snake
 			g.m_int = 20;
 
 			mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, &g);
