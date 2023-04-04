@@ -17,8 +17,8 @@ unsigned int SceneManager::s_fixedFrameCount = Consts::NO_VALUE;
 SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory) :
 	mp_collisionRenderManager(new CollisionRenderManager(_outputWindowHandle, _sharedMemory)),
 	mp_objectManager(new ObjectManager(_sharedMemory)),
-	mp_overlayManager(new OverlayManager()),
-	m_sceneType(SceneType::Overlay),
+	mp_overlayManager(new OverlayManager(_sharedMemory)),
+	m_sceneType(SceneType::Game),
 	mp_sharedMemory(&_sharedMemory)
 {
 	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
