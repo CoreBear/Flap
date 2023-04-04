@@ -1,6 +1,7 @@
 #pragma region Includes
 #include "BufferManager.h"
 
+#include "BufferCell.h"
 #include "Consts.H"
 #include "ObjectManager.h"
 #include "SceneObject.h"
@@ -159,7 +160,7 @@ void BufferManager::WriteIntoBuffer(const Structure::RenderInfo& _renderInfo)
 void BufferManager::WriteIntoBufferCell(const Structure::RenderInfo& _renderInfo)
 {
 	// NOTE: Notice the increment
-	//mp_bufferCell->mp_objectsInCellIterators[mp_bufferCell->m_objectInCellIndex++] = mr_sharedMemory.m_bufferWriterIterator;
+	mp_bufferCell->mp_objectsInCellIterators[mp_bufferCell->m_objectInCellIndex++] = mr_sharedMemory.m_bufferWriterIterator;
 
 	// What is currently in the cell
 	switch (mp_bufferCell->m_cellState)

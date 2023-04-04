@@ -129,6 +129,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Avatar.cpp" />
+    <ClCompile Include="BufferCell.cpp" />
     <ClCompile Include="BufferManager.cpp" />
     <ClCompile Include="CollisionRenderManager.cpp" />
     <ClCompile Include="Food.cpp" />
@@ -146,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Avatar.h" />
+    <ClInclude Include="BufferCell.h" />
     <ClInclude Include="BufferManager.h" />
     <ClInclude Include="CollisionRenderManager.h" />
     <ClInclude Include="DList.h" />

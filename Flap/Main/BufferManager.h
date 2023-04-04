@@ -7,6 +7,7 @@
 
 #include <mutex>
 
+class BufferCell;
 class SharedMemory;
 class SceneObject;
 
@@ -26,7 +27,7 @@ private:
 	bool m_firstWriteInForObject;
 	bool m_frameWritingIsComplete;
 	bool m_writeSpritesIntoBuffer;
-	Structure::BufferCell* mp_bufferCell;
+	BufferCell* mp_bufferCell;
 	DList<Structure::Vector2>::Const_Iterator m_positionIterator;
 	const DList<SceneObject*>::Const_Iterator& NULL_ITERATOR;
 	SharedMemory& mr_sharedMemory;

@@ -1,6 +1,7 @@
 #pragma region Includes
 #include "SharedMemory.h"
 
+#include "BufferCell.h"
 #include "Snake.h"
 
 #include <Windows.h>
@@ -10,7 +11,7 @@
 SharedMemory::SharedMemory(const COORD& _bufferSize) :
 	m_bufferSize(_bufferSize.X * _bufferSize.Y),
 	m_threadWaitingFlag(false),
-	mp_frameBuffer(new Structure::BufferCell[m_bufferSize]),
+	mp_frameBuffer(new BufferCell[m_bufferSize]),
 	SCREEN_BUFFER_CR(_bufferSize)
 {
 	Snake::AssignSharedMemory(*this);

@@ -10,6 +10,7 @@
 #include <queue>
 #include <Windows.h>
 
+class BufferCell;
 class SceneObject;
 
 class SharedMemory final
@@ -25,7 +26,7 @@ public:
 
 	// Member Variables
 	bool m_threadWaitingFlag;
-	Structure::BufferCell* const mp_frameBuffer;
+	BufferCell* const mp_frameBuffer;
 	const COORD& SCREEN_BUFFER_CR;
 	std::condition_variable m_bufferWriterIteratorConVar;
 	DList<SceneObject*>::Const_Iterator m_bufferWriterIterator;

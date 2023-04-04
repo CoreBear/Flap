@@ -9,31 +9,6 @@ namespace Structure
 {
 	struct Vector2;
 
-	struct BufferCell
-	{
-	public:
-		// Static Variables
-		//static const DList<SceneObject*>::Const_Iterator NULL_ITERATOR;
-		static constexpr int MAX_NUMBER_OF_OBJECTS_IN_CELL = 2;
-
-		// Member Variables
-		Enums::CellState m_cellState;
-		char m_character;
-		//DList<SceneObject*>::Const_Iterator mp_objectsInCellIterators[MAX_NUMBER_OF_OBJECTS_IN_CELL];
-		int m_objectInCellIndex;
-		short m_colorBFGround;
-
-		// Functionality
-		void ResetCell()
-		{
-			m_cellState = Enums::CellState::Empty;
-			m_character = Consts::EMPTY_SPACE_CHAR;
-			//mp_objectsInCellIterators[Consts::NO_VALUE] = NULL_ITERATOR;
-			//mp_objectsInCellIterators[Consts::OFF_BY_ONE] = NULL_ITERATOR;
-			m_objectInCellIndex = Consts::NO_VALUE;
-			m_colorBFGround = NULL;
-		}
-	};
 	struct Generic
 	{
 	public:

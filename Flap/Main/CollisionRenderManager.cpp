@@ -1,6 +1,8 @@
 #pragma region Includes
 #include "CollisionRenderManager.h"
 
+#include "BufferCell.h"
+#include "SceneObject.h"
 #include "SharedMemory.h"
 #pragma endregion
 
@@ -40,8 +42,8 @@ void CollisionRenderManager::GameUpdate()
 			m_collisionCellCR.m_y = m_reusableIterator / mr_sharedMemory.SCREEN_BUFFER_CR.X;
 
 			// Send each object, the other object and the collision cell's column and row
-			//(*mr_sharedMemory.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE])->Collision(*(*mr_sharedMemory.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE]), m_collisionCellCR);
-			//(*mr_sharedMemory.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE])->Collision(*(*mr_sharedMemory.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE]), m_collisionCellCR);
+			(*mr_sharedMemory.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE])->Collision(&(*mr_sharedMemory.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE])->GetCollisionPackageRef(), m_collisionCellCR);
+			(*mr_sharedMemory.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE])->Collision(&(*mr_sharedMemory.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE])->GetCollisionPackageRef(), m_collisionCellCR);
 		}
 
 		mp_textBuffer[m_reusableIterator].Attributes = mr_sharedMemory.mp_frameBuffer[m_reusableIterator].m_colorBFGround;
