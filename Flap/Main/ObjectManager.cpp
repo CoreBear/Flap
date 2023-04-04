@@ -3,10 +3,12 @@
 
 #include "Avatar.h"
 #include "Consts.h"
+#include "Enums.h"
 #include "Food.h"
 #include "SceneObject.h"
 #include "SharedMemory.h"
 #include "Snake.h"
+#include "Structure.h"
 #pragma endregion
 
 #pragma region Initialization
@@ -129,15 +131,19 @@ void ObjectManager::LastUpdate()
 	// Remove all required scene objects
 	while (m_removeFromSceneObjects.empty() == false)
 	{
-		m_sceneObjectsList.Remove(m_removeFromSceneObjects.front());
+		mp_addRemove = m_removeFromSceneObjects.front();
+		m_sceneObjectsList.Remove(mp_addRemove);
 		m_removeFromSceneObjects.pop();
+		mp_addRemove->SetSpawnState(Enums::SpawnState::WaitingSelection);
 	}
 
 	// Add all required scene objects
 	while (m_addToSceneObjects.empty() == false)
 	{
-		m_sceneObjectsList.PushBack(m_addToSceneObjects.front());
+		mp_addRemove = m_addToSceneObjects.front();
+		m_sceneObjectsList.PushBack(mp_addRemove);
 		m_addToSceneObjects.pop();
+		mp_addRemove->SetSpawnState(Enums::SpawnState::Spawned);
 	}
 }
 void ObjectManager::Update()
@@ -158,9 +164,10 @@ void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_numberOfObjectsPooledForThisType; m_reusableIterator++)
 	{
 		// If object is not active
-		if (mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->IsActive() == false)
+		if (mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->GetSpawenState() == Enums::SpawnState::WaitingSelection)
 		{												 
 			// Position and initialize it				 
+			mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->SetSpawnState(Enums::SpawnState::Selected);
 			mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->SetPosition(_position);
 			mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->Initialize(_genericContainer);
 

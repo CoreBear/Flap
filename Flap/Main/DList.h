@@ -228,7 +228,7 @@ public:
 			m_tail = nullptr;
 		}
 	}
-	inline Iterator End() const { return Iterator(); }
+	inline Iterator End() const { return  mEnd; }
 	inline Iterator GetTail() const { return Iterator(m_tail); }
 	inline bool IsEmpty() { return (m_head == nullptr); }
 	void PushBack(Type _value)
@@ -313,6 +313,7 @@ public:
 
 private:
 	// Member Variables
+	Iterator mEnd;
 	Node* m_head;
 	Node* m_tail;
 };

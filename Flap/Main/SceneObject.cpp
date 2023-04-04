@@ -7,17 +7,15 @@
 #pragma region Static Initialization
 ObjectManager* SceneObject::sp_objectManager = nullptr;
 
-SceneObject::SceneObject(Structure::RenderInfo* _renderInfo) : mp_renderInfo(_renderInfo)
+SceneObject::SceneObject(Structure::RenderInfo* _renderInfo) : m_spawnState(Enums::SpawnState::WaitingSelection), mp_renderInfo(_renderInfo)
 {
-	m_isActive = false;
+	return;
 }
 #pragma endregion
 
 #pragma region Initialization
 void SceneObject::Initialize(const Structure::Generic* const _genericContainer)
 {
-	m_isActive = true;
-
 	sp_objectManager->AddToSceneObjects(this);
 }
 #pragma endregion
@@ -32,8 +30,6 @@ void SceneObject::SetPosition(const Structure::Vector2& _position)
 #pragma region Destruction
 void SceneObject::Denitialize()
 {
-	m_isActive = false;
-
 	sp_objectManager->RemoveFromSceneObjects(this);
 }
 SceneObject::~SceneObject() 

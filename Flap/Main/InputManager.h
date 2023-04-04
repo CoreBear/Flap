@@ -7,7 +7,6 @@
 
 #include <mutex>
 #include <queue>
-
 #include <Windows.h>
 
 class SharedMemory;

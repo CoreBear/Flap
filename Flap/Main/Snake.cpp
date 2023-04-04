@@ -5,6 +5,7 @@
 #include "ObjectManager.h"
 #include "SceneManager.h"
 #include "SharedMemory.h"
+#include "Structure.h"
 #pragma endregion
 
 #pragma region Static Initialization
@@ -135,9 +136,10 @@ void Snake::Move()
 		else
 		{
 			Death();
+			return;
 		}
 	}
-		break;
+	break;
 	case Enums::Direction::Left:
 	{
 		// Bind to screen or die
@@ -148,9 +150,10 @@ void Snake::Move()
 		else
 		{
 			Death();
+			return;
 		}
 	}
-		break;
+	break;
 	case Enums::Direction::Right:
 	{
 		// Bind to screen or die (this needs to be off by one'd)
@@ -161,9 +164,10 @@ void Snake::Move()
 		else
 		{
 			Death();
+			return;
 		}
 	}
-		break;
+	break;
 	case Enums::Direction::Up:
 	{
 		// Bind to screen or die
@@ -174,17 +178,18 @@ void Snake::Move()
 		else
 		{
 			Death();
+			return;
 		}
 	}
-		break;
+	break;
 
-		// NOTE: Notice the snake will not move due to the return
+	// NOTE: Notice the snake will not move due to the return
 	default:
 		return;
 	}
 
 	m_headTraversingIterator = m_bodyNodes.GetTail();
-	
+
 
 	// If snake's size is greater than 1
 	if (m_headTraversingIterator != m_bodyNodes.Begin())

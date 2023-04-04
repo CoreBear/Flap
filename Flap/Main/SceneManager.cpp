@@ -50,7 +50,7 @@ SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedMemory& _sha
 			position.m_x = 10;
 			position.m_y = 10;
 
-			g.m_int = 2;
+			g.m_int = 20;
 
 			mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, &g);
 		}

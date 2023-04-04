@@ -24,8 +24,9 @@ public:
 	virtual void Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR) = 0;
 	inline const Structure::Generic& GetCollisionPackageRef() const { return m_collisionPackage; }
 	inline const Structure::RenderInfo& GetRenderInfoRef() const { return *mp_renderInfo; }
-	inline bool IsActive() const { return m_isActive; }
+	inline Enums::SpawnState GetSpawenState() const { return m_spawnState; }
 	void SetPosition(const Structure::Vector2& _position);
+	inline void SetSpawnState(Enums::SpawnState _spawnState) { m_spawnState = _spawnState; }
 
 	// Destruction
 	virtual void Denitialize();
@@ -45,7 +46,7 @@ protected:
 
 private:
 	// Member Variables
-	bool m_isActive;
+	Enums::SpawnState m_spawnState;
 };
 
 #endif SCENE_OBJECT_H

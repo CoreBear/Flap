@@ -26,18 +26,18 @@ namespace Consts
 	{
 		// Player 1 Input
 		{
-			(unsigned short)VK_DOWN,
-			(unsigned short)VK_LEFT,
-			(unsigned short)VK_RIGHT,
-			(unsigned short)VK_UP
+			(unsigned short)0x28,	//Down	| Arrow
+			(unsigned short)0x25,	//Left	| Arrow
+			(unsigned short)0x27,	//Right	| Arrow
+			(unsigned short)0x26,	//Up	| Arrow
 		},
 
 		// Player 2 Input
 		{
-			(unsigned short)0x53,
-			(unsigned short)0x41,
-			(unsigned short)0x44,
-			(unsigned short)0x57
+			(unsigned short)0x53,	//Down	| S
+			(unsigned short)0x41,	//Left	| A
+			(unsigned short)0x44,	//Right	| D
+			(unsigned short)0x57	//Up	| W
 		}
 	};
 

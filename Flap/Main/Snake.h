@@ -3,11 +3,10 @@
 
 #include "DList.h"
 #include "Enums.h"
-#include "InputReceiver.h"
 #include "SceneObject.h"
-#include "Structure.h"
 
 class SharedMemory;
+namespace Structure { struct Vector2; };
 
 class Snake : public SceneObject
 {

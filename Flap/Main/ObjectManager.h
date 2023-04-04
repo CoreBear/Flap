@@ -4,14 +4,15 @@
 #include "DList.h"
 #include "Enums.h"
 #include "Manager.h"
-#include "Structure.h"
 
 #include <mutex>
 #include <queue>
 #include <Windows.h>
 
+namespace Structure { struct Generic; }
 class SceneObject;
 class SharedMemory;
+namespace Structure { struct Vector2; }
 
 class ObjectManager final : public Manager
 {
@@ -44,6 +45,7 @@ private:
 	const int* NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE;
 	std::queue<SceneObject*> m_addToSceneObjects;
 	std::queue<SceneObject*> m_removeFromSceneObjects;
+	SceneObject* mp_addRemove;
 	SceneObject*** mpp_pooledObject;
 	SharedMemory& mr_sharedMemory;
 	std::unique_lock<std::mutex> m_bufferWriterIteratorUniqueLock;

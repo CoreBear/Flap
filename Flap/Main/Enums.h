@@ -8,6 +8,7 @@ namespace Enums
 	enum class Direction { Down, Left, Right, Up, NumberOfDirections, NA };
 	enum class InputPressState { Click, Dead, Held, PressedThisFrame, Released };
 	enum class ObjectType { Avatar, Food, Snake, NumberOfTypes, NA };
+	enum class SpawnState { Selected, Spawned, WaitingSelection };
 }
 
 #endif ENUMS_H
