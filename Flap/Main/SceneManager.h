@@ -4,8 +4,9 @@
 #include "Manager.h"
 
 #include <chrono>
+#include <Windows.h>		// NOTE/WARNING: Has to be here or else the compiler screams about forward declaring HANDLE
 
-class CollisionManager;
+class CollisionRenderManager;
 class ObjectManager;
 class OverlayManager;
 class SharedMemory;
@@ -17,7 +18,7 @@ public:
 	static unsigned int s_fixedFrameCount;
 
 	// Initialization
-	SceneManager(SharedMemory& _sharedMemory);
+	SceneManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory);
 	SceneManager(const SceneManager&) = delete;
 	SceneManager& operator=(const SceneManager&) = delete;
 
@@ -32,7 +33,7 @@ private:
 	enum class SceneType { Game, Overlay };
 
 	// Member Variables
-	CollisionManager* const mp_collisionManager;
+	CollisionRenderManager* const mp_collisionRenderManager;
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	ObjectManager* const mp_objectManager;
 	OverlayManager* const mp_overlayManager;

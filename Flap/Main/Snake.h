@@ -28,7 +28,7 @@ public:
 	void FixedUpdate() override;
 
 	// Functionality
-	void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR) override final;
+	void Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR) override final;
 
 protected:
 	// Functionality
@@ -47,7 +47,6 @@ private:
 	DList<Structure::Vector2>::Iterator m_tailTraversingIterator;
 	Enums::Direction m_currentDirection;
 	Enums::Direction m_newDirection;
-	const Structure::Generic* OTHER_COLLISION_PACKAGE;
 	unsigned int m_moveTargetFrame;
 	unsigned int m_numberOfFramesPerCell;
 	unsigned int m_numberOfFramesPerCellHorizontal;

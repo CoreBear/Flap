@@ -4,7 +4,7 @@
 #include "Consts.h"
 
 template<typename Type>
-class DList
+class DList final
 {
 public:
 	// Container

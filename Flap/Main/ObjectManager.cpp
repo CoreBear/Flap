@@ -12,8 +12,8 @@
 #pragma region Initialization
 ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 	mr_sceneObjectsFixedUpdateIterator(_sharedMemory.GetSceneObjectsIteratorRef()), 
-	mp_sharedMemory(&_sharedMemory),
-	m_renderIteratorUniqueLock(_sharedMemory.GetRenderIteratorMutexRef())
+	mr_sharedMemory(_sharedMemory),
+	m_bufferWriterIteratorUniqueLock(_sharedMemory.GetRenderIteratorMutexRef())
 {
 	SceneObject::AssignObjectManager(*this);
 
@@ -51,10 +51,10 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 
 	// Set pointers to the beginning of the container
 	mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.End();
-	mp_sharedMemory->m_renderIterator = m_sceneObjectsList.End();
+	mr_sharedMemory.m_bufferWriterIterator = m_sceneObjectsList.End();
 
 	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
-	m_renderIteratorUniqueLock.unlock();
+	m_bufferWriterIteratorUniqueLock.unlock();
 }
 #pragma endregion
 
@@ -63,40 +63,65 @@ void ObjectManager::FixedUpdate()
 {
 	if (m_sceneObjectsList.IsEmpty() == false)
 	{
-		m_renderIteratorUniqueLock.lock();
+		m_bufferWriterIteratorUniqueLock.lock();
 
-		// If Render thread is already waiting, release the this (Scene) thread
-		if (mp_sharedMemory->m_threadWaitingFlag)
+		// If Buffer thread is already waiting
+		if (mr_sharedMemory.m_threadWaitingFlag)
 		{
-			mp_sharedMemory->m_renderIteratorConVar.notify_one();
+			// Release it
+			mr_sharedMemory.m_bufferWriterIteratorConVar.notify_one();
+
+			// Notify the system that nothing is waiting (when this is unlocked and the Buffer thread grabs the lock)
+			mr_sharedMemory.m_threadWaitingFlag = false;
 		}
 
-		// If Render thread is not already waiting, flip flag and wait
+		// If Buffer thread is not already waiting
 		else
 		{
 			// Notify system that this (Scene) thread is waiting
-			mp_sharedMemory->m_threadWaitingFlag = true;
+			mr_sharedMemory.m_threadWaitingFlag = true;
 
-			// When Render thread releases this (Scene) thread, flip flag
-			mp_sharedMemory->m_renderIteratorConVar.wait(m_renderIteratorUniqueLock);
+			// When Buffer thread releases this (Scene) thread
+			mr_sharedMemory.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
 
 			// Let it know it can release, because this (Scene) thread needs to go first
-			mp_sharedMemory->m_renderIteratorConVar.notify_one();
+			mr_sharedMemory.m_bufferWriterIteratorConVar.notify_one();
 		}
 
 		// Reset iterators
 		mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.Begin();
-		mp_sharedMemory->m_renderIterator = m_sceneObjectsList.Begin();
+		mr_sharedMemory.m_bufferWriterIterator = m_sceneObjectsList.Begin();
 
-		// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
-		m_renderIteratorUniqueLock.unlock();
+		m_bufferWriterIteratorUniqueLock.unlock();
 
 		for (/*Initialization is done above, while within mutex*/; mr_sceneObjectsFixedUpdateIterator != m_sceneObjectsList.End(); ++mr_sceneObjectsFixedUpdateIterator)
 		{
-			m_renderIteratorUniqueLock.lock();
 			(*mr_sceneObjectsFixedUpdateIterator)->FixedUpdate();
-			m_renderIteratorUniqueLock.unlock();
 		}
+
+		m_bufferWriterIteratorUniqueLock.lock();
+
+		// If Buffer thread is already waiting
+		if (mr_sharedMemory.m_threadWaitingFlag)
+		{
+			// Release it
+			mr_sharedMemory.m_bufferWriterIteratorConVar.notify_one();
+
+			// Notify the system that nothing is waiting (when this is unlocked and the Buffer thread grabs the lock)
+			mr_sharedMemory.m_threadWaitingFlag = false;
+		}
+
+		// If Buffer thread is not already waiting
+		else
+		{
+			// Notify system that this (Scene) thread is waiting
+			mr_sharedMemory.m_threadWaitingFlag = true;
+
+			// When Render thread releases this (Scene) thread
+			mr_sharedMemory.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
+		}
+
+		m_bufferWriterIteratorUniqueLock.unlock();
 	}
 }
 void ObjectManager::LastUpdate()

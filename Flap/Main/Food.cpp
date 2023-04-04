@@ -19,7 +19,7 @@ void Food::Initialize(const Structure::Generic* const _genericContainer)
 #pragma endregion
 
 #pragma region Public Functionality
-void Food::Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR)
+void Food::Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR)
 {
 	Denitialize();
 }

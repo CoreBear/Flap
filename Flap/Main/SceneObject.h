@@ -21,7 +21,7 @@ public:
 	virtual void Update() { return; }
 
 	// Functionality
-	virtual void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR) = 0;
+	virtual void Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR) = 0;
 	inline const Structure::Generic& GetCollisionPackageRef() const { return m_collisionPackage; }
 	inline const Structure::RenderInfo& GetRenderInfoRef() const { return *mp_renderInfo; }
 	inline bool IsActive() const { return m_isActive; }

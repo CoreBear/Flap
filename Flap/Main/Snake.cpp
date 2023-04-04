@@ -60,17 +60,15 @@ void Snake::FixedUpdate()
 #pragma endregion
 
 #pragma region Public Functionality
-void Snake::Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR)
+void Snake::Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR)
 {
 	// If didn't collide with self
-	if (&_otherCollidingObject != this)
+	if (_otherCollisionPackage != &m_collisionPackage)
 	{
-		OTHER_COLLISION_PACKAGE = &_otherCollidingObject.GetCollisionPackageRef();
-
 		// Eating food
-		if (OTHER_COLLISION_PACKAGE->m_objectType == Enums::ObjectType::Food)
+		if (_otherCollisionPackage->m_objectType == Enums::ObjectType::Food)
 		{
-			m_numberOfTailSectionsToAdd = OTHER_COLLISION_PACKAGE->m_int;
+			m_numberOfTailSectionsToAdd = _otherCollisionPackage->m_int;
 
 			m_newTailPosition = *(m_bodyNodes.GetTail());
 		}

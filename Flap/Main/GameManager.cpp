@@ -1,10 +1,10 @@
 #pragma region Includes
+#include "BufferManager.h"
 #include "Consts.h"
 #include "InputManager.h"
 #include "Manager.h"
 #include "NetworkManager.h"
 #include "ObjectManager.h"
-#include "RenderManager.h"
 #include "SceneManager.h"
 #include "SharedMemory.h"
 
@@ -33,15 +33,15 @@ int main()
 
 	SharedMemory sharedMemory(bufferSizeCR);
 
-	enum class ManagerType { Input, /*Network,*/Render, Scene, NumberOfTypes };
+	enum class ManagerType { BufferManager, Input, /*Network,*/ Scene, NumberOfTypes };
 
 	// Generate managers
 	Manager** managers = new Manager * [static_cast<int>(ManagerType::NumberOfTypes)]
 	{
+		new BufferManager(sharedMemory),
 		new InputManager(sharedMemory),
 		//new NetworkManager(),
-		new RenderManager(outputWindowHandle, sharedMemory),
-		new SceneManager(sharedMemory)
+		new SceneManager(outputWindowHandle, sharedMemory)
 	};
 
 	std::thread managerThreads[static_cast<int>(ManagerType::NumberOfTypes)];

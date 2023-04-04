@@ -13,7 +13,7 @@ public:
 	void Initialize(const Structure::Generic* const _genericContainer) override;
 
 	// Functionality
-	void Collision(const SceneObject& _otherCollidingObject, const Structure::Vector2& _collisionCellCR);
+	void Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR);
 
 private:
 	// Functionality

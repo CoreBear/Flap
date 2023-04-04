@@ -1,7 +1,7 @@
 #pragma region Includes
 #include "SceneManager.h"
 
-#include "CollisionManager.h"
+#include "CollisionRenderManager.h"
 #include "Consts.h"
 #include "ObjectManager.h"
 #include "OverlayManager.h"
@@ -14,8 +14,8 @@
 #pragma region Initialization
 unsigned int SceneManager::s_fixedFrameCount = Consts::NO_VALUE;
 
-SceneManager::SceneManager(SharedMemory& _sharedMemory) : 
-	mp_collisionManager(new CollisionManager()),
+SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory) :
+	mp_collisionRenderManager(new CollisionRenderManager(_outputWindowHandle, _sharedMemory)),
 	mp_objectManager(new ObjectManager(_sharedMemory)),
 	mp_overlayManager(new OverlayManager()),
 	m_sceneType(SceneType::Game),
@@ -61,9 +61,9 @@ SceneManager::SceneManager(SharedMemory& _sharedMemory) :
 #pragma region Updates
 void SceneManager::Update() 
 {
-	// Fixed Update
 	m_currentTime = std::chrono::high_resolution_clock::now();
 
+	// Fixed Update
 	if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
 	{
 		// Update for next iteration
@@ -76,11 +76,13 @@ void SceneManager::Update()
 		{
 			mp_objectManager->FixedUpdate();
 
-			mp_collisionManager->CheckForCollisions();
+			mp_collisionRenderManager->GameUpdate();
 		}
 		else
 		{
 			mp_overlayManager->FixedUpdate();
+
+			mp_collisionRenderManager->OverlayUpdate();
 		}
 	}
 
@@ -105,7 +107,7 @@ void SceneManager::Update()
 #pragma region Destruction
 SceneManager::~SceneManager()
 {
-	delete mp_collisionManager;
+	delete mp_collisionRenderManager;
 	delete mp_objectManager;
 	delete mp_overlayManager;
 }
