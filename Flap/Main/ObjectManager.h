@@ -3,7 +3,6 @@
 
 #include "DList.h"
 #include "Enums.h"
-#include "Manager.h"
 
 #include <mutex>
 #include <queue>
@@ -14,7 +13,7 @@ class SceneObject;
 class SharedMemory;
 namespace Structure { struct Vector2; }
 
-class ObjectManager final : public Manager
+class ObjectManager final
 {
 public:
 	// Initialization
@@ -25,7 +24,7 @@ public:
 	// Updates
 	void FixedUpdate();
 	void LastUpdate();
-	void Update() override;
+	void Update();
 
 	// Functionality
 	inline void AddToSceneObjects(SceneObject* const _sceneObject) { m_addToSceneObjects.push(_sceneObject); }

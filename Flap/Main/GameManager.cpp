@@ -1,10 +1,8 @@
 #pragma region Includes
-#include "BufferManager.h"
+#include "CollisionRenderWriter.h"
 #include "Consts.h"
+#include "GameThreadBase.h"
 #include "InputManager.h"
-#include "Manager.h"
-#include "NetworkManager.h"
-#include "ObjectManager.h"
 #include "SceneManager.h"
 #include "SharedMemory.h"
 
@@ -18,7 +16,7 @@ static bool gs_applicationIsRunning;
 #pragma endregion
 
 #pragma region Prototypes
-void ManagerThreadEntry(int _threadIndex, Manager** const _managers);
+void ManagerThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex);
 void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle);
 #pragma endregion
 
@@ -33,55 +31,54 @@ int main()
 
 	SharedMemory sharedMemory(bufferSizeCR);
 
-	enum class ManagerType { BufferManager, Input, /*Network,*/ Scene, NumberOfTypes };
+	enum class ThreadType { CollisionRenderWriter, Input, Scene, NumberOfTypes };
 
 	// Generate managers
-	Manager** managers = new Manager * [static_cast<int>(ManagerType::NumberOfTypes)]
+	GameThreadBase** gameThreadBases = new GameThreadBase * [static_cast<int>(ThreadType::NumberOfTypes)]
 	{
-		new BufferManager(sharedMemory),
+		new CollisionRenderWriter(sharedMemory),
 		new InputManager(sharedMemory),
-		//new NetworkManager(),
 		new SceneManager(outputWindowHandle, sharedMemory)
 	};
 
-	std::thread managerThreads[static_cast<int>(ManagerType::NumberOfTypes)];
+	std::thread threads[static_cast<int>(ThreadType::NumberOfTypes)];
 
 	// Start manager threads and detach (if applicable)
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ManagerType::NumberOfTypes; threadIndex++)
+	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ThreadType::NumberOfTypes; threadIndex++)
 	{
-		managerThreads[threadIndex] = std::thread(ManagerThreadEntry, threadIndex, managers);
+		threads[threadIndex] = std::thread(ManagerThreadEntry, gameThreadBases, threadIndex);
 
-		if (threadIndex == static_cast<int>(ManagerType::Input))
+		if (threadIndex == static_cast<int>(ThreadType::Input))
 		{
-			managerThreads[threadIndex].detach();
+			threads[threadIndex].detach();
 		}
 	}
 
 	// Join manager threads (if applicable)
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ManagerType::NumberOfTypes; threadIndex++)
+	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ThreadType::NumberOfTypes; threadIndex++)
 	{
-		if (threadIndex != static_cast<int>(ManagerType::Input))
+		if (threadIndex != static_cast<int>(ThreadType::Input))
 		{
-			managerThreads[threadIndex].join();
+			threads[threadIndex].join();
 		}
 	}
 
 	// Delete manager pointers
-	for (int managerIndex = Consts::NO_VALUE; managerIndex < (int)ManagerType::NumberOfTypes; managerIndex++)
+	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ThreadType::NumberOfTypes; threadIndex++)
 	{
-		delete managers[managerIndex];
+		delete gameThreadBases[threadIndex];
 	}
 
 	// Delete manager container
-	delete[] managers;
+	delete[] gameThreadBases;
 
 	return 0;
 }
-void ManagerThreadEntry(int _threadIndex, Manager** const _managers)
+void ManagerThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex)
 {
 	while (gs_applicationIsRunning)
 	{
-		_managers[_threadIndex]->Update();
+		_gameThreadBase[_threadIndex]->Update();
 	}
 }
 void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle)

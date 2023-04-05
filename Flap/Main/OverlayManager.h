@@ -2,11 +2,10 @@
 #define OVERLAY_MANAGER_H
 
 #include "InputReceiver.h"
-#include "Manager.h"
 
 class SharedMemory;
 
-class OverlayManager final : public InputReceiver, public Manager
+class OverlayManager final : public InputReceiver
 {
 public:
 	// Initialzation
@@ -16,6 +15,7 @@ public:
 
 	// Updates
 	void FixedUpdate();
+	void Update() { return; }
 
 protected:
 	// Functionality

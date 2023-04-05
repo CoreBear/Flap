@@ -1,9 +1,7 @@
 #ifndef NETWORK_MANAGER_H
 #define NETWORK_MANAGER_H
 
-#include "Manager.h"
-
-class NetworkManager final : public Manager
+class NetworkManager final
 {
 public:
 	NetworkManager() = default;

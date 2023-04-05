@@ -1,7 +1,7 @@
 #ifndef SCENE_MANAGER_H
 #define SCENE_MANAGER_H
 
-#include "Manager.h"
+#include "GameThreadBase.h"
 
 #include <chrono>
 #include <Windows.h>		// NOTE/WARNING: Has to be here or else the compiler screams about forward declaring HANDLE
@@ -11,7 +11,7 @@ class ObjectManager;
 class OverlayManager;
 class SharedMemory;
 
-class SceneManager final : public Manager
+class SceneManager final : public GameThreadBase
 {
 public:
 	// Static Variables

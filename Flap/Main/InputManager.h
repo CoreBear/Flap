@@ -2,7 +2,7 @@
 #define INPUT_MANAGER_H
 
 #include "Enums.h"
-#include "Manager.h"
+#include "GameThreadBase.h"
 #include "Structure.h"
 
 #include <mutex>
@@ -11,7 +11,7 @@
 
 class SharedMemory;
 
-class InputManager final : public Manager
+class InputManager final : public GameThreadBase
 {
 public:
 	// Initialization
