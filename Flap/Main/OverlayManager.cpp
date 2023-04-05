@@ -1,15 +1,15 @@
 #pragma region Includes
 #include "OverlayManager.h"
 
-#include "SharedMemory.h"
+#include "SharedCollisionRender.h"
+#include "SharedInput.h"
 #include "Structure.h"
 #pragma endregion
 
 #pragma region Initialization
-OverlayManager::OverlayManager(SharedMemory& _sharedMemory)
+OverlayManager::OverlayManager(SharedCollisionRender& _sharedCollisionRender)
 {
-	mp_inputQueueMutex = &_sharedMemory.GetInputQueueMutexRef(Consts::NO_VALUE);
-	mp_inputQueue = &_sharedMemory.GetInputQueueRef(Consts::NO_VALUE);
+	return; // The other renderer, not the one on the other thread..
 }
 #pragma endregion
 

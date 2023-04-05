@@ -5,22 +5,22 @@
 #include "Consts.H"
 #include "ObjectManager.h"
 #include "SceneObject.h"
-#include "SharedMemory.h"
+#include "SharedCollisionRender.h"
 #pragma endregion
 
 #pragma region Initialization
-CollisionRenderWriter::CollisionRenderWriter(SharedMemory& _sharedMemory) :
+CollisionRenderWriter::CollisionRenderWriter(SharedCollisionRender& _sharedCollisionRender) :
 	m_firstWriteInForObject(false),
 	m_frameWritingIsComplete(false),
 	m_writeSpritesIntoBuffer(false),
 	mp_bufferCell(nullptr),
 	NULL_ITERATOR(DList<SceneObject*>::Const_Iterator()),
-	mr_sharedMemory(_sharedMemory),
+	mr_sharedCollisionRender(_sharedCollisionRender),
 	FOOD_COLOR(static_cast<short>(BACKGROUND_BLUE | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED)),
 	SNAKE_BODY_COLOR(static_cast<short>(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED)),
 	SNAKE_HEAD_COLOR(static_cast<short>(BACKGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED)),
 	SNAKE_COLLISION_RENDER_INFO(nullptr),
-	m_bufferWriterIteratorUniqueLock(_sharedMemory.GetRenderIteratorMutexRef())
+	m_bufferWriterIteratorUniqueLock(_sharedCollisionRender.m_bufferWriterIteratorMutex)
 {
 	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
 	m_bufferWriterIteratorUniqueLock.unlock();
@@ -33,26 +33,26 @@ void CollisionRenderWriter::Update()
 	m_bufferWriterIteratorUniqueLock.lock();
 
 	// If Scene thread is already waiting
-	if (mr_sharedMemory.m_threadWaitingFlag)
+	if (mr_sharedCollisionRender.m_threadWaitingFlag)
 	{
 		// Release it
-		mr_sharedMemory.m_bufferWriterIteratorConVar.notify_one();
+		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 
 		// Then wait for Scene thread to let this (Buffer) thread know it can release, because Scene thread needs to go first
-		mr_sharedMemory.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
+		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
 
 		// Notify the system that nothing is waiting (when this is unlocked and the Buffer thread grabs the lock)
-		mr_sharedMemory.m_threadWaitingFlag = false;
+		mr_sharedCollisionRender.m_threadWaitingFlag = false;
 	}
 
 	// If Scene thread is not already waiting
 	else
 	{
 		// Notify system that this (Buffer) thread is waiting
-		mr_sharedMemory.m_threadWaitingFlag = true;
+		mr_sharedCollisionRender.m_threadWaitingFlag = true;
 
 		// When Scene thread releases this (Buffer) thread
-		mr_sharedMemory.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
+		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
 	}
 
 	m_bufferWriterIteratorUniqueLock.unlock();
@@ -63,45 +63,45 @@ void CollisionRenderWriter::Update()
 	while (m_frameWritingIsComplete == false)
 	{
 		// Check to see if there are scene objects to write in
-		m_writeSpritesIntoBuffer = mr_sharedMemory.m_bufferWriterIterator != mr_sharedMemory.GetSceneObjectsIteratorRef();
+		m_writeSpritesIntoBuffer = mr_sharedCollisionRender.m_bufferWriterIterator != mr_sharedCollisionRender.m_sceneObjectsIterator;
 
 		// While there are scene objects to write
 		while (m_writeSpritesIntoBuffer)
 		{
 			// Write scene object into buffer
-			WriteIntoBuffer((*mr_sharedMemory.m_bufferWriterIterator)->GetRenderInfoRef());
+			WriteIntoBuffer((*mr_sharedCollisionRender.m_bufferWriterIterator)->GetRenderInfoRef());
 
 			// Move to next scene object
-			++mr_sharedMemory.m_bufferWriterIterator;
+			++mr_sharedCollisionRender.m_bufferWriterIterator;
 
 			// Check to see if there are scene objects to write in
-			m_writeSpritesIntoBuffer = mr_sharedMemory.m_bufferWriterIterator != mr_sharedMemory.GetSceneObjectsIteratorRef();
+			m_writeSpritesIntoBuffer = mr_sharedCollisionRender.m_bufferWriterIterator != mr_sharedCollisionRender.m_sceneObjectsIterator;
 		}
 
 		// Check to see if all scene objects have been written in (frame write is complete)
-		m_frameWritingIsComplete = mr_sharedMemory.m_bufferWriterIterator == mr_sharedMemory.NULL_ITERATOR;
+		m_frameWritingIsComplete = mr_sharedCollisionRender.m_bufferWriterIterator == mr_sharedCollisionRender.NULL_ITERATOR;
 	}
 
 	m_bufferWriterIteratorUniqueLock.lock();
 
 	// If Scene thread is already waiting
-	if (mr_sharedMemory.m_threadWaitingFlag)
+	if (mr_sharedCollisionRender.m_threadWaitingFlag)
 	{
 		// Release it
-		mr_sharedMemory.m_bufferWriterIteratorConVar.notify_one();
+		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 
 		// Notify the system that nothing is waiting (when this is unlocked and the Scene thread grabs the lock)
-		mr_sharedMemory.m_threadWaitingFlag = false;
+		mr_sharedCollisionRender.m_threadWaitingFlag = false;
 	}
 
 	// If Scene thread is not already waiting
 	else
 	{
 		// Notify system that this (Buffer) thread is waiting
-		mr_sharedMemory.m_threadWaitingFlag = true;
+		mr_sharedCollisionRender.m_threadWaitingFlag = true;
 
 		// When Render thread releases this (Buffer) thread, flip flag
-		mr_sharedMemory.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
+		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
 	}
 
 	m_bufferWriterIteratorUniqueLock.unlock();
@@ -133,7 +133,7 @@ void CollisionRenderWriter::WriteIntoBuffer(const Structure::RenderInfo& _render
 	if (_renderInfo.OBJECT_TYPE == Enums::ObjectType::Food)
 	{
 		// Store the memory address of the cell that's being updated
-		mp_bufferCell = &mr_sharedMemory.mp_frameBuffer[(_renderInfo.POSITION.m_y * mr_sharedMemory.SCREEN_BUFFER_CR.X) + _renderInfo.POSITION.m_x];
+		mp_bufferCell = &mr_sharedCollisionRender.mp_frameBuffer[(_renderInfo.POSITION.m_y * mr_sharedCollisionRender.SCREEN_BUFFER_CR.X) + _renderInfo.POSITION.m_x];
 
 		// Write into buffer
 		WriteIntoBufferCell(_renderInfo);
@@ -150,7 +150,7 @@ void CollisionRenderWriter::WriteIntoBuffer(const Structure::RenderInfo& _render
 		for (m_positionIterator = SNAKE_COLLISION_RENDER_INFO->LIST_OF_BODY_NODES.Begin(); m_positionIterator != SNAKE_COLLISION_RENDER_INFO->LIST_OF_BODY_NODES.End(); ++m_positionIterator)
 		{
 			// Store the memory address of the cell that's being updated
-			mp_bufferCell = &mr_sharedMemory.mp_frameBuffer[(m_positionIterator->m_y * mr_sharedMemory.SCREEN_BUFFER_CR.X) + m_positionIterator->m_x];
+			mp_bufferCell = &mr_sharedCollisionRender.mp_frameBuffer[(m_positionIterator->m_y * mr_sharedCollisionRender.SCREEN_BUFFER_CR.X) + m_positionIterator->m_x];
 
 			// Write into buffer
 			WriteIntoBufferCell(_renderInfo);
@@ -160,7 +160,7 @@ void CollisionRenderWriter::WriteIntoBuffer(const Structure::RenderInfo& _render
 void CollisionRenderWriter::WriteIntoBufferCell(const Structure::RenderInfo& _renderInfo)
 {
 	// NOTE: Notice the increment
-	mp_bufferCell->mp_objectsInCellIterators[mp_bufferCell->m_objectInCellIndex++] = mr_sharedMemory.m_bufferWriterIterator;
+	mp_bufferCell->mp_objectsInCellIterators[mp_bufferCell->m_objectInCellIndex++] = mr_sharedCollisionRender.m_bufferWriterIterator;
 
 	// What is currently in the cell
 	switch (mp_bufferCell->m_cellState)

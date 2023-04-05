@@ -10,14 +10,15 @@
 
 namespace Structure { struct Generic; }
 class SceneObject;
-class SharedMemory;
+class SharedCollisionRender;
+class SharedInput;
 namespace Structure { struct Vector2; }
 
 class ObjectManager final
 {
 public:
 	// Initialization
-	ObjectManager(SharedMemory& _sharedMemory);
+	ObjectManager(SharedCollisionRender& _sharedCollisionRender, SharedInput& _sharedInput);
 	ObjectManager(const ObjectManager&) = delete;
 	ObjectManager& operator=(const ObjectManager&) = delete;
 
@@ -38,7 +39,6 @@ private:
 	// Member Variables
 	DList<SceneObject*> m_sceneObjectsList;
 	DList<SceneObject*>::Const_Iterator m_sceneObjectsOtherUpdatesIterator;
-	DList<SceneObject*>::Const_Iterator& mr_sceneObjectsFixedUpdateIterator;
 	int m_numberOfObjectsPooledForThisType;
 	int m_reusableIterator;
 	const int* NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE;
@@ -46,7 +46,7 @@ private:
 	std::queue<SceneObject*> m_removeFromSceneObjects;
 	SceneObject* mp_addRemove;
 	SceneObject*** mpp_pooledObject;
-	SharedMemory& mr_sharedMemory;
+	SharedCollisionRender& mr_sharedCollisionRender;
 	std::unique_lock<std::mutex> m_bufferWriterIteratorUniqueLock;
 };
 #endif OBJECT_MANAGER_H

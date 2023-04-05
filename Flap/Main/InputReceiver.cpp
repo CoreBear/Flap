@@ -1,17 +1,23 @@
 #pragma region Includes
 #include "InputReceiver.h"
+
+#include "SharedInput.h"
+#pragma endregion
+
+#pragma region Static Initialization
+SharedInput* InputReceiver::sp_sharedInput = nullptr;
 #pragma endregion
 
 #pragma region Protected Functionality
 void InputReceiver::HandleInput()
 {
-	mp_inputQueueMutex->lock();
+	sp_sharedInput->m_inputQueueMutex.lock();
 
-	while (mp_inputQueue->empty() == false)
+	while (sp_sharedInput->m_inputQueue[m_playerIndex].empty() == false)
 	{
-		m_currentInput = mp_inputQueue->front();
-		mp_inputQueue->pop();
-		mp_inputQueueMutex->unlock();
+		m_currentInput = sp_sharedInput->m_inputQueue[m_playerIndex].front();
+		sp_sharedInput->m_inputQueue[m_playerIndex].pop();
+		//sp_sharedInput->m_inputQueueMutex.unlock();
 
 		switch ((Enums::Direction)m_currentInput.m_inputIndex)
 		{
@@ -29,9 +35,9 @@ void InputReceiver::HandleInput()
 			break;
 		}
 
-		mp_inputQueueMutex->lock();
+		//sp_sharedInput->m_inputQueueMutex.lock();
 	}
 
-	mp_inputQueueMutex->unlock();
+	sp_sharedInput->m_inputQueueMutex.unlock();
 }
 #pragma endregion

@@ -1,15 +1,14 @@
 #pragma region Includes
 #include "Avatar.h"
 
-#include "SharedMemory.h"
+#include "SharedInput.h"
 #pragma endregion
 
 #pragma region Initialization
-Avatar::Avatar(SharedMemory& _sharedMemory)
+Avatar::Avatar(SharedInput& _sharedInput)
 {
-	static int assignInputReceiverIndex = Consts::NO_VALUE;
-	mp_inputQueueMutex = &_sharedMemory.GetInputQueueMutexRef(assignInputReceiverIndex);
-	mp_inputQueue = &_sharedMemory.GetInputQueueRef(assignInputReceiverIndex++);
+	static int playerIndex = Consts::NO_VALUE;
+	m_playerIndex = playerIndex;
 }
 #pragma endregion
 

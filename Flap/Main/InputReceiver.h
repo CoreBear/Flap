@@ -7,18 +7,25 @@
 #include <mutex>
 #include <queue>
 
+class SharedInput;
+
 class InputReceiver
 {
 public:
+	// Static Initialization
+	inline static void AssignSharedInput(SharedInput& _sharedInput) { sp_sharedInput = &_sharedInput; }
+
 	// Initialization
 	InputReceiver(const InputReceiver&) = delete;
 	InputReceiver& operator=(const InputReceiver&) = delete;
 
 protected:
+	// Static Variables
+	static SharedInput* sp_sharedInput;
+
 	// Member Variables
 	Structure::Input m_currentInput;
-	std::mutex* mp_inputQueueMutex;					// Needs to be a pointer, because it's an array
-	std::queue<Structure::Input>* mp_inputQueue;	// Needs to be a pointer, because it's an array
+	int m_playerIndex;
 
 	// Initialization
 	InputReceiver() = default;

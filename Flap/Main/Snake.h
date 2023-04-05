@@ -5,7 +5,8 @@
 #include "Enums.h"
 #include "SceneObject.h"
 
-class SharedMemory;
+class SharedCollisionRender;
+
 namespace Structure { struct Vector2; };
 
 class Snake : public SceneObject
@@ -15,7 +16,7 @@ public:
 	static Structure::Generic s_genericContainer;
 
 	// Static Initialization
-	inline static void AssignSharedMemory(SharedMemory& _sharedMemory) { sp_sharedMemory = &_sharedMemory; }
+	inline static void AssignSharedCollisionRender(SharedCollisionRender& _sharedCollisionRender) { sp_sharedCollisionRender = &_sharedCollisionRender; }
 
 	// Initialization
 	void Initialize(const Structure::Generic* const _genericContainer) override final;
@@ -38,7 +39,7 @@ protected:
 
 private:
 	// Static Variables
-	static SharedMemory* sp_sharedMemory;
+	static SharedCollisionRender* sp_sharedCollisionRender;
 
 	// Member Variables
 	DList<Structure::Vector2> m_bodyNodes;

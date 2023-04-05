@@ -4,7 +4,8 @@
 #include "GameThreadBase.h"
 #include "InputManager.h"
 #include "SceneManager.h"
-#include "SharedMemory.h"
+#include "SharedCollisionRender.h"
+#include "SharedInput.h"
 
 #include <thread>
 #include <Windows.h>
@@ -29,16 +30,17 @@ int main()
 
 	SetupConsole(bufferSizeCR, outputWindowHandle);
 
-	SharedMemory sharedMemory(bufferSizeCR);
+	SharedCollisionRender sharedCollisionRender(bufferSizeCR);
+	SharedInput sharedInput;
 
 	enum class ThreadType { CollisionRenderWriter, Input, Scene, NumberOfTypes };
 
 	// Generate managers
 	GameThreadBase** gameThreadBases = new GameThreadBase * [static_cast<int>(ThreadType::NumberOfTypes)]
 	{
-		new CollisionRenderWriter(sharedMemory),
-		new InputManager(sharedMemory),
-		new SceneManager(outputWindowHandle, sharedMemory)
+		new CollisionRenderWriter(sharedCollisionRender),
+		new InputManager(sharedInput),
+		new SceneManager(outputWindowHandle, sharedCollisionRender, sharedInput)
 	};
 
 	std::thread threads[static_cast<int>(ThreadType::NumberOfTypes)];

@@ -3,13 +3,14 @@
 
 #include "InputReceiver.h"
 
-class SharedMemory;
+class SharedCollisionRender;
+class SharedInput;
 
 class OverlayManager final : public InputReceiver
 {
 public:
 	// Initialzation
-	OverlayManager(SharedMemory& _sharedMemory);
+	OverlayManager(SharedCollisionRender& _sharedCollisionRender);
 	OverlayManager(const OverlayManager&) = delete;
 	OverlayManager& operator=(const OverlayManager&) = delete;
 

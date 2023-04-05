@@ -8,14 +8,14 @@
 #include <mutex>
 
 class BufferCell;
-class SharedMemory;
+class SharedCollisionRender;
 class SceneObject;
 
 class CollisionRenderWriter final : public GameThreadBase
 {
 public:
 	// Initialization
-	CollisionRenderWriter(SharedMemory& _sharedMemory);
+	CollisionRenderWriter(SharedCollisionRender& _sharedCollisionRender);
 	CollisionRenderWriter(const CollisionRenderWriter&) = delete;
 	CollisionRenderWriter& operator=(const CollisionRenderWriter&) = delete;
 
@@ -30,7 +30,7 @@ private:
 	BufferCell* mp_bufferCell;
 	DList<Structure::Vector2>::Const_Iterator m_positionIterator;
 	const DList<SceneObject*>::Const_Iterator& NULL_ITERATOR;
-	SharedMemory& mr_sharedMemory;
+	SharedCollisionRender& mr_sharedCollisionRender;
 	const short FOOD_COLOR;
 	const short SNAKE_BODY_COLOR;
 	const short SNAKE_HEAD_COLOR;

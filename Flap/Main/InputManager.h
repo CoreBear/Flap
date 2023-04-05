@@ -9,13 +9,13 @@
 #include <queue>
 #include <Windows.h>
 
-class SharedMemory;
+class SharedInput;
 
 class InputManager final : public GameThreadBase
 {
 public:
 	// Initialization
-	InputManager(SharedMemory& _sharedMemory);
+	InputManager(SharedInput& _sharedInput);
 	InputManager(const InputManager&) = delete;
 	InputManager& operator=(const InputManager&) = delete;
 		
@@ -39,8 +39,7 @@ private:
 	int m_reusableIterator_1;
 	int m_reusableIterator_2;
 	int m_reusableIterator_3;
-	std::mutex* const mp_inputQueueMutex;					// Needs to be a pointer, because it's an array
-	std::queue<Structure::Input>* const mp_inputQueue;		// Needs to be a pointer, because it's an array
+	SharedInput& mr_sharedInput;
 	unsigned int** mpp_deadFramesTargetFrames;
 
 	// Functionality

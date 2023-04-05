@@ -5,16 +5,13 @@
 
 #include <Windows.h>
 
-class SharedMemory;
+class SharedCollisionRender;
 
 class CollisionRenderManager final
 {
-private:
-	const int& mr_bufferSize;	// Has to be up here to initialize before other things
-
 public:
 	// Initialization
-	CollisionRenderManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory);
+	CollisionRenderManager(const HANDLE& _outputWindowHandle, SharedCollisionRender& _sharedCollisionRender);
 	CollisionRenderManager(const CollisionRenderManager&) = delete;
 	CollisionRenderManager& operator=(const CollisionRenderManager&) = delete;
 
@@ -30,7 +27,7 @@ private:
 	COORD m_topLeftCellCR;
 	const HANDLE& OUTPUT_WINDOW_HANDLE;
 	int m_reusableIterator;						
-	SharedMemory& mr_sharedMemory;
+	SharedCollisionRender& mr_sharedCollisionRender;
 	SMALL_RECT m_writeRegionRect;
 	Structure::Vector2 m_collisionCellCR;
 };

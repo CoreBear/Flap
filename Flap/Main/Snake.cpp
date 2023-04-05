@@ -4,13 +4,13 @@
 #include "Consts.h"
 #include "ObjectManager.h"
 #include "SceneManager.h"
-#include "SharedMemory.h"
+#include "SharedCollisionRender.h"
 #include "Structure.h"
 #pragma endregion
 
 #pragma region Static Initialization
 Structure::Generic Snake::s_genericContainer;
-SharedMemory* Snake::sp_sharedMemory = nullptr;
+SharedCollisionRender* Snake::sp_sharedCollisionRender = nullptr;
 #pragma endregion
 
 #pragma region Initialization
@@ -129,7 +129,7 @@ void Snake::Move()
 	case Enums::Direction::Down:
 	{
 		// Bind to screen or die (this needs to be off by one'd)
-		if (m_position.m_y + Consts::OFF_BY_ONE < sp_sharedMemory->SCREEN_BUFFER_CR.Y)
+		if (m_position.m_y + Consts::OFF_BY_ONE < sp_sharedCollisionRender->SCREEN_BUFFER_CR.Y)
 		{
 			++m_position.m_y;
 		}
@@ -157,7 +157,7 @@ void Snake::Move()
 	case Enums::Direction::Right:
 	{
 		// Bind to screen or die (this needs to be off by one'd)
-		if (m_position.m_x + Consts::OFF_BY_ONE < sp_sharedMemory->SCREEN_BUFFER_CR.X)
+		if (m_position.m_x + Consts::OFF_BY_ONE < sp_sharedCollisionRender->SCREEN_BUFFER_CR.X)
 		{
 			++m_position.m_x;
 		}

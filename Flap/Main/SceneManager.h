@@ -9,7 +9,8 @@
 class CollisionRenderManager;
 class ObjectManager;
 class OverlayManager;
-class SharedMemory;
+class SharedCollisionRender;
+class SharedInput;
 
 class SceneManager final : public GameThreadBase
 {
@@ -18,7 +19,7 @@ public:
 	static unsigned int s_fixedFrameCount;
 
 	// Initialization
-	SceneManager(const HANDLE& _outputWindowHandle, SharedMemory& _sharedMemory);
+	SceneManager(const HANDLE& _outputWindowHandle, SharedCollisionRender& _sharedCollisionRender, SharedInput& _sharedInput);
 	SceneManager(const SceneManager&) = delete;
 	SceneManager& operator=(const SceneManager&) = delete;
 
@@ -38,6 +39,6 @@ private:
 	ObjectManager* const mp_objectManager;
 	OverlayManager* const mp_overlayManager;
 	SceneType m_sceneType;
-	SharedMemory* const mp_sharedMemory;
+	SharedCollisionRender* const mp_sharedCollisionRender;
 };
 #endif SCENE_MANAGER_H

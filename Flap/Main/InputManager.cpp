@@ -3,19 +3,18 @@
 
 #include "Consts.h"
 #include "SceneManager.h"
-#include "SharedMemory.h"
+#include "SharedInput.h"
 #pragma endregion
 
 #pragma region Initialization
-InputManager::InputManager(SharedMemory& _sharedMemory) :
-	BUFFER_LENGTH(Consts::MAX_NUMBER_OF_PLAYERS * Consts::NUMBER_OF_INPUTS),
+InputManager::InputManager(SharedInput& _sharedInput) :
+	BUFFER_LENGTH(Consts::MAX_NUMBER_OF_PLAYERS* Consts::NUMBER_OF_INPUTS),
 	INPUT_WINDOW_HANDLE(GetStdHandle(STD_INPUT_HANDLE)),
-	mpp_inputPressStates(new Enums::InputPressState*[Consts::MAX_NUMBER_OF_PLAYERS]),
+	mpp_inputPressStates(new Enums::InputPressState* [Consts::MAX_NUMBER_OF_PLAYERS]),
 	m_numberOfEventsRead(Consts::NO_VALUE),
 	m_reusableIterator_1(Consts::NO_VALUE),
 	m_reusableIterator_3(Consts::NO_VALUE),
-	mp_inputQueueMutex(_sharedMemory.GetInputQueueMutexPtr()),
-	mp_inputQueue(_sharedMemory.GetInputQueuePtr()),
+	mr_sharedInput(_sharedInput),
 	mpp_deadFramesTargetFrames(new unsigned int*[Consts::MAX_NUMBER_OF_PLAYERS])
 {
 	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::MAX_NUMBER_OF_PLAYERS; m_reusableIterator_1++)
@@ -139,9 +138,9 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	m_newInput.m_inputPressState = mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3];
 
 	// Add input to queue
-	mp_inputQueueMutex[m_reusableIterator_2].lock();
-	mp_inputQueue[m_reusableIterator_2].push(m_newInput);
-	mp_inputQueueMutex[m_reusableIterator_2].unlock();
+	mr_sharedInput.m_inputQueueMutex.lock();
+	mr_sharedInput.m_inputQueue[m_reusableIterator_2].push(m_newInput);
+	mr_sharedInput.m_inputQueueMutex.unlock();
 }
 #pragma endregion
 

@@ -135,7 +135,8 @@
     <ClCompile Include="Food.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="InputReceiver.cpp" />
-    <ClCompile Include="SharedMemory.cpp" />
+    <ClCompile Include="SharedCollisionRender.cpp" />
+    <ClCompile Include="SharedInput.cpp" />
     <ClCompile Include="Snake.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="NetworkManager.cpp" />
@@ -153,7 +154,8 @@
     <ClInclude Include="DList.h" />
     <ClInclude Include="Food.h" />
     <ClInclude Include="InputReceiver.h" />
-    <ClInclude Include="SharedMemory.h" />
+    <ClInclude Include="SharedCollisionRender.h" />
+    <ClInclude Include="SharedInput.h" />
     <ClInclude Include="Snake.h" />
     <ClInclude Include="Consts.h" />
     <ClInclude Include="Enums.h" />

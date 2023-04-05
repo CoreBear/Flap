@@ -6,16 +6,15 @@
 #include "Enums.h"
 #include "Food.h"
 #include "SceneObject.h"
-#include "SharedMemory.h"
+#include "SharedCollisionRender.h"
 #include "Snake.h"
 #include "Structure.h"
 #pragma endregion
 
 #pragma region Initialization
-ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
-	mr_sceneObjectsFixedUpdateIterator(_sharedMemory.GetSceneObjectsIteratorRef()), 
-	mr_sharedMemory(_sharedMemory),
-	m_bufferWriterIteratorUniqueLock(_sharedMemory.GetRenderIteratorMutexRef())
+ObjectManager::ObjectManager(SharedCollisionRender& _sharedCollisionRender, SharedInput& _sharedInput) :
+	mr_sharedCollisionRender(_sharedCollisionRender),
+	m_bufferWriterIteratorUniqueLock(_sharedCollisionRender.m_bufferWriterIteratorMutex)
 {
 	SceneObject::AssignObjectManager(*this);
 
@@ -39,7 +38,7 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 			switch ((Enums::ObjectType)objectTypeIndex)
 			{
 			case Enums::ObjectType::Avatar:
-				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Avatar(_sharedMemory);
+				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Avatar(_sharedInput);
 				break;
 			case Enums::ObjectType::Food:
 				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Food();
@@ -52,8 +51,8 @@ ObjectManager::ObjectManager(SharedMemory& _sharedMemory) :
 	}
 
 	// Set pointers to the beginning of the container
-	mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.End();
-	mr_sharedMemory.m_bufferWriterIterator = m_sceneObjectsList.End();
+	mr_sharedCollisionRender.m_bufferWriterIterator = m_sceneObjectsList.End();
+	mr_sharedCollisionRender.m_sceneObjectsIterator = m_sceneObjectsList.End();
 
 	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
 	m_bufferWriterIteratorUniqueLock.unlock();
@@ -68,59 +67,59 @@ void ObjectManager::FixedUpdate()
 		m_bufferWriterIteratorUniqueLock.lock();
 
 		// If Buffer thread is already waiting
-		if (mr_sharedMemory.m_threadWaitingFlag)
+		if (mr_sharedCollisionRender.m_threadWaitingFlag)
 		{
 			// Release it
-			mr_sharedMemory.m_bufferWriterIteratorConVar.notify_one();
+			mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 
 			// Notify the system that nothing is waiting (when this is unlocked and the Buffer thread grabs the lock)
-			mr_sharedMemory.m_threadWaitingFlag = false;
+			mr_sharedCollisionRender.m_threadWaitingFlag = false;
 		}
 
 		// If Buffer thread is not already waiting
 		else
 		{
 			// Notify system that this (Scene) thread is waiting
-			mr_sharedMemory.m_threadWaitingFlag = true;
+			mr_sharedCollisionRender.m_threadWaitingFlag = true;
 
 			// When Buffer thread releases this (Scene) thread
-			mr_sharedMemory.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
+			mr_sharedCollisionRender.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
 
 			// Let it know it can release, because this (Scene) thread needs to go first
-			mr_sharedMemory.m_bufferWriterIteratorConVar.notify_one();
+			mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 		}
 
 		// Reset iterators
-		mr_sceneObjectsFixedUpdateIterator = m_sceneObjectsList.Begin();
-		mr_sharedMemory.m_bufferWriterIterator = m_sceneObjectsList.Begin();
+		mr_sharedCollisionRender.m_bufferWriterIterator = m_sceneObjectsList.Begin();
+		mr_sharedCollisionRender.m_sceneObjectsIterator = m_sceneObjectsList.Begin();
 
 		m_bufferWriterIteratorUniqueLock.unlock();
 
-		for (/*Initialization is done above, while within mutex*/; mr_sceneObjectsFixedUpdateIterator != m_sceneObjectsList.End(); ++mr_sceneObjectsFixedUpdateIterator)
+		for (/*Initialization is done above, while within mutex*/; mr_sharedCollisionRender.m_sceneObjectsIterator != m_sceneObjectsList.End(); ++mr_sharedCollisionRender.m_sceneObjectsIterator)
 		{
-			(*mr_sceneObjectsFixedUpdateIterator)->FixedUpdate();
+			(*mr_sharedCollisionRender.m_sceneObjectsIterator)->FixedUpdate();
 		}
 
 		m_bufferWriterIteratorUniqueLock.lock();
 
 		// If Buffer thread is already waiting
-		if (mr_sharedMemory.m_threadWaitingFlag)
+		if (mr_sharedCollisionRender.m_threadWaitingFlag)
 		{
 			// Release it
-			mr_sharedMemory.m_bufferWriterIteratorConVar.notify_one();
+			mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 
 			// Notify the system that nothing is waiting (when this is unlocked and the Buffer thread grabs the lock)
-			mr_sharedMemory.m_threadWaitingFlag = false;
+			mr_sharedCollisionRender.m_threadWaitingFlag = false;
 		}
 
 		// If Buffer thread is not already waiting
 		else
 		{
 			// Notify system that this (Scene) thread is waiting
-			mr_sharedMemory.m_threadWaitingFlag = true;
+			mr_sharedCollisionRender.m_threadWaitingFlag = true;
 
 			// When Render thread releases this (Scene) thread
-			mr_sharedMemory.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
+			mr_sharedCollisionRender.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
 		}
 
 		m_bufferWriterIteratorUniqueLock.unlock();

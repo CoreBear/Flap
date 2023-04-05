@@ -1,9 +1,2 @@
-﻿  CollisionRenderWriter.cpp
-  GameManager.cpp
-  InputManager.cpp
-  SceneManager.cpp
-C:\Flap\Flap\Main\SceneManager.cpp(41,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Flap\Flap\Main\SceneManager.cpp(44,38): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  Snake.cpp
-  Generating Code...
+﻿  InputReceiver.cpp
   Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe
