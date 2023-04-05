@@ -1,7 +1,7 @@
 #pragma region Includes
 #include "SceneManager.h"
 
-#include "CollisionRenderManager.h"
+#include "CollisionRenderBufferToObjectAndScreen.h"
 #include "Consts.h"
 #include "ObjectManager.h"
 #include "OverlayManager.h"
@@ -16,7 +16,7 @@
 unsigned int SceneManager::s_fixedFrameCount = Consts::NO_VALUE;
 
 SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedCollisionRender& _sharedCollisionRender, SharedInput& _sharedInput) :
-	mp_collisionRenderManager(new CollisionRenderManager(_outputWindowHandle, _sharedCollisionRender)),
+	mp_collisionRenderBufferToObjectAndScreen(new CollisionRenderBufferToObjectAndScreen(_outputWindowHandle, _sharedCollisionRender)),
 	mp_objectManager(new ObjectManager(_sharedCollisionRender, _sharedInput)),
 	mp_overlayManager(new OverlayManager(_sharedCollisionRender)),
 	m_sceneType(SceneType::Game),
@@ -80,13 +80,13 @@ void SceneManager::Update()
 		{
 			mp_objectManager->FixedUpdate();
 
-			mp_collisionRenderManager->GameUpdate();
+			mp_collisionRenderBufferToObjectAndScreen->GameUpdate();
 		}
 		else
 		{
 			mp_overlayManager->FixedUpdate();
 
-			mp_collisionRenderManager->OverlayUpdate();
+			mp_collisionRenderBufferToObjectAndScreen->OverlayUpdate();
 		}
 	}
 
@@ -111,7 +111,7 @@ void SceneManager::Update()
 #pragma region Destruction
 SceneManager::~SceneManager()
 {
-	delete mp_collisionRenderManager;
+	delete mp_collisionRenderBufferToObjectAndScreen;
 	delete mp_objectManager;
 	delete mp_overlayManager;
 }

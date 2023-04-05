@@ -6,7 +6,7 @@
 #include <chrono>
 #include <Windows.h>		// NOTE/WARNING: Has to be here or else the compiler screams about forward declaring HANDLE
 
-class CollisionRenderManager;
+class CollisionRenderBufferToObjectAndScreen;
 class ObjectManager;
 class OverlayManager;
 class SharedCollisionRender;
@@ -34,7 +34,7 @@ private:
 	enum class SceneType { Game, Overlay };
 
 	// Member Variables
-	CollisionRenderManager* const mp_collisionRenderManager;
+	CollisionRenderBufferToObjectAndScreen* const mp_collisionRenderBufferToObjectAndScreen;
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	ObjectManager* const mp_objectManager;
 	OverlayManager* const mp_overlayManager;

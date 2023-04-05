@@ -1,5 +1,5 @@
 #pragma region Includes
-#include "CollisionRenderWriter.h"
+#include "CollisionRenderObjectToBuffer.h"
 #include "Consts.h"
 #include "GameThreadBase.h"
 #include "InputManager.h"
@@ -33,12 +33,12 @@ int main()
 	SharedCollisionRender sharedCollisionRender(bufferSizeCR);
 	SharedInput sharedInput;
 
-	enum class ThreadType { CollisionRenderWriter, Input, Scene, NumberOfTypes };
+	enum class ThreadType { CollisionRenderObjectToBuffer, Input, Scene, NumberOfTypes };
 
 	// Generate managers
 	GameThreadBase** gameThreadBases = new GameThreadBase * [static_cast<int>(ThreadType::NumberOfTypes)]
 	{
-		new CollisionRenderWriter(sharedCollisionRender),
+		new CollisionRenderObjectToBuffer(sharedCollisionRender),
 		new InputManager(sharedInput),
 		new SceneManager(outputWindowHandle, sharedCollisionRender, sharedInput)
 	};

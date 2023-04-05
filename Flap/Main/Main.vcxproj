@@ -130,8 +130,8 @@
   <ItemGroup>
     <ClCompile Include="Avatar.cpp" />
     <ClCompile Include="BufferCell.cpp" />
-    <ClCompile Include="CollisionRenderWriter.cpp" />
-    <ClCompile Include="CollisionRenderManager.cpp" />
+    <ClCompile Include="CollisionRenderObjectToBuffer.cpp" />
+    <ClCompile Include="CollisionRenderBufferToObjectAndScreen.cpp" />
     <ClCompile Include="Food.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="InputReceiver.cpp" />
@@ -149,8 +149,8 @@
   <ItemGroup>
     <ClInclude Include="Avatar.h" />
     <ClInclude Include="BufferCell.h" />
-    <ClInclude Include="CollisionRenderWriter.h" />
-    <ClInclude Include="CollisionRenderManager.h" />
+    <ClInclude Include="CollisionRenderObjectToBuffer.h" />
+    <ClInclude Include="CollisionRenderBufferToObjectAndScreen.h" />
     <ClInclude Include="DList.h" />
     <ClInclude Include="Food.h" />
     <ClInclude Include="InputReceiver.h" />
