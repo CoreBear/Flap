@@ -32,10 +32,10 @@ public:
 
 protected:
 	// Functionality
-	inline void InputDown() { m_newDirection = Enums::Direction::Down; }
-	inline void InputLeft() { m_newDirection = Enums::Direction::Left; }
-	inline void InputRight() { m_newDirection = Enums::Direction::Right; }
-	inline void InputUp() { m_newDirection = Enums::Direction::Up; }
+	inline void InputDown() { m_newDirection = Enums::InputName::Down; }
+	inline void InputLeft() { m_newDirection = Enums::InputName::Left; }
+	inline void InputRight() { m_newDirection = Enums::InputName::Right; }
+	inline void InputUp() { m_newDirection = Enums::InputName::Up; }
 
 private:
 	// Static Variables
@@ -45,8 +45,8 @@ private:
 	DList<Structure::Vector2> m_bodyNodes;
 	DList<Structure::Vector2>::Iterator m_headTraversingIterator;
 	DList<Structure::Vector2>::Iterator m_tailTraversingIterator;
-	Enums::Direction m_currentDirection;
-	Enums::Direction m_newDirection;
+	Enums::InputName m_currentDirection;
+	Enums::InputName m_newDirection;
 	unsigned int m_moveTargetFrame;
 	unsigned int m_numberOfFramesPerCell;
 	unsigned int m_numberOfFramesPerCellHorizontal;

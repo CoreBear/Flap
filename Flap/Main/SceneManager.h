@@ -8,7 +8,7 @@
 
 class CollisionRenderBufferToObjectAndScreen;
 class ObjectManager;
-class OverlayManager;
+class MenuManager;
 class SharedCollisionRender;
 class SharedInput;
 
@@ -30,15 +30,12 @@ public:
 	~SceneManager() override;
 
 private:
-	// Static Variables
-	enum class SceneType { Game, Overlay };
-
 	// Member Variables
 	CollisionRenderBufferToObjectAndScreen* const mp_collisionRenderBufferToObjectAndScreen;
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
+	MenuManager* const mp_menuManager;
 	ObjectManager* const mp_objectManager;
-	OverlayManager* const mp_overlayManager;
-	SceneType m_sceneType;
-	SharedCollisionRender* const mp_sharedCollisionRender;
+	SharedCollisionRender& mr_sharedCollisionRender;
+	SharedInput& mr_sharedInput;
 };
 #endif SCENE_MANAGER_H

@@ -39,6 +39,7 @@ private:
 	int m_reusableIterator_1;
 	int m_reusableIterator_2;
 	int m_reusableIterator_3;
+	int m_reusableIterator_4;
 	SharedInput& mr_sharedInput;
 	unsigned int** mpp_deadFramesTargetFrames;
 

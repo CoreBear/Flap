@@ -46,7 +46,7 @@ int main()
 	std::thread threads[static_cast<int>(ThreadType::NumberOfTypes)];
 
 	// Start manager threads and detach (if applicable)
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ThreadType::NumberOfTypes; threadIndex++)
+	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 	{
 		threads[threadIndex] = std::thread(ManagerThreadEntry, gameThreadBases, threadIndex);
 
@@ -57,7 +57,7 @@ int main()
 	}
 
 	// Join manager threads (if applicable)
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ThreadType::NumberOfTypes; threadIndex++)
+	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 	{
 		if (threadIndex != static_cast<int>(ThreadType::Input))
 		{
@@ -66,7 +66,7 @@ int main()
 	}
 
 	// Delete manager pointers
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < (int)ThreadType::NumberOfTypes; threadIndex++)
+	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 	{
 		delete gameThreadBases[threadIndex];
 	}

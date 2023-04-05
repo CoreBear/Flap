@@ -25,17 +25,18 @@ protected:
 
 	// Member Variables
 	Structure::Input m_currentInput;
-	int m_playerIndex;
+	int m_readIndex;
 
 	// Initialization
 	InputReceiver() = default;
 
 	// Functionality
 	void HandleInput();
-	virtual void InputDown(Enums::InputPressState _inputPressState) { return; }
-	virtual void InputLeft(Enums::InputPressState _inputPressState) { return; }
-	virtual void InputRight(Enums::InputPressState _inputPressState) { return; }
-	virtual void InputUp(Enums::InputPressState _inputPressState) { return; }
+	inline virtual void InputDown(Enums::InputPressState _inputPressState) { return; }
+	inline virtual void InputLeft(Enums::InputPressState _inputPressState) { return; }
+	inline virtual void InputRight(Enums::InputPressState _inputPressState) { return; }
+	inline virtual void InputUp(Enums::InputPressState _inputPressState) { return; }
+	inline void UpdateReadIndex(int _readIndex) { m_readIndex = _readIndex; }
 };
 
 #endif INPUT_RECEIVER_H

@@ -13,7 +13,9 @@ InputManager::InputManager(SharedInput& _sharedInput) :
 	mpp_inputPressStates(new Enums::InputPressState* [Consts::MAX_NUMBER_OF_PLAYERS]),
 	m_numberOfEventsRead(Consts::NO_VALUE),
 	m_reusableIterator_1(Consts::NO_VALUE),
+	m_reusableIterator_2(Consts::NO_VALUE),
 	m_reusableIterator_3(Consts::NO_VALUE),
+	m_reusableIterator_4(Consts::NO_VALUE),
 	mr_sharedInput(_sharedInput),
 	mpp_deadFramesTargetFrames(new unsigned int*[Consts::MAX_NUMBER_OF_PLAYERS])
 {
@@ -133,14 +135,55 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		}
 	}
 
-	// Add values to input
-	m_newInput.m_inputIndex = m_reusableIterator_3;
-	m_newInput.m_inputPressState = mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3];
+	constexpr int PAUSE_INDEX = static_cast<int>(Enums::InputName::Pause);
 
-	// Add input to queue
-	mr_sharedInput.m_inputQueueMutex.lock();
-	mr_sharedInput.m_inputQueue[m_reusableIterator_2].push(m_newInput);
-	mr_sharedInput.m_inputQueueMutex.unlock();
+	// If neither player is trying to pause the game
+	if (m_reusableIterator_3 != PAUSE_INDEX)
+	{
+		mr_sharedInput.m_inputSceneTypeMutex.lock();
+		switch (mr_sharedInput.m_inputSceneType)
+		{
+			// Do nothing
+		//case Enums::InputSceneType::GTO:
+		//case Enums::InputSceneType::OTG:
+
+			// If not transitioning, add input
+		case Enums::InputSceneType::Game:
+		case Enums::InputSceneType::Menu:
+		{
+			// Add values to container
+			m_newInput.m_inputIndex = m_reusableIterator_3;
+			m_newInput.m_inputPressState = mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3];
+
+			// Add input to queue
+			mr_sharedInput.m_inputQueueMutex.lock();
+			mr_sharedInput.m_inputQueue[m_reusableIterator_2].push(m_newInput);
+			mr_sharedInput.m_inputQueueMutex.unlock();
+		}
+		break;
+		}
+		mr_sharedInput.m_inputSceneTypeMutex.unlock();
+	}
+
+	// If a player is trying to pause the game
+	else
+	{
+		mr_sharedInput.m_inputQueueMutex.lock();
+
+		// Clear each queue
+		for (m_reusableIterator_4 = Consts::NO_VALUE; m_reusableIterator_4 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_4++)
+		{
+			while (mr_sharedInput.m_inputQueue[m_reusableIterator_4].empty() == false)
+			{
+				mr_sharedInput.m_inputQueue[m_reusableIterator_4].pop();
+			}
+		}
+
+		mr_sharedInput.m_inputSceneTypeMutex.lock();
+		mr_sharedInput.m_inputSceneType = Enums::InputSceneType::GTO;
+		mr_sharedInput.m_inputSceneTypeMutex.unlock();
+		mr_sharedInput.m_inputQueueMutex.unlock();
+	}
 }
 #pragma endregion
 

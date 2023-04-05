@@ -18,8 +18,8 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 {
 	SceneObject::Initialize(_genericContainer);
 
-	m_currentDirection = Enums::Direction::NA;
-	m_newDirection = Enums::Direction::NA;
+	m_currentDirection = Enums::InputName::NA;
+	m_newDirection = Enums::InputName::NA;
 
 	// HACK: Forces snake to check for first input, each frame, at the start
 	m_numberOfFramesPerCell = static_cast<unsigned int>(2);
@@ -34,8 +34,8 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 Snake::Snake() : 
 	// NOTE/WARNING: Allocated memory is destroyed in the SceneObject destructor
 	SceneObject(dynamic_cast<Structure::RenderInfo*>(new Structure::SnakeRenderInfo(m_bodyNodes, Enums::ObjectType::Snake, m_position))),
-	m_currentDirection(Enums::Direction::NA), 
-	m_newDirection(Enums::Direction::NA), 
+	m_currentDirection(Enums::InputName::NA), 
+	m_newDirection(Enums::InputName::NA), 
 	m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
 {
 	return;
@@ -126,7 +126,7 @@ void Snake::Move()
 	// Update head's new position
 	switch (m_currentDirection)
 	{
-	case Enums::Direction::Down:
+	case Enums::InputName::Down:
 	{
 		// Bind to screen or die (this needs to be off by one'd)
 		if (m_position.m_y + Consts::OFF_BY_ONE < sp_sharedCollisionRender->SCREEN_BUFFER_CR.Y)
@@ -140,7 +140,7 @@ void Snake::Move()
 		}
 	}
 	break;
-	case Enums::Direction::Left:
+	case Enums::InputName::Left:
 	{
 		// Bind to screen or die
 		if (m_position.m_x - Consts::OFF_BY_ONE > -Consts::OFF_BY_ONE)
@@ -154,7 +154,7 @@ void Snake::Move()
 		}
 	}
 	break;
-	case Enums::Direction::Right:
+	case Enums::InputName::Right:
 	{
 		// Bind to screen or die (this needs to be off by one'd)
 		if (m_position.m_x + Consts::OFF_BY_ONE < sp_sharedCollisionRender->SCREEN_BUFFER_CR.X)
@@ -168,7 +168,7 @@ void Snake::Move()
 		}
 	}
 	break;
-	case Enums::Direction::Up:
+	case Enums::InputName::Up:
 	{
 		// Bind to screen or die
 		if (m_position.m_y - Consts::OFF_BY_ONE > -Consts::OFF_BY_ONE)
@@ -228,14 +228,14 @@ void Snake::TryTurn()
 	switch (m_currentDirection)
 	{
 		// Currently moving vertical
-	case Enums::Direction::Down:
-	case Enums::Direction::Up:
+	case Enums::InputName::Down:
+	case Enums::InputName::Up:
 	{
 		// If new direction is horizontal
 		switch (m_newDirection)
 		{
-		case Enums::Direction::Left:
-		case Enums::Direction::Right:
+		case Enums::InputName::Left:
+		case Enums::InputName::Right:
 			HorizontalTurn();
 			break;
 		}
@@ -243,14 +243,14 @@ void Snake::TryTurn()
 	break;
 
 	// Currently moving horizontal
-	case Enums::Direction::Left:
-	case Enums::Direction::Right:
+	case Enums::InputName::Left:
+	case Enums::InputName::Right:
 	{
 		// If new direction is vertical
 		switch (m_newDirection)
 		{
-		case Enums::Direction::Down:
-		case Enums::Direction::Up:
+		case Enums::InputName::Down:
+		case Enums::InputName::Up:
 			VerticalTurn();
 			break;
 		}
@@ -262,12 +262,12 @@ void Snake::TryTurn()
 	{
 		switch (m_newDirection)
 		{
-		case Enums::Direction::Down:
-		case Enums::Direction::Up:
+		case Enums::InputName::Down:
+		case Enums::InputName::Up:
 			VerticalTurn();
 			break;
-		case Enums::Direction::Left:
-		case Enums::Direction::Right:
+		case Enums::InputName::Left:
+		case Enums::InputName::Right:
 			HorizontalTurn();
 			break;
 

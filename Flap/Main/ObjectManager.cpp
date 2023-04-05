@@ -25,7 +25,7 @@ ObjectManager::ObjectManager(SharedCollisionRender& _sharedCollisionRender, Shar
 	mpp_pooledObject = new SceneObject ** [static_cast<int>(Enums::ObjectType::NumberOfTypes)];
 
 	// For each object type
-	for (int objectTypeIndex = Consts::NO_VALUE; objectTypeIndex < (int)Enums::ObjectType::NumberOfTypes; objectTypeIndex++)
+	for (int objectTypeIndex = Consts::NO_VALUE; objectTypeIndex < static_cast<int>(Enums::ObjectType::NumberOfTypes); objectTypeIndex++)
 	{
 		m_numberOfObjectsPooledForThisType = NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE[objectTypeIndex];
 
@@ -181,7 +181,7 @@ void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::
 ObjectManager::~ObjectManager()
 {
 	// For each object type
-	for (int objectTypeIndex = Consts::NO_VALUE; objectTypeIndex < (int)Enums::ObjectType::NumberOfTypes; objectTypeIndex++)
+	for (int objectTypeIndex = Consts::NO_VALUE; objectTypeIndex < static_cast<int>(Enums::ObjectType::NumberOfTypes); objectTypeIndex++)
 	{
 		m_numberOfObjectsPooledForThisType = NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE[objectTypeIndex];
 

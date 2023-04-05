@@ -3,8 +3,8 @@
 
 #include "CollisionRenderBufferToObjectAndScreen.h"
 #include "Consts.h"
+#include "MenuManager.h"
 #include "ObjectManager.h"
-#include "OverlayManager.h"
 #include "SharedCollisionRender.h"
 #include "SharedInput.h"
 #pragma endregion
@@ -17,11 +17,13 @@ unsigned int SceneManager::s_fixedFrameCount = Consts::NO_VALUE;
 
 SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedCollisionRender& _sharedCollisionRender, SharedInput& _sharedInput) :
 	mp_collisionRenderBufferToObjectAndScreen(new CollisionRenderBufferToObjectAndScreen(_outputWindowHandle, _sharedCollisionRender)),
+	mp_menuManager(new MenuManager(_sharedCollisionRender)),
 	mp_objectManager(new ObjectManager(_sharedCollisionRender, _sharedInput)),
-	mp_overlayManager(new OverlayManager(_sharedCollisionRender)),
-	m_sceneType(SceneType::Game),
-	mp_sharedCollisionRender(&_sharedCollisionRender)
+	mr_sharedCollisionRender(_sharedCollisionRender),
+	mr_sharedInput(_sharedInput)
 {
+	_sharedInput.m_inputSceneType = Enums::InputSceneType::Menu;
+
 	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
 
 	// HACK:
@@ -65,45 +67,55 @@ SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedCollisionRen
 #pragma region Updates
 void SceneManager::Update() 
 {
-	m_currentTime = std::chrono::high_resolution_clock::now();
+	// NOTE/WARNING: Keep the if/elses
 
-	// Fixed Update
-	if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
+	mr_sharedInput.m_inputSceneTypeMutex.lock();
+
+	if (mr_sharedInput.m_inputSceneType == Enums::InputSceneType::Game)
 	{
-		// Update for next iteration
-		m_lastTime = m_currentTime;
+		mr_sharedInput.m_inputSceneTypeMutex.unlock();
 
-		// Update counter
-		++s_fixedFrameCount;
+		m_currentTime = std::chrono::high_resolution_clock::now();
 
-		if (m_sceneType == SceneType::Game)
+		// Fixed Update
+		if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
 		{
+			// Update for next iteration
+			m_lastTime = m_currentTime;
+
+			// Update counter
+			++s_fixedFrameCount;
+
 			mp_objectManager->FixedUpdate();
 
-			mp_collisionRenderBufferToObjectAndScreen->GameUpdate();
+			mp_collisionRenderBufferToObjectAndScreen->FixedUpdate();
 		}
-		else
-		{
-			mp_overlayManager->FixedUpdate();
 
-			mp_collisionRenderBufferToObjectAndScreen->OverlayUpdate();
-		}
-	}
-
-	// Backend/Regular update
-	if (m_sceneType == SceneType::Game)
-	{
 		mp_objectManager->Update();
+
+		mp_objectManager->LastUpdate();
 	}
 	else
 	{
-		mp_overlayManager->Update();
-	}
+		mr_sharedInput.m_inputSceneTypeMutex.unlock();
 
-	// Last Update
-	if (m_sceneType == SceneType::Game)
-	{
-		mp_objectManager->LastUpdate();
+		m_currentTime = std::chrono::high_resolution_clock::now();
+
+		// Fixed Update
+		if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
+		{
+			// Update for next iteration
+			m_lastTime = m_currentTime;
+
+			// Update counter
+			++s_fixedFrameCount;
+
+			mp_menuManager->FixedUpdate();
+
+			mp_collisionRenderBufferToObjectAndScreen->FixedUpdate();
+		}
+
+		mp_menuManager->Update();
 	}
 }
 #pragma endregion
@@ -113,6 +125,6 @@ SceneManager::~SceneManager()
 {
 	delete mp_collisionRenderBufferToObjectAndScreen;
 	delete mp_objectManager;
-	delete mp_overlayManager;
+	delete mp_menuManager;
 }
 #pragma endregion

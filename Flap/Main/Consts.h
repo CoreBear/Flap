@@ -18,7 +18,7 @@ namespace Consts
 	constexpr int FPS_TARGET = 60;
 	constexpr int MAX_NUMBER_OF_PLAYERS = 2;
 	constexpr int NO_VALUE = 0;
-	constexpr int NUMBER_OF_INPUTS = 4;
+	constexpr int NUMBER_OF_INPUTS = 6;						// Should mach Enums::InputNames::NumberOfNames...
 	constexpr int OFF_BY_ONE = 1;
 
 	// Keys
@@ -26,18 +26,22 @@ namespace Consts
 	{
 		// Player 1 Input
 		{
-			(unsigned short)0x28,	//Down	| Arrow
-			(unsigned short)0x25,	//Left	| Arrow
-			(unsigned short)0x27,	//Right	| Arrow
-			(unsigned short)0x26,	//Up	| Arrow
+			(unsigned short)0x0D,	//Accept | Enter
+			(unsigned short)0x28,	//Down	 | Arrow
+			(unsigned short)0x25,	//Left	 | Arrow
+			(unsigned short)0x08,	//Pause  | Backspace
+			(unsigned short)0x27,	//Right	 | Arrow
+			(unsigned short)0x26,	//Up	 | Arrow
 		},
 
 		// Player 2 Input
 		{
-			(unsigned short)0x53,	//Down	| S
-			(unsigned short)0x41,	//Left	| A
-			(unsigned short)0x44,	//Right	| D
-			(unsigned short)0x57	//Up	| W
+			(unsigned short)0x20,	//Accept | Spacebar
+			(unsigned short)0x53,	//Down	 | S
+			(unsigned short)0x41,	//Left	 | A
+			(unsigned short)0x1B,	//Pause  | Escape
+			(unsigned short)0x44,	//Right	 | D
+			(unsigned short)0x57	//Up	 | W
 		}
 	};
 

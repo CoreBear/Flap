@@ -15,9 +15,8 @@ public:
 	CollisionRenderBufferToObjectAndScreen(const CollisionRenderBufferToObjectAndScreen&) = delete;
 	CollisionRenderBufferToObjectAndScreen& operator=(const CollisionRenderBufferToObjectAndScreen&) = delete;
 
-	// Functionality
-	void GameUpdate();
-	void OverlayUpdate();
+	// Updates
+	void FixedUpdate();
 
 	// Destruction
 	~CollisionRenderBufferToObjectAndScreen();

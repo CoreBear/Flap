@@ -28,8 +28,8 @@ CollisionRenderBufferToObjectAndScreen::CollisionRenderBufferToObjectAndScreen(c
 }
 #pragma endregion
 
-#pragma region Public Functionality
-void CollisionRenderBufferToObjectAndScreen::GameUpdate()
+#pragma region Updates
+void CollisionRenderBufferToObjectAndScreen::FixedUpdate()
 {
 	// For each cell
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedCollisionRender.m_bufferSize; m_reusableIterator++)
@@ -57,10 +57,6 @@ void CollisionRenderBufferToObjectAndScreen::GameUpdate()
 	{
 		mr_sharedCollisionRender.mp_frameBuffer[m_reusableIterator].ResetCell();
 	}
-}
-void CollisionRenderBufferToObjectAndScreen::OverlayUpdate()
-{
-	return;
 }
 #pragma endregion
 

@@ -13,24 +13,24 @@ void InputReceiver::HandleInput()
 {
 	sp_sharedInput->m_inputQueueMutex.lock();
 
-	while (sp_sharedInput->m_inputQueue[m_playerIndex].empty() == false)
+	while (sp_sharedInput->m_inputQueue[m_readIndex].empty() == false)
 	{
-		m_currentInput = sp_sharedInput->m_inputQueue[m_playerIndex].front();
-		sp_sharedInput->m_inputQueue[m_playerIndex].pop();
+		m_currentInput = sp_sharedInput->m_inputQueue[m_readIndex].front();
+		sp_sharedInput->m_inputQueue[m_readIndex].pop();
 		//sp_sharedInput->m_inputQueueMutex.unlock();
 
-		switch ((Enums::Direction)m_currentInput.m_inputIndex)
+		switch ((Enums::InputName)m_currentInput.m_inputIndex)
 		{
-		case Enums::Direction::Down:
+		case Enums::InputName::Down:
 			InputDown(m_currentInput.m_inputPressState);
 			break;
-		case Enums::Direction::Left:
+		case Enums::InputName::Left:
 			InputLeft(m_currentInput.m_inputPressState);
 			break;
-		case Enums::Direction::Right:
+		case Enums::InputName::Right:
 			InputRight(m_currentInput.m_inputPressState);
 			break;
-		case Enums::Direction::Up:
+		case Enums::InputName::Up:
 			InputUp(m_currentInput.m_inputPressState);
 			break;
 		}

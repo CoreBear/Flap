@@ -7,7 +7,23 @@
 
 namespace Structure
 {
-	struct Vector2;
+	// ???: Foreward declaration is not working for some reason
+
+	struct Vector2
+	{
+	public:
+		// Member Variables
+		int m_x;
+		int m_y;
+
+		// Initialization
+		inline Vector2() : m_x(Consts::NO_VALUE), m_y(Consts::NO_VALUE) { return; }
+		inline Vector2(int _x, int _y) : m_x(_x), m_y(_y) { return; }
+
+		// Functionality
+		inline void operator=(const Vector2& _rhs) { m_x = _rhs.m_x; m_y = _rhs.m_y; }
+		inline bool operator==(const Vector2& _rhs) { return (m_x == _rhs.m_x && m_y == _rhs.m_y); }
+	};
 
 	struct Generic
 	{
@@ -53,20 +69,19 @@ namespace Structure
 		// Initialization
 		inline SnakeRenderInfo(DList<Vector2>& _listOfBodyNodes, Enums::ObjectType _objectType, Vector2& _position) : RenderInfo(_objectType, _position), LIST_OF_BODY_NODES(_listOfBodyNodes) { return; }
 	};
-	struct Vector2
+	struct TextLine
 	{
 	public:
 		// Member Variables
-		int m_x;
-		int m_y;
+		const char* m_text;
+		Vector2 m_position;
 
 		// Initialization
-		inline Vector2() : m_x(Consts::NO_VALUE), m_y(Consts::NO_VALUE) { return; }
-		inline Vector2(int _x, int _y) : m_x(_x), m_y(_y) { return; }
-
-		// Functionality
-		inline void operator=(const Vector2& _rhs) { m_x = _rhs.m_x; m_y = _rhs.m_y; }
-		inline bool operator==(const Vector2& _rhs) { return (m_x == _rhs.m_x && m_y == _rhs.m_y); }
+		inline TextLine(const char* _text, int _column, int _row) : m_text(_text)
+		{
+			m_position.m_x = _column;
+			m_position.m_y = _row;
+		}
 	};
 }
 

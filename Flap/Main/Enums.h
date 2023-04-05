@@ -5,9 +5,11 @@ namespace Enums
 {
 	enum class CellState { Collision, Empty, Food, Snake };
 	enum class CollisionType { HeadToBody, HeadToFruit, HeadToHead };
-	enum class Direction { Down, Left, Right, Up, NumberOfDirections, NA };
+	enum class InputName { Accept, Down, Left, Pause, Right, Up, NumberOfNames, NA };
 	enum class InputPressState { Click, Dead, Held, PressedThisFrame, Released };
+	enum class InputSceneType { Game, GTO, OTG, Menu };
 	enum class ObjectType { Avatar, Food, Snake, NumberOfTypes, NA };
+	enum class MenuName { Exit, LocalMultiplayer, Main, Multiplayer, Network, Options, Pause, Results, SinglePlayer, Welcome, NumberOfMenus, NA };
 	enum class SpawnState { Selected, Spawned, WaitingSelection };
 }
 
