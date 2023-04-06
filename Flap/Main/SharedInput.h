@@ -17,9 +17,7 @@ public:
 	SharedInput& operator=(const SharedInput&) = delete;
 
 	// Member Variables
-	Enums::InputSceneType m_inputSceneType;
 	std::mutex m_inputQueueMutex;
-	std::mutex m_inputSceneTypeMutex;
 	std::queue<Structure::Input> m_inputQueue[Consts::MAX_NUMBER_OF_PLAYERS];
 };
 

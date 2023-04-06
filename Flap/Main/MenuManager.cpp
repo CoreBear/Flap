@@ -20,7 +20,8 @@
 
 #pragma region Initialization
 MenuManager::MenuManager(SharedCollisionRender& _sharedCollisionRender) :
-	mr_sharedCollisionRender(_sharedCollisionRender)
+	mr_sharedCollisionRender(_sharedCollisionRender),
+	m_menuUniqueLock(_sharedCollisionRender.m_menuMutex)
 {
 	m_readIndex = Consts::NO_VALUE;
 
@@ -91,6 +92,9 @@ MenuManager::MenuManager(SharedCollisionRender& _sharedCollisionRender) :
 	}
 
 	DisplayMenu(Enums::MenuName::Welcome);
+
+	// NOTE/WARNING: IMPORTANT TO UNLOCK!!!
+	m_menuUniqueLock.unlock();
 }
 #pragma endregion
 
@@ -98,8 +102,6 @@ MenuManager::MenuManager(SharedCollisionRender& _sharedCollisionRender) :
 void MenuManager::FixedUpdate()
 {
 	InputReceiver::HandleInput();
-
-	WriteMenuIntoBuffer();
 }
 #pragma endregion
 
@@ -130,19 +132,25 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 			// Return to previous menu
 		case Enums::MenuReturn::Return:
 		{
+			PreChangeSync();
 			DisplayMenu(m_returnMenuStack.top(), true);
 			m_returnMenuStack.pop();
+			PostChangeSync();
 		}
-			break;
+		break;
 
-			// Networking search
+		// Networking search
 		case Enums::MenuReturn::Search:
 			break;
 
 			// Display the next menu
 		default:
+		{
+			PreChangeSync();
 			DisplayMenu(m_potentialNextMenuIndex);
-			break;
+			PostChangeSync();
+		}
+		break;
 		}
 	}
 }
@@ -150,28 +158,36 @@ void MenuManager::InputDown(Enums::InputPressState _inputPressState)
 {
 	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
 	{
+		PreChangeSync();
 		mpp_menus[m_currentMenuIndex]->InputDown();
+		PostChangeSync();
 	}
 }
 void MenuManager::InputLeft(Enums::InputPressState _inputPressState)
 {
 	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
 	{
+		PreChangeSync();
 		mpp_menus[m_currentMenuIndex]->InputLeft();
+		PostChangeSync();
 	}
 }
 void MenuManager::InputRight(Enums::InputPressState _inputPressState)
 {
 	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
 	{
+		PreChangeSync();
 		mpp_menus[m_currentMenuIndex]->InputRight();
+		PostChangeSync();
 	}
 }
 void MenuManager::InputUp(Enums::InputPressState _inputPressState)
 {
 	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
 	{
+		PreChangeSync();
 		mpp_menus[m_currentMenuIndex]->InputUp();
+		PostChangeSync();
 	}
 }
 #pragma endregion
@@ -179,7 +195,6 @@ void MenuManager::InputUp(Enums::InputPressState _inputPressState)
 #pragma region Private Functionality
 void MenuManager::DisplayMenu(int _menuNameIndex, bool _isReturning)
 {
-	// Toggle off current menu
 	if (_isReturning)
 	{
 
@@ -194,32 +209,63 @@ void MenuManager::DisplayMenu(int _menuNameIndex, bool _isReturning)
 
 	// Toggle on next menu
 	m_currentMenuIndex = _menuNameIndex;
+
+	mr_sharedCollisionRender.mp_menu = mpp_menus[m_currentMenuIndex];
 }
-void MenuManager::WriteMenuIntoBuffer()
+void MenuManager::PostChangeSync()
 {
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mpp_menus[m_currentMenuIndex]->m_numberOfTextLines; m_reusableIterator++)
+	m_menuUniqueLock.lock();
+
+	// If Buffer thread is already waiting
+	if (mr_sharedCollisionRender.m_threadWaitingFlag)
 	{
-		WriteTextLineIntoBuffer(mpp_menus[m_currentMenuIndex]->GetCurrentButtonNumber() == m_reusableIterator, *mpp_menus[m_currentMenuIndex]->mp_textLines[m_reusableIterator]);
+		// Release it
+		mr_sharedCollisionRender.m_menuConVar.notify_one();
+
+		// Notify the system that nothing is waiting (when this is unlocked and the Buffer thread grabs the lock)
+		mr_sharedCollisionRender.m_threadWaitingFlag = false;
 	}
+
+	// If Buffer thread is not already waiting
+	else
+	{
+		// Notify system that this (Scene) thread is waiting
+		mr_sharedCollisionRender.m_threadWaitingFlag = true;
+
+		// When Render thread releases this (Scene) thread
+		mr_sharedCollisionRender.m_menuConVar.wait(m_menuUniqueLock);
+	}
+
+	m_menuUniqueLock.unlock();
 }
-void MenuManager::WriteTextLineIntoBuffer(bool _highlightLine, const Structure::TextLine& _textLine)
+void MenuManager::PreChangeSync()
 {
-	// NOTE: I know I can use strlen, but I wanted to do it this way. I'll use strlen in Tools
+	m_menuUniqueLock.lock();
 
-	mp_walker = _textLine.m_text;
-	m_textLetterColumnPosition = _textLine.m_position.m_x;
-
-	// If option should be highlighted, else not
-	lineColor = (_highlightLine) ? Consts::WHITE_BACKGROUND : Consts::WHITE_FOREGROUND;
-
-	while (*mp_walker != '\0')
+	// If Buffer thread is already waiting
+	if (mr_sharedCollisionRender.m_threadWaitingFlag)
 	{
-		mp_bufferCell = &mr_sharedCollisionRender.mp_frameBuffer[(_textLine.m_position.m_y * mr_sharedCollisionRender.SCREEN_BUFFER_CR.X) + m_textLetterColumnPosition++];
-		mp_bufferCell->m_character = *mp_walker;
-		mp_bufferCell->m_colorBFGround = lineColor;
+		// Release it
+		mr_sharedCollisionRender.m_menuConVar.notify_one();
 
-		++mp_walker;
+		// Notify the system that nothing is waiting (when this is unlocked and the Buffer thread grabs the lock)
+		mr_sharedCollisionRender.m_threadWaitingFlag = false;
 	}
+
+	// If Buffer thread is not already waiting
+	else
+	{
+		// Notify system that this (Scene) thread is waiting
+		mr_sharedCollisionRender.m_threadWaitingFlag = true;
+
+		// When Buffer thread releases this (Scene) thread
+		mr_sharedCollisionRender.m_menuConVar.wait(m_menuUniqueLock);
+
+		// Let it know it can release, because this (Scene) thread needs to go first
+		mr_sharedCollisionRender.m_menuConVar.notify_one();
+	}
+
+	m_menuUniqueLock.unlock();
 }
 #pragma endregion
 

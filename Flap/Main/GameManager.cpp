@@ -1,10 +1,11 @@
 #pragma region Includes
-#include "CollisionRenderObjectToBuffer.h"
+#include "CollisionRenderWriteIntoBuffer.h"
 #include "Consts.h"
 #include "GameThreadBase.h"
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "SharedCollisionRender.h"
+#include "SharedGame.h"
 #include "SharedInput.h"
 
 #include <thread>
@@ -31,16 +32,18 @@ int main()
 	SetupConsole(bufferSizeCR, outputWindowHandle);
 
 	SharedCollisionRender sharedCollisionRender(bufferSizeCR);
+	SharedGame sharedGame;
 	SharedInput sharedInput;
 
-	enum class ThreadType { CollisionRenderObjectToBuffer, Input, Scene, NumberOfTypes };
+	// NOTE/WARNING: CollisionRenderWriteIntoBuffer requires Scene to be created first
+	enum class ThreadType { Input, Scene, CollisionRenderWriteIntoBuffer, NumberOfTypes };
 
 	// Generate managers
 	GameThreadBase** gameThreadBases = new GameThreadBase * [static_cast<int>(ThreadType::NumberOfTypes)]
 	{
-		new CollisionRenderObjectToBuffer(sharedCollisionRender),
-		new InputManager(sharedInput),
-		new SceneManager(outputWindowHandle, sharedCollisionRender, sharedInput)
+		new InputManager(sharedGame, sharedInput),
+		new SceneManager(outputWindowHandle, sharedCollisionRender, sharedGame, sharedInput),
+		new CollisionRenderWriteIntoBuffer(sharedCollisionRender, sharedGame)
 	};
 
 	std::thread threads[static_cast<int>(ThreadType::NumberOfTypes)];

@@ -17,7 +17,7 @@ public:
 	MenuBase& operator=(const MenuBase&) = delete;
 
 	// Functionality
-	inline int GetCurrentButtonNumber() { return m_currentButtonNumber; }
+	inline int GetCurrentButtonNumber() const { return m_currentButtonNumber; }
 	inline int InputAccept() { return InputAcceptHandling(); }
 	void InputDown();
 	void InputLeft();

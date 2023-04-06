@@ -3,11 +3,12 @@
 
 #include "Consts.h"
 #include "SceneManager.h"
+#include "SharedGame.h"
 #include "SharedInput.h"
 #pragma endregion
 
 #pragma region Initialization
-InputManager::InputManager(SharedInput& _sharedInput) :
+InputManager::InputManager(SharedGame& _sharedGame, SharedInput& _sharedInput) :
 	BUFFER_LENGTH(Consts::MAX_NUMBER_OF_PLAYERS* Consts::NUMBER_OF_INPUTS),
 	INPUT_WINDOW_HANDLE(GetStdHandle(STD_INPUT_HANDLE)),
 	mpp_inputPressStates(new Enums::InputPressState* [Consts::MAX_NUMBER_OF_PLAYERS]),
@@ -16,6 +17,7 @@ InputManager::InputManager(SharedInput& _sharedInput) :
 	m_reusableIterator_2(Consts::NO_VALUE),
 	m_reusableIterator_3(Consts::NO_VALUE),
 	m_reusableIterator_4(Consts::NO_VALUE),
+	mr_sharedGame(_sharedGame),
 	mr_sharedInput(_sharedInput),
 	mpp_deadFramesTargetFrames(new unsigned int*[Consts::MAX_NUMBER_OF_PLAYERS])
 {
@@ -140,16 +142,16 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	// If neither player is trying to pause the game
 	if (m_reusableIterator_3 != PAUSE_INDEX)
 	{
-		mr_sharedInput.m_inputSceneTypeMutex.lock();
-		switch (mr_sharedInput.m_inputSceneType)
+		mr_sharedGame.m_gameStateMutex.lock();
+		switch (mr_sharedGame.m_gameState)
 		{
 			// Do nothing
-		//case Enums::InputSceneType::GTO:
-		//case Enums::InputSceneType::OTG:
+		//case Enums::GameState::GTO:
+		//case Enums::GameState::OTG:
 
 			// If not transitioning, add input
-		case Enums::InputSceneType::Game:
-		case Enums::InputSceneType::Menu:
+		case Enums::GameState::Game:
+		case Enums::GameState::Menu:
 		{
 			// Add values to container
 			m_newInput.m_inputIndex = m_reusableIterator_3;
@@ -162,7 +164,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		}
 		break;
 		}
-		mr_sharedInput.m_inputSceneTypeMutex.unlock();
+		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 
 	// If a player is trying to pause the game
@@ -179,9 +181,9 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 			}
 		}
 
-		mr_sharedInput.m_inputSceneTypeMutex.lock();
-		mr_sharedInput.m_inputSceneType = Enums::InputSceneType::GTO;
-		mr_sharedInput.m_inputSceneTypeMutex.unlock();
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::GTO;
+		mr_sharedGame.m_gameStateMutex.unlock();
 		mr_sharedInput.m_inputQueueMutex.unlock();
 	}
 }

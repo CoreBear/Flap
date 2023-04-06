@@ -9,13 +9,14 @@
 #include <queue>
 #include <Windows.h>
 
+class SharedGame;
 class SharedInput;
 
 class InputManager final : public GameThreadBase
 {
 public:
 	// Initialization
-	InputManager(SharedInput& _sharedInput);
+	InputManager(SharedGame& _sharedGame, SharedInput& _sharedInput);
 	InputManager(const InputManager&) = delete;
 	InputManager& operator=(const InputManager&) = delete;
 		
@@ -40,6 +41,7 @@ private:
 	int m_reusableIterator_2;
 	int m_reusableIterator_3;
 	int m_reusableIterator_4;
+	SharedGame& mr_sharedGame;
 	SharedInput& mr_sharedInput;
 	unsigned int** mpp_deadFramesTargetFrames;
 

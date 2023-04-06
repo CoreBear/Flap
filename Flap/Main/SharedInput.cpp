@@ -5,7 +5,6 @@
 #pragma endregion
 
 #pragma region Initialization
-
 SharedInput::SharedInput()
 {
 	InputReceiver::AssignSharedInput(*this); 

@@ -5,6 +5,7 @@
 #include "Enums.h"
 #include "InputReceiver.h"
 
+#include <mutex>
 #include <stack>
 
 class BufferCell;
@@ -50,10 +51,11 @@ private:
 	SharedCollisionRender& mr_sharedCollisionRender;
 	short lineColor;
 	std::stack<int> m_returnMenuStack;
+	std::unique_lock<std::mutex> m_menuUniqueLock;
 
 	// Functionality
 	void DisplayMenu(int _menuNameIndex, bool _isReturning = false);
-	void WriteMenuIntoBuffer();
-	void WriteTextLineIntoBuffer(bool _highlightLine, const Structure::TextLine& _textLine);
+	void PostChangeSync();
+	void PreChangeSync();
 };
 #endif MENU_MANAGER_H

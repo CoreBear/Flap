@@ -1,11 +1,12 @@
 #pragma region Includes
 #include "SceneManager.h"
 
-#include "CollisionRenderBufferToObjectAndScreen.h"
+#include "CollisionRenderReadOutOfBuffer.h"
 #include "Consts.h"
 #include "MenuManager.h"
 #include "ObjectManager.h"
 #include "SharedCollisionRender.h"
+#include "SharedGame.h"
 #include "SharedInput.h"
 #pragma endregion
 
@@ -15,15 +16,14 @@
 #pragma region Initialization
 unsigned int SceneManager::s_fixedFrameCount = Consts::NO_VALUE;
 
-SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedCollisionRender& _sharedCollisionRender, SharedInput& _sharedInput) :
-	mp_collisionRenderBufferToObjectAndScreen(new CollisionRenderBufferToObjectAndScreen(_outputWindowHandle, _sharedCollisionRender)),
+SceneManager::SceneManager(const HANDLE& _outputWindowHandle, SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame, SharedInput& _sharedInput) :
+	mp_collisionRenderReadOutOfBuffer(new CollisionRenderReadOutOfBuffer(_outputWindowHandle, _sharedCollisionRender)),
 	mp_menuManager(new MenuManager(_sharedCollisionRender)),
 	mp_objectManager(new ObjectManager(_sharedCollisionRender, _sharedInput)),
 	mr_sharedCollisionRender(_sharedCollisionRender),
+	mr_sharedGame(_sharedGame),
 	mr_sharedInput(_sharedInput)
 {
-	_sharedInput.m_inputSceneType = Enums::InputSceneType::Menu;
-
 	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
 
 	// HACK:
@@ -69,11 +69,11 @@ void SceneManager::Update()
 {
 	// NOTE/WARNING: Keep the if/elses
 
-	mr_sharedInput.m_inputSceneTypeMutex.lock();
+	mr_sharedGame.m_gameStateMutex.lock();
 
-	if (mr_sharedInput.m_inputSceneType == Enums::InputSceneType::Game)
+	if (mr_sharedGame.m_gameState == Enums::GameState::Game)
 	{
-		mr_sharedInput.m_inputSceneTypeMutex.unlock();
+		mr_sharedGame.m_gameStateMutex.unlock();
 
 		m_currentTime = std::chrono::high_resolution_clock::now();
 
@@ -88,7 +88,7 @@ void SceneManager::Update()
 
 			mp_objectManager->FixedUpdate();
 
-			mp_collisionRenderBufferToObjectAndScreen->FixedUpdate();
+			mp_collisionRenderReadOutOfBuffer->FixedUpdate();
 		}
 
 		mp_objectManager->Update();
@@ -97,7 +97,7 @@ void SceneManager::Update()
 	}
 	else
 	{
-		mr_sharedInput.m_inputSceneTypeMutex.unlock();
+		mr_sharedGame.m_gameStateMutex.unlock();
 
 		m_currentTime = std::chrono::high_resolution_clock::now();
 
@@ -112,7 +112,7 @@ void SceneManager::Update()
 
 			mp_menuManager->FixedUpdate();
 
-			mp_collisionRenderBufferToObjectAndScreen->FixedUpdate();
+			mp_collisionRenderReadOutOfBuffer->FixedUpdate();
 		}
 
 		mp_menuManager->Update();
@@ -123,7 +123,7 @@ void SceneManager::Update()
 #pragma region Destruction
 SceneManager::~SceneManager()
 {
-	delete mp_collisionRenderBufferToObjectAndScreen;
+	delete mp_collisionRenderReadOutOfBuffer;
 	delete mp_objectManager;
 	delete mp_menuManager;
 }
