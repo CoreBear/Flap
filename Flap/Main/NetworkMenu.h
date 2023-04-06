@@ -1,6 +1,7 @@
-#ifndef Network_MENU_H
-#define Network_MENU_H
+#ifndef NETWORK_MENU_H
+#define NETWORK_MENU_H
 
+#include "Consts.h"
 #include "MenuBase.h"
 #include "Structure.h"
 
@@ -8,15 +9,35 @@ class NetworkMenu final : public MenuBase
 {
 public:
 	// Initialization
-	NetworkMenu() : MenuBase(1)	// This value must match the number of text lines below
+	NetworkMenu() : MenuBase(3)	// This value must match the number of text lines below
 	{
 		mp_textLines = new Structure::TextLine * [m_numberOfTextLines]
 		{
-			new Structure::TextLine("Network", 5, 5)
+			new Structure::TextLine("Network", Consts::OFF_BY_ONE),   // Menu Title
+			new Structure::TextLine("Begin Searching", 5),
+			new Structure::TextLine("Return", 10)
 		};
 	}
-	NetworkMenu(const NetworkMenu&) = delete;
-	NetworkMenu& operator=(const NetworkMenu&) = delete;
+
+protected:
+	// Functionality
+	virtual int InputAcceptHandling() override
+	{
+		switch (m_currentButtonNumber)
+		{
+		case 1:
+			return Enums::MenuReturn::Search;
+		case 2:
+		{
+			m_currentButtonNumber = Consts::OFF_BY_ONE;
+			return Enums::MenuReturn::Return;
+		}
+		}
+
+		// NOTE/WARNING: Execution shouldn't make it here
+		throw std::exception();
+		return -Consts::OFF_BY_ONE;
+	}
 };
 
-#endif Network_MENU_H
+#endif NETWORK_MENU_H

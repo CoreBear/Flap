@@ -2,7 +2,10 @@
 #define MENU_MANAGER_H
 
 #include "Consts.h"
+#include "Enums.h"
 #include "InputReceiver.h"
+
+#include <stack>
 
 class BufferCell;
 class MenuBase;
@@ -28,24 +31,29 @@ public:
 
 protected:
 	// Functionality
-	void InputDown(Enums::InputPressState _inputPressState) override;
-	void InputLeft(Enums::InputPressState _inputPressState) override;
-	void InputRight(Enums::InputPressState _inputPressState) override;
-	void InputUp(Enums::InputPressState _inputPressState) override;
+	void InputAccept(Enums::InputPressState _inputPressState) override;
+	void InputDown(Enums::InputPressState _inputPressState);
+	void InputLeft(Enums::InputPressState _inputPressState);
+	void InputRight(Enums::InputPressState _inputPressState);
+	void InputUp(Enums::InputPressState _inputPressState);
 
 private:
 	// Member Variables
+	const bool m_menuCanBeReturnedTo[static_cast<int>(Enums::MenuName::NumberOfMenus)] { false, true, true, true, true, false, true, false, true, false };
 	BufferCell* mp_bufferCell;
 	const char* mp_walker;
 	int m_currentMenuIndex;
+	int m_potentialNextMenuIndex;
 	int m_reusableIterator;
 	int m_textLetterColumnPosition;
 	MenuBase** mpp_menus;
 	SharedCollisionRender& mr_sharedCollisionRender;
+	short lineColor;
+	std::stack<int> m_returnMenuStack;
 
 	// Functionality
-	void DisplayMenu(Enums::MenuName _menuName);
+	void DisplayMenu(int _menuNameIndex, bool _isReturning = false);
 	void WriteMenuIntoBuffer();
-	void WriteTextLineIntoBuffer(const Structure::TextLine& _textLine);
+	void WriteTextLineIntoBuffer(bool _highlightLine, const Structure::TextLine& _textLine);
 };
 #endif MENU_MANAGER_H

@@ -1,6 +1,7 @@
-#ifndef Results_MENU_H
-#define Results_MENU_H
+#ifndef RESULTS_MENU_H
+#define RESULTS_MENU_H
 
+#include "Consts.h"
 #include "MenuBase.h"
 #include "Structure.h"
 
@@ -12,11 +13,11 @@ public:
 	{
 		mp_textLines = new Structure::TextLine * [m_numberOfTextLines]
 		{
-			new Structure::TextLine("Results", 5, 5)
+			new Structure::TextLine("Results", Consts::OFF_BY_ONE),   // Menu Title
 		};
 	}
 	ResultsMenu(const ResultsMenu&) = delete;
 	ResultsMenu& operator=(const ResultsMenu&) = delete;
 };
 
-#endif Results_MENU_H
+#endif RESULTS_MENU_H

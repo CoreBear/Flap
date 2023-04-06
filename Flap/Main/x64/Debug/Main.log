@@ -1,20 +1,2 @@
-﻿  Avatar.cpp
-  BufferCell.cpp
-  CollisionRenderObjectToBuffer.cpp
-  CollisionRenderBufferToObjectAndScreen.cpp
-  Food.cpp
-  GameManager.cpp
-  InputReceiver.cpp
-  MenuBase.cpp
-  SharedCollisionRender.cpp
-  SharedInput.cpp
-  Snake.cpp
-  InputManager.cpp
-  ObjectManager.cpp
-  MenuManager.cpp
-  SceneManager.cpp
-C:\Flap\Flap\Main\SceneManager.cpp(44,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Flap\Flap\Main\SceneManager.cpp(47,38): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  SceneObject.cpp
-  Generating Code...
+﻿  MenuManager.cpp
   Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe

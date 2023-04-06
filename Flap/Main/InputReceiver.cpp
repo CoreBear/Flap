@@ -21,11 +21,17 @@ void InputReceiver::HandleInput()
 
 		switch ((Enums::InputName)m_currentInput.m_inputIndex)
 		{
+		case Enums::InputName::Accept:
+			InputAccept(m_currentInput.m_inputPressState);
+			break;
 		case Enums::InputName::Down:
 			InputDown(m_currentInput.m_inputPressState);
 			break;
 		case Enums::InputName::Left:
 			InputLeft(m_currentInput.m_inputPressState);
+			break;
+		case Enums::InputName::Pause:
+			InputPause(m_currentInput.m_inputPressState);
 			break;
 		case Enums::InputName::Right:
 			InputRight(m_currentInput.m_inputPressState);

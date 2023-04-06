@@ -4,10 +4,11 @@
 #include "Consts.h"
 #include "DList.h"
 #include "Enums.h"
+#include "Tools.h"
 
 namespace Structure
 {
-	// ???: Foreward declaration is not working for some reason
+	// ???: Forward declaration is not working for some reason
 
 	struct Vector2
 	{
@@ -77,9 +78,9 @@ namespace Structure
 		Vector2 m_position;
 
 		// Initialization
-		inline TextLine(const char* _text, int _column, int _row) : m_text(_text)
+		TextLine(const char* _text, int _row) : m_text(_text)
 		{
-			m_position.m_x = _column;
+			m_position.m_x = Tools::CenterText_ReturnStartColumn(_text);
 			m_position.m_y = _row;
 		}
 	};

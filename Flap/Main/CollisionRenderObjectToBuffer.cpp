@@ -16,9 +16,9 @@ CollisionRenderObjectToBuffer::CollisionRenderObjectToBuffer(SharedCollisionRend
 	mp_bufferCell(nullptr),
 	NULL_ITERATOR(DList<SceneObject*>::Const_Iterator()),
 	mr_sharedCollisionRender(_sharedCollisionRender),
-	FOOD_COLOR(static_cast<short>(BACKGROUND_BLUE | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED)),
-	SNAKE_BODY_COLOR(static_cast<short>(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED)),
-	SNAKE_HEAD_COLOR(static_cast<short>(BACKGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED)),
+	FOOD_COLOR(static_cast<short>(BACKGROUND_BLUE | Consts::WHITE_FOREGROUND)),
+	SNAKE_BODY_COLOR(static_cast<short>(Consts::WHITE_BACKGROUND)),
+	SNAKE_HEAD_COLOR(static_cast<short>(BACKGROUND_RED | Consts::WHITE_FOREGROUND)),
 	SNAKE_COLLISION_RENDER_INFO(nullptr),
 	m_bufferWriterIteratorUniqueLock(_sharedCollisionRender.m_bufferWriterIteratorMutex)
 {

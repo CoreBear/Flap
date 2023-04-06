@@ -3,6 +3,7 @@
 
 #include "BufferCell.h"
 #include "Snake.h"
+#include "Tools.h"
 
 #include <Windows.h>
 #pragma endregion
@@ -15,6 +16,7 @@ SharedCollisionRender::SharedCollisionRender(const COORD& _bufferSize) :
 	SCREEN_BUFFER_CR(_bufferSize)
 {
 	Snake::AssignSharedCollisionRender(*this);
+	Tools::AssignSharedCollisionRender(*this);
 
 	for (int index = Consts::NO_VALUE; index < m_bufferSize; index++)
 	{

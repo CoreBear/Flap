@@ -9,7 +9,8 @@ namespace Enums
 	enum class InputPressState { Click, Dead, Held, PressedThisFrame, Released };
 	enum class InputSceneType { Game, GTO, OTG, Menu };
 	enum class ObjectType { Avatar, Food, Snake, NumberOfTypes, NA };
-	enum class MenuName { Exit, LocalMultiplayer, Main, Multiplayer, Network, Options, Pause, Results, SinglePlayer, Welcome, NumberOfMenus, NA };
+	class MenuName { public: static constexpr int Exit = 0, LocalMultiplayer = 1, Main = 2, Multiplayer = 3, Network = 4, Options = 5, Pause = 6, Results = 7, SinglePlayer = 8, Welcome = 9, NumberOfMenus = 10; };
+	class MenuReturn : public MenuName { public: static constexpr int ExitApp = 11, ExitToMain = 12, PlayGame = 13, Resume = 14, Return = 15, Search = 16; };
 	enum class SpawnState { Selected, Spawned, WaitingSelection };
 }
 
