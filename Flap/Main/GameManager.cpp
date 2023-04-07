@@ -18,6 +18,7 @@ GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedCollisionRende
 	mp_collisionRenderReadOutOfBuffer(new CollisionRenderReadOutOfBuffer(_outputWindowHandle, _sharedCollisionRender)),
 	mp_gameRunManager(new GameRunManager(_sharedCollisionRender, _sharedInput)),
 	mp_menuManager(new MenuManager(_sharedCollisionRender, _sharedGame)),
+	mr_sharedCollisionRender(_sharedCollisionRender),
 	mr_sharedGame(_sharedGame)
 {
 	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
@@ -64,6 +65,7 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -75,6 +77,7 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -95,6 +98,15 @@ void GameManager::Update()
 
 			mp_menuManager->FixedUpdate();
 
+
+			if (mr_sharedGame.m_gameState == Enums::GameState::ExitApp)
+			{
+				// Run functionality exit here...
+
+				mr_sharedCollisionRender.m_menuConVar.notify_one();
+				return;
+			}
+
 			mp_collisionRenderReadOutOfBuffer->FixedUpdate();
 		}
 
@@ -110,6 +122,7 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -121,6 +134,7 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Game;
+		mr_sharedCollisionRender.m_menuConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -132,6 +146,7 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Game;
+		mr_sharedCollisionRender.m_menuConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;

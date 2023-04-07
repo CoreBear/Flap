@@ -22,7 +22,7 @@ ObjectManager::ObjectManager(SharedCollisionRender& _sharedCollisionRender, Shar
 	NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM, 20, 20 };
 
 	// Generate pointers for each type
-	mpp_pooledObject = new SceneObject ** [static_cast<int>(Enums::ObjectType::NumberOfTypes)];
+	mppp_pooledObject = new SceneObject ** [static_cast<int>(Enums::ObjectType::NumberOfTypes)];
 
 	// For each object type
 	for (int objectTypeIndex = Consts::NO_VALUE; objectTypeIndex < static_cast<int>(Enums::ObjectType::NumberOfTypes); objectTypeIndex++)
@@ -30,7 +30,7 @@ ObjectManager::ObjectManager(SharedCollisionRender& _sharedCollisionRender, Shar
 		m_numberOfObjectsPooledForThisType = NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE[objectTypeIndex];
 
 		// Generate space for clones
-		mpp_pooledObject[objectTypeIndex] = new SceneObject * [m_numberOfObjectsPooledForThisType];
+		mppp_pooledObject[objectTypeIndex] = new SceneObject * [m_numberOfObjectsPooledForThisType];
 
 		// Generate each clone
 		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_numberOfObjectsPooledForThisType; m_reusableIterator++)
@@ -38,13 +38,13 @@ ObjectManager::ObjectManager(SharedCollisionRender& _sharedCollisionRender, Shar
 			switch ((Enums::ObjectType)objectTypeIndex)
 			{
 			case Enums::ObjectType::Avatar:
-				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Avatar(_sharedInput);
+				mppp_pooledObject[objectTypeIndex][m_reusableIterator] = new Avatar(_sharedInput);
 				break;
 			case Enums::ObjectType::Food:
-				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Food();
+				mppp_pooledObject[objectTypeIndex][m_reusableIterator] = new Food();
 				break;
 			case Enums::ObjectType::Snake:
-				mpp_pooledObject[objectTypeIndex][m_reusableIterator] = new Snake();
+				mppp_pooledObject[objectTypeIndex][m_reusableIterator] = new Snake();
 				break;
 			}
 		}
@@ -163,12 +163,12 @@ void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_numberOfObjectsPooledForThisType; m_reusableIterator++)
 	{
 		// If object is not active
-		if (mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->GetSpawenState() == Enums::SpawnState::WaitingSelection)
+		if (mppp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->GetSpawenState() == Enums::SpawnState::WaitingSelection)
 		{												 
 			// Position and initialize it				 
-			mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->SetSpawnState(Enums::SpawnState::Selected);
-			mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->SetPosition(_position);
-			mpp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->Initialize(_genericContainer);
+			mppp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->SetSpawnState(Enums::SpawnState::Selected);
+			mppp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->SetPosition(_position);
+			mppp_pooledObject[static_cast<int>(_objectType)][m_reusableIterator]->Initialize(_genericContainer);
 
 			// Stop looking for object to spawn
 			break;
@@ -188,13 +188,13 @@ ObjectManager::~ObjectManager()
 		// For each clone
 		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_numberOfObjectsPooledForThisType; m_reusableIterator++)
 		{
-			delete mpp_pooledObject[objectTypeIndex][m_reusableIterator];
+			delete mppp_pooledObject[objectTypeIndex][m_reusableIterator];
 		}
 
-		delete[] mpp_pooledObject[objectTypeIndex];
+		delete[] mppp_pooledObject[objectTypeIndex];
 	}
 
 	delete[] NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE;
-	delete[] mpp_pooledObject;
+	delete[] mppp_pooledObject;
 }
 #pragma endregion

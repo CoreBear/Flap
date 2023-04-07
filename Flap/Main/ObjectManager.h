@@ -45,7 +45,7 @@ private:
 	std::queue<SceneObject*> m_addToSceneObjects;
 	std::queue<SceneObject*> m_removeFromSceneObjects;
 	SceneObject* mp_addRemove;
-	SceneObject*** mpp_pooledObject;
+	SceneObject*** mppp_pooledObject;
 	SharedCollisionRender& mr_sharedCollisionRender;
 	std::unique_lock<std::mutex> m_bufferWriterIteratorUniqueLock;
 };

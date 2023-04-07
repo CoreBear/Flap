@@ -175,7 +175,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		mr_sharedInput.m_inputQueueMutex.lock();
 
 		// Clear each queue
-		for (m_reusableIterator_4 = Consts::NO_VALUE; m_reusableIterator_4 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_4++)
+		for (m_reusableIterator_4 = Consts::NO_VALUE; m_reusableIterator_4 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_4++)
 		{
 			while (mr_sharedInput.m_inputQueue[m_reusableIterator_4].empty() == false)
 			{

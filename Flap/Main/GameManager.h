@@ -36,6 +36,7 @@ private:
 	GameRunManager* const mp_gameRunManager;
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	MenuManager* const mp_menuManager;
+	SharedCollisionRender& mr_sharedCollisionRender;
 	SharedGame& mr_sharedGame;
 };
 #endif GAME_MANAGER_H

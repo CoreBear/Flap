@@ -30,6 +30,9 @@ public:
 	// Functionality
 	void Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR) override final;
 
+	// Destruction
+	inline ~Snake() { m_bodyNodes.Clear(); }
+
 protected:
 	// Functionality
 	inline void InputDown() { m_newDirection = Enums::InputName::Down; }

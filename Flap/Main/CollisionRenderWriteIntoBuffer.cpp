@@ -92,6 +92,18 @@ void CollisionRenderWriteIntoBuffer::GameUpdate()
 		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.wait(m_bufferWriterIteratorUniqueLock);
 	}
 
+	mr_sharedGame.m_gameStateMutex.lock();
+	if (mr_sharedGame.m_gameState == Enums::GameState::Menu)
+	{
+		mr_sharedCollisionRender.m_threadWaitingFlag = false;
+
+		mr_sharedGame.m_gameStateMutex.unlock();
+		m_bufferWriterIteratorUniqueLock.unlock();
+
+		WriteIntoBuffer();
+		return;
+	}
+	mr_sharedGame.m_gameStateMutex.unlock();
 	m_bufferWriterIteratorUniqueLock.unlock();
 
 	m_frameWritingIsComplete = false;
@@ -172,8 +184,29 @@ void CollisionRenderWriteIntoBuffer::MenuUpdate()
 		mr_sharedCollisionRender.m_menuConVar.wait(m_menuUniqueLock);
 	}
 
+	mr_sharedGame.m_gameStateMutex.lock();
+	switch (mr_sharedGame.m_gameState)
+	{
+	case Enums::GameState::ExitApp:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+		m_menuUniqueLock.unlock();
+	}
+	return;
+	case Enums::GameState::Game:
+	{
+		mr_sharedCollisionRender.m_threadWaitingFlag = false;
+
+		mr_sharedGame.m_gameStateMutex.unlock();
+		m_menuUniqueLock.unlock();
+	}
+	return;
+	}
+	mr_sharedGame.m_gameStateMutex.unlock();
 	m_menuUniqueLock.unlock();
+
 	WriteIntoBuffer();
+
 	m_menuUniqueLock.lock();
 
 	// If Scene thread is already waiting

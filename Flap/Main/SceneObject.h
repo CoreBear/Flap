@@ -30,7 +30,7 @@ public:
 
 	// Destruction
 	virtual void Denitialize();
-	~SceneObject();
+	virtual ~SceneObject();
 
 protected:
 	// Static Variables

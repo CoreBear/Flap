@@ -31,9 +31,9 @@ int main()
 	SharedInput sharedInput;
 
 	// NOTE/WARNING: CollisionRenderWriteIntoBuffer requires Scene to be created first
-	enum class ThreadType { Application, Input, CollisionRenderWriteIntoBuffer, NumberOfTypes };
+	enum class ThreadType { Game, Input, CollisionRenderWriteIntoBuffer, NumberOfTypes };
 
-	// Generate managers
+	// Generate thread objects
 	GameThreadBase** gameThreadBases = new GameThreadBase * [static_cast<int>(ThreadType::NumberOfTypes)]
 	{
 		new GameManager(outputWindowHandle, sharedCollisionRender, sharedGame, sharedInput),
@@ -43,33 +43,33 @@ int main()
 
 	std::thread threads[static_cast<int>(ThreadType::NumberOfTypes)];
 
-	// Start manager threads and detach (if applicable)
+	// Start threads and detach (if applicable)
 	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 	{
 		threads[threadIndex] = std::thread(ManagerThreadEntry, gameThreadBases, threadIndex, &sharedGame);
 
-		if (threadIndex == static_cast<int>(ThreadType::Input))
+		if (threadIndex == static_cast<int>(ThreadType::CollisionRenderWriteIntoBuffer))
 		{
 			threads[threadIndex].detach();
 		}
 	}
 
-	// Join manager threads (if applicable)
+	// Wait for threads
 	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 	{
-		if (threadIndex != static_cast<int>(ThreadType::Input))
+		if (threadIndex != static_cast<int>(ThreadType::CollisionRenderWriteIntoBuffer))
 		{
 			threads[threadIndex].join();
 		}
 	}
 
-	// Delete manager pointers
+	// Delete thread pointers
 	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 	{
 		delete gameThreadBases[threadIndex];
 	}
 
-	// Delete manager container
+	// Delete thread container
 	delete[] gameThreadBases;
 
 	return 0;
