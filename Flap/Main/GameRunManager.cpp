@@ -183,6 +183,11 @@ void GameRunManager::SetupGame()
 #pragma region Destruction
 GameRunManager::~GameRunManager()
 {
+	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; m_reusableIterator++)
+	{
+		delete[] mp_snakeStartPositions[m_reusableIterator];
+	}
+
 	delete mp_objectManager;
 }
 #pragma endregion
