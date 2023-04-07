@@ -3,12 +3,14 @@
 
 #include "ObjectManager.h"
 #include "SharedCollisionRender.h"
+#include "SharedGame.h"
 #include "SharedInput.h"
 #pragma endregion
 
 #pragma region Initialization
-GameRunManager::GameRunManager(SharedCollisionRender& _sharedCollisionRender, SharedInput& _sharedInput) :
-	mp_objectManager(new ObjectManager(_sharedCollisionRender, _sharedInput))
+GameRunManager::GameRunManager(SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame, SharedInput& _sharedInput) :
+	mp_objectManager(new ObjectManager(_sharedCollisionRender, _sharedGame, _sharedInput)),
+	mr_sharedGame(_sharedGame)
 {
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; m_reusableIterator ++)
 	{
@@ -87,6 +89,10 @@ void GameRunManager::Update()
 #pragma endregion
 
 #pragma region Public Functionality
+void GameRunManager::CleanScene()
+{
+	mp_objectManager->CleanScene();
+}
 void GameRunManager::PauseGame()
 {
 
@@ -108,74 +114,22 @@ void GameRunManager::SetupGame()
 	m_genericContainer.m_int = 10;
 
 	// HACK: Figure out who is an avatar and who is a snake (piloted by networked player or AI)
-	
-	// HACK: Make this all dynamic
-	int numberOfPlayers = 1;
+	mr_sharedGame.SetNumberOfPlayersInGame(1);
+	int numberOfPlayersInGame = mr_sharedGame.GetNumberOfPlayersInGame();
+	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < numberOfPlayersInGame; m_reusableIterator++)
+	{
+		// Assign player number
+		m_genericContainer.m_int2 = m_reusableIterator + Consts::OFF_BY_ONE;
 
-	switch (numberOfPlayers)
-	{
-	case 1:
-	{
-		// Player number
-		m_genericContainer.m_int2 = numberOfPlayers;
 
-		mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, mp_snakeStartPositions[0][0], &m_genericContainer);
-	}
-	break;
-	case 2:
-	{
-		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < numberOfPlayers; m_reusableIterator++)
+		if (m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM)
 		{
-			// Player number
-			m_genericContainer.m_int2 = m_reusableIterator + Consts::OFF_BY_ONE;
-
-			if (m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM)
-			{
-				mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, mp_snakeStartPositions[1][m_reusableIterator], &m_genericContainer);
-			}
-			else
-			{
-				mp_objectManager->SpawnObject(Enums::ObjectType::Snake, mp_snakeStartPositions[1][m_reusableIterator], &m_genericContainer);
-			}
+			mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, mp_snakeStartPositions[numberOfPlayersInGame - Consts::OFF_BY_ONE][m_reusableIterator], &m_genericContainer);
 		}
-	}
-		break;
-	case 3:
-	{
-		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < numberOfPlayers; m_reusableIterator++)
+		else
 		{
-			// Player number
-			m_genericContainer.m_int2 = m_reusableIterator + Consts::OFF_BY_ONE;
-
-			if (m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM)
-			{
-				mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, mp_snakeStartPositions[2][m_reusableIterator], &m_genericContainer);
-			}
-			else
-			{
-				mp_objectManager->SpawnObject(Enums::ObjectType::Snake, mp_snakeStartPositions[2][m_reusableIterator], &m_genericContainer);
-			}
+			mp_objectManager->SpawnObject(Enums::ObjectType::Snake, mp_snakeStartPositions[numberOfPlayersInGame - Consts::OFF_BY_ONE][m_reusableIterator], &m_genericContainer);
 		}
-	}
-		break;
-	case 4:
-	{
-		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < numberOfPlayers; m_reusableIterator++)
-		{
-			// Player number
-			m_genericContainer.m_int2 = m_reusableIterator + Consts::OFF_BY_ONE;
-
-			if (m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM)
-			{
-				mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, mp_snakeStartPositions[3][m_reusableIterator], &m_genericContainer);
-			}
-			else
-			{
-				mp_objectManager->SpawnObject(Enums::ObjectType::Snake, mp_snakeStartPositions[3][m_reusableIterator], &m_genericContainer);
-			}
-		}
-	}
-		break;
 	}
 }
 #pragma endregion

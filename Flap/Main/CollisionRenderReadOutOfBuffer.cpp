@@ -31,6 +31,7 @@ CollisionRenderReadOutOfBuffer::CollisionRenderReadOutOfBuffer(const HANDLE& _ou
 #pragma region Updates
 void CollisionRenderReadOutOfBuffer::FixedUpdate()
 {
+	mr_sharedCollisionRender.m_renderMutex.lock();
 	if (mr_sharedCollisionRender.m_somethingToRender)
 	{
 		// For each cell
@@ -55,12 +56,17 @@ void CollisionRenderReadOutOfBuffer::FixedUpdate()
 		WriteConsoleOutput(OUTPUT_WINDOW_HANDLE, mp_textBuffer, mr_sharedCollisionRender.SCREEN_BUFFER_CR, m_topLeftCellCR, &m_writeRegionRect);
 
 		mr_sharedCollisionRender.m_somethingToRender = false;
+		mr_sharedCollisionRender.m_renderMutex.unlock();
 
 		// Reset the buffer
 		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedCollisionRender.m_bufferSize; m_reusableIterator++)
 		{
 			mr_sharedCollisionRender.mp_frameBuffer[m_reusableIterator].ResetCell();
 		}
+	}
+	else
+	{
+		mr_sharedCollisionRender.m_renderMutex.unlock();
 	}
 }
 #pragma endregion

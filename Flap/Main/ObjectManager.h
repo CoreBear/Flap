@@ -11,6 +11,7 @@
 namespace Structure { struct Generic; }
 class SceneObject;
 class SharedCollisionRender;
+class SharedGame;
 class SharedInput;
 namespace Structure { struct Vector2; }
 
@@ -18,7 +19,7 @@ class ObjectManager final
 {
 public:
 	// Initialization
-	ObjectManager(SharedCollisionRender& _sharedCollisionRender, SharedInput& _sharedInput);
+	ObjectManager(SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame, SharedInput& _sharedInput);
 	ObjectManager(const ObjectManager&) = delete;
 	ObjectManager& operator=(const ObjectManager&) = delete;
 
@@ -29,6 +30,7 @@ public:
 
 	// Functionality
 	inline void AddToSceneObjects(SceneObject* const _sceneObject) { m_addToSceneObjects.push(_sceneObject); }
+	void CleanScene();
 	inline void RemoveFromSceneObjects(SceneObject* const _sceneObject) { m_removeFromSceneObjects.push(_sceneObject); }
 	void SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic* const _genericContainer = nullptr);
 
@@ -47,6 +49,7 @@ private:
 	SceneObject* mp_addRemove;
 	SceneObject*** mppp_pooledObject;
 	SharedCollisionRender& mr_sharedCollisionRender;
+	SharedGame& mr_sharedGame;
 	std::unique_lock<std::mutex> m_bufferWriterIteratorUniqueLock;
 };
 #endif OBJECT_MANAGER_H

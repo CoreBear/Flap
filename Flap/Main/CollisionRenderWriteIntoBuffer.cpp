@@ -93,7 +93,10 @@ void CollisionRenderWriteIntoBuffer::GameUpdate()
 	}
 
 	mr_sharedGame.m_gameStateMutex.lock();
-	if (mr_sharedGame.m_gameState == Enums::GameState::Menu)
+	switch (mr_sharedGame.m_gameState)
+	{
+	case Enums::GameState::Menu:
+	case Enums::GameState::ExitToResults:
 	{
 		mr_sharedCollisionRender.m_threadWaitingFlag = false;
 
@@ -101,7 +104,8 @@ void CollisionRenderWriteIntoBuffer::GameUpdate()
 		m_bufferWriterIteratorUniqueLock.unlock();
 
 		WriteIntoBuffer();
-		return;
+	}
+	return;
 	}
 	mr_sharedGame.m_gameStateMutex.unlock();
 	m_bufferWriterIteratorUniqueLock.unlock();
@@ -131,7 +135,9 @@ void CollisionRenderWriteIntoBuffer::GameUpdate()
 		m_frameWritingIsComplete = mr_sharedCollisionRender.m_bufferWriterIterator == mr_sharedCollisionRender.NULL_ITERATOR;
 	}
 
+	mr_sharedCollisionRender.m_renderMutex.lock();
 	mr_sharedCollisionRender.m_somethingToRender = true;
+	mr_sharedCollisionRender.m_renderMutex.unlock();
 
 	m_bufferWriterIteratorUniqueLock.lock();
 
@@ -257,7 +263,9 @@ void CollisionRenderWriteIntoBuffer::WriteIntoBuffer()
 		WriteTextLineIntoBuffer(mr_sharedCollisionRender.mp_menu->GetCurrentButtonNumber() == m_reusableIterator, *mr_sharedCollisionRender.mp_menu->mp_textLines[m_reusableIterator]);
 	}
 
+	mr_sharedCollisionRender.m_renderMutex.lock();
 	mr_sharedCollisionRender.m_somethingToRender = true;
+	mr_sharedCollisionRender.m_renderMutex.unlock();
 }
 void CollisionRenderWriteIntoBuffer::WriteIntoBuffer(const Structure::RenderInfo& _renderInfo)
 {

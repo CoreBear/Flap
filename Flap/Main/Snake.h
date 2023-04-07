@@ -6,6 +6,7 @@
 #include "SceneObject.h"
 
 class SharedCollisionRender;
+class SharedGame;
 
 namespace Structure { struct Vector2; };
 
@@ -17,6 +18,7 @@ public:
 
 	// Static Initialization
 	inline static void AssignSharedCollisionRender(SharedCollisionRender& _sharedCollisionRender) { sp_sharedCollisionRender = &_sharedCollisionRender; }
+	inline static void AssignSharedGame(SharedGame& _sharedGame) { sp_sharedGame = &_sharedGame; }
 
 	// Initialization
 	void Initialize(const Structure::Generic* const _genericContainer) override final;
@@ -30,6 +32,9 @@ public:
 	// Functionality
 	void Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR) override final;
 
+	// Destruction
+	void Denitialize(bool _properDenit) override final;
+
 protected:
 	// Functionality
 	inline void InputDown() { m_newDirection = Enums::InputName::Down; }
@@ -40,6 +45,7 @@ protected:
 private:
 	// Static Variables
 	static SharedCollisionRender* sp_sharedCollisionRender;
+	static SharedGame* sp_sharedGame;
 
 	// Member Variables
 	DList<Structure::Vector2> m_bodyNodes;
