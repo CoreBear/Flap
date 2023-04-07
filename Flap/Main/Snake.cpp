@@ -2,8 +2,8 @@
 #include "Snake.h"
 
 #include "Consts.h"
+#include "GameManager.h"
 #include "ObjectManager.h"
-#include "SceneManager.h"
 #include "SharedCollisionRender.h"
 #include "Structure.h"
 #pragma endregion
@@ -23,7 +23,7 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 
 	// HACK: Forces snake to check for first input, each frame, at the start
 	m_numberOfFramesPerCell = static_cast<unsigned int>(2);
-	m_moveTargetFrame = SceneManager::s_fixedFrameCount + m_numberOfFramesPerCell;
+	m_moveTargetFrame = GameManager::s_fixedFrameCount + m_numberOfFramesPerCell;
 
 	UpdateMoveSpeed(_genericContainer->m_int);
 
@@ -46,10 +46,10 @@ Snake::Snake() :
 void Snake::FixedUpdate()
 {
 	// If movement frame
-	if (SceneManager::s_fixedFrameCount == m_moveTargetFrame)
+	if (GameManager::s_fixedFrameCount == m_moveTargetFrame)
 	{
 		// Reset movement target
-		m_moveTargetFrame = SceneManager::s_fixedFrameCount + m_numberOfFramesPerCell;
+		m_moveTargetFrame = GameManager::s_fixedFrameCount + m_numberOfFramesPerCell;
 
 		TryAddTail();
 
@@ -285,7 +285,7 @@ void Snake::Turn()
 	m_currentDirection = m_newDirection;
 
 	// Set speed
-	m_moveTargetFrame = SceneManager::s_fixedFrameCount + m_numberOfFramesPerCell;
+	m_moveTargetFrame = GameManager::s_fixedFrameCount + m_numberOfFramesPerCell;
 }
 void Snake::UpdateMoveSpeed(int _speed)
 {

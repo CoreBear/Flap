@@ -15,7 +15,8 @@ namespace Consts
 	// Ints
 	constexpr int ASCII_OFFSET = static_cast<int>('0');
 	constexpr int FPS_TARGET = 60;
-	constexpr int MAX_NUMBER_OF_PLAYERS = 2;
+	constexpr int MAX_NUMBER_OF_PLAYERS_PER_GAME = 4;
+	constexpr int MAX_NUMBER_OF_PLAYERS_PER_SYSTEM = 2;
 	constexpr int NO_VALUE = 0;
 	constexpr int NUMBER_OF_INPUTS = 6;						// Should mach Enums::InputNames::NumberOfNames...
 	constexpr int OFF_BY_ONE = 1;
@@ -23,7 +24,7 @@ namespace Consts
 	// Shorts
 	constexpr short WHITE_BACKGROUND = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED;
 	constexpr short WHITE_FOREGROUND = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
-	constexpr unsigned short INPUTS[MAX_NUMBER_OF_PLAYERS][NUMBER_OF_INPUTS]
+	constexpr unsigned short INPUTS[MAX_NUMBER_OF_PLAYERS_PER_SYSTEM][NUMBER_OF_INPUTS]
 	{
 		// Player 1 Input
 		{

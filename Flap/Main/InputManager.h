@@ -34,7 +34,7 @@ private:
 	const DWORD BUFFER_LENGTH;
 	const HANDLE INPUT_WINDOW_HANDLE;
 	Structure::Input m_newInput;
-	INPUT_RECORD m_inputRecords[Consts::MAX_NUMBER_OF_PLAYERS * Consts::NUMBER_OF_INPUTS];
+	INPUT_RECORD m_inputRecords[Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM * Consts::NUMBER_OF_INPUTS];
 	Enums::InputPressState** mpp_inputPressStates;
 	int m_numberOfEventsRead;
 	int m_reusableIterator_1;

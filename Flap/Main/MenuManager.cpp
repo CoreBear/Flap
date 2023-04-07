@@ -12,6 +12,7 @@
 #include "PauseMenu.h"
 #include "ResultsMenu.h"
 #include "SharedCollisionRender.h"
+#include "SharedGame.h"
 #include "SharedInput.h"
 #include "SinglePlayerMenu.h"
 #include "Structure.h"
@@ -19,8 +20,9 @@
 #pragma endregion
 
 #pragma region Initialization
-MenuManager::MenuManager(SharedCollisionRender& _sharedCollisionRender) :
+MenuManager::MenuManager(SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame) :
 	mr_sharedCollisionRender(_sharedCollisionRender),
+	mr_sharedGame(_sharedGame),
 	m_menuUniqueLock(_sharedCollisionRender.m_menuMutex)
 {
 	m_readIndex = Consts::NO_VALUE;
@@ -105,99 +107,12 @@ void MenuManager::FixedUpdate()
 }
 #pragma endregion
 
-#pragma region Protected Functionality
-void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
-{
-	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
-	{
-		m_potentialNextMenuIndex = mpp_menus[m_currentMenuIndex]->InputAccept();
-
-		switch (m_potentialNextMenuIndex)
-		{
-			// Completely exit the application
-		case Enums::MenuReturn::ExitApp:
-			break;
-
-		case Enums::MenuReturn::ExitToMain:
-			break;
-
-			// Display nothing and move into the game state
-		case Enums::MenuReturn::PlayGame:
-			break;
-
-			// Display nothing and move back into the game state
-		case Enums::MenuReturn::Resume:
-			break;
-
-			// Return to previous menu
-		case Enums::MenuReturn::Return:
-		{
-			PreChangeSync();
-			DisplayMenu(m_returnMenuStack.top(), true);
-			m_returnMenuStack.pop();
-			PostChangeSync();
-		}
-		break;
-
-		// Networking search
-		case Enums::MenuReturn::Search:
-			break;
-
-			// Display the next menu
-		default:
-		{
-			PreChangeSync();
-			DisplayMenu(m_potentialNextMenuIndex);
-			PostChangeSync();
-		}
-		break;
-		}
-	}
-}
-void MenuManager::InputDown(Enums::InputPressState _inputPressState)
-{
-	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
-	{
-		PreChangeSync();
-		mpp_menus[m_currentMenuIndex]->InputDown();
-		PostChangeSync();
-	}
-}
-void MenuManager::InputLeft(Enums::InputPressState _inputPressState)
-{
-	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
-	{
-		PreChangeSync();
-		mpp_menus[m_currentMenuIndex]->InputLeft();
-		PostChangeSync();
-	}
-}
-void MenuManager::InputRight(Enums::InputPressState _inputPressState)
-{
-	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
-	{
-		PreChangeSync();
-		mpp_menus[m_currentMenuIndex]->InputRight();
-		PostChangeSync();
-	}
-}
-void MenuManager::InputUp(Enums::InputPressState _inputPressState)
-{
-	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
-	{
-		PreChangeSync();
-		mpp_menus[m_currentMenuIndex]->InputUp();
-		PostChangeSync();
-	}
-}
-#pragma endregion
-
-#pragma region Private Functionality
+#pragma region Public Functionality
 void MenuManager::DisplayMenu(int _menuNameIndex, bool _isReturning)
 {
 	if (_isReturning)
 	{
-
+		m_returnMenuStack.pop();
 	}
 	else
 	{
@@ -212,6 +127,132 @@ void MenuManager::DisplayMenu(int _menuNameIndex, bool _isReturning)
 
 	mr_sharedCollisionRender.mp_menu = mpp_menus[m_currentMenuIndex];
 }
+#pragma endregion
+
+#pragma region Protected Functionality
+void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
+{
+	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
+	{
+		m_potentialNextMenuIndex = mpp_menus[m_currentMenuIndex]->InputAccept();
+
+		switch (m_potentialNextMenuIndex)
+		{
+			// Completely exit the application
+		case Enums::MenuReturn::ExitApp:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::ExitApp;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+			break;
+
+		case Enums::MenuReturn::ExitToMain:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::ExitToMain;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+			break;
+
+			// Display nothing and move into the game state
+		case Enums::MenuReturn::PlayGame:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::StartGame;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+			break;
+
+			// Display nothing and move back into the game state
+		case Enums::MenuReturn::Resume:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::ResumeGame;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+			break;
+
+			// Return to previous menu
+		case Enums::MenuReturn::Return:
+		{
+			m_menuUniqueLock.lock();
+			PreChangeSync();
+			DisplayMenu(m_returnMenuStack.top(), true);
+			m_menuUniqueLock.unlock();
+			PostChangeSync();
+		}
+		break;
+
+		// Networking search
+		case Enums::MenuReturn::Search:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			//mr_sharedGame.m_gameState = Enums::GameState::net;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+			break;
+
+			// Display the next menu
+		default:
+		{
+			m_menuUniqueLock.lock();
+			PreChangeSync();
+			DisplayMenu(m_potentialNextMenuIndex);
+			m_menuUniqueLock.unlock();
+			PostChangeSync();
+		}
+		break;
+		}
+	}
+}
+void MenuManager::InputDown(Enums::InputPressState _inputPressState)
+{
+	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
+	{
+		m_menuUniqueLock.lock();
+		PreChangeSync();
+		mpp_menus[m_currentMenuIndex]->InputDown();
+		m_menuUniqueLock.unlock();
+		PostChangeSync();
+	}
+}
+void MenuManager::InputLeft(Enums::InputPressState _inputPressState)
+{
+	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
+	{
+		m_menuUniqueLock.lock();
+		PreChangeSync();
+		mpp_menus[m_currentMenuIndex]->InputLeft();
+		m_menuUniqueLock.unlock();
+		PostChangeSync();
+	}
+}
+void MenuManager::InputRight(Enums::InputPressState _inputPressState)
+{
+	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
+	{
+		m_menuUniqueLock.lock();
+		PreChangeSync();
+		mpp_menus[m_currentMenuIndex]->InputRight();
+		m_menuUniqueLock.unlock();
+		PostChangeSync();
+	}
+}
+void MenuManager::InputUp(Enums::InputPressState _inputPressState)
+{
+	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
+	{
+		m_menuUniqueLock.lock();
+		PreChangeSync();
+		mpp_menus[m_currentMenuIndex]->InputUp();
+		m_menuUniqueLock.unlock();
+		PostChangeSync();
+	}
+}
+#pragma endregion
+
+#pragma region Private Functionality
 void MenuManager::PostChangeSync()
 {
 	m_menuUniqueLock.lock();
@@ -240,8 +281,6 @@ void MenuManager::PostChangeSync()
 }
 void MenuManager::PreChangeSync()
 {
-	m_menuUniqueLock.lock();
-
 	// If Buffer thread is already waiting
 	if (mr_sharedCollisionRender.m_threadWaitingFlag)
 	{
@@ -264,8 +303,6 @@ void MenuManager::PreChangeSync()
 		// Let it know it can release, because this (Scene) thread needs to go first
 		mr_sharedCollisionRender.m_menuConVar.notify_one();
 	}
-
-	m_menuUniqueLock.unlock();
 }
 #pragma endregion
 

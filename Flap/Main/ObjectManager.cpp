@@ -18,8 +18,8 @@ ObjectManager::ObjectManager(SharedCollisionRender& _sharedCollisionRender, Shar
 {
 	SceneObject::AssignObjectManager(*this);
 
-	// NOTE: Only MAX_NUMBER_OF_PLAYERS number of avatars
-	NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { Consts::MAX_NUMBER_OF_PLAYERS, 20, 20 };
+	// NOTE: Only MAX_NUMBER_OF_PLAYERS_PER_SYSTEM number of avatars
+	NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM, 20, 20 };
 
 	// Generate pointers for each type
 	mpp_pooledObject = new SceneObject ** [static_cast<int>(Enums::ObjectType::NumberOfTypes)];

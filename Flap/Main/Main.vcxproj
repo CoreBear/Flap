@@ -133,7 +133,8 @@
     <ClCompile Include="CollisionRenderWriteIntoBuffer.cpp" />
     <ClCompile Include="CollisionRenderReadOutOfBuffer.cpp" />
     <ClCompile Include="Food.cpp" />
-    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="ApplicationManager.cpp" />
+    <ClCompile Include="GameRunManager.cpp" />
     <ClCompile Include="InputReceiver.cpp" />
     <ClCompile Include="MenuBase.cpp" />
     <ClCompile Include="SharedCollisionRender.cpp" />
@@ -144,7 +145,7 @@
     <ClCompile Include="NetworkManager.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="MenuManager.cpp" />
-    <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="Tools.cpp" />
   </ItemGroup>
@@ -156,6 +157,7 @@
     <ClInclude Include="DList.h" />
     <ClInclude Include="ExitMenu.h" />
     <ClInclude Include="Food.h" />
+    <ClInclude Include="GameRunManager.h" />
     <ClInclude Include="InputReceiver.h" />
     <ClInclude Include="LocalMultiplayerMenu.h" />
     <ClInclude Include="MainMenu.h" />
@@ -179,7 +181,7 @@
     <ClInclude Include="NetworkManager.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="MenuManager.h" />
-    <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="GameManager.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="Tools.h" />
     <ClInclude Include="WelcomeMenu.h" />

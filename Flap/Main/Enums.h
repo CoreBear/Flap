@@ -5,7 +5,7 @@ namespace Enums
 {
 	enum class CellState { Collision, Empty, Food, Snake };
 	enum class CollisionType { HeadToBody, HeadToFruit, HeadToHead };
-	enum class GameState { Game, GTO, OTG, Menu };
+	enum class GameState { Game, ExitApp, ExitToMain, ExitToResults, Menu, PauseGame, ResumeGame, StartGame};
 	enum class InputName { Accept, Down, Left, Pause, Right, Up, NumberOfNames, NA };
 	enum class InputPressState { Click, Dead, Held, PressedThisFrame, Released };
 	enum class ObjectType { Avatar, Food, Snake, NumberOfTypes, NA };

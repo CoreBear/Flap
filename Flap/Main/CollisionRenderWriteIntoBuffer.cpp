@@ -39,17 +39,27 @@ void CollisionRenderWriteIntoBuffer::Update()
 {
 	mr_sharedGame.m_gameStateMutex.lock();
 
-	if (mr_sharedGame.m_gameState == Enums::GameState::Game)
+	switch (mr_sharedGame.m_gameState)
+	{
+	case Enums::GameState::Game:
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
 
 		GameUpdate();
 	}
-	else
+	break;
+	case Enums::GameState::Menu:
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
 
 		MenuUpdate();
+	}
+	break;
+	default:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
 	}
 }
 #pragma endregion

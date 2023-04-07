@@ -1,127 +1,152 @@
 #pragma region Includes
-#include "CollisionRenderWriteIntoBuffer.h"
+#include "GameManager.h"
+
+#include "CollisionRenderReadOutOfBuffer.h"
 #include "Consts.h"
-#include "GameThreadBase.h"
-#include "InputManager.h"
-#include "SceneManager.h"
+#include "Enums.h"
+#include "GameRunManager.h"
+#include "MenuManager.h"
 #include "SharedCollisionRender.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
-
-#include <thread>
-#include <Windows.h>
 #pragma endregion
 
-#pragma region Variables
-// Static
-static bool gs_applicationIsRunning;
-#pragma endregion
+#pragma region Initialization
+unsigned int GameManager::s_fixedFrameCount = Consts::NO_VALUE;
 
-#pragma region Prototypes
-void ManagerThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex);
-void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle);
-#pragma endregion
-
-int main()
+GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame, SharedInput& _sharedInput) :
+	mp_collisionRenderReadOutOfBuffer(new CollisionRenderReadOutOfBuffer(_outputWindowHandle, _sharedCollisionRender)),
+	mp_gameRunManager(new GameRunManager(_sharedCollisionRender, _sharedInput)),
+	mp_menuManager(new MenuManager(_sharedCollisionRender, _sharedGame)),
+	mr_sharedGame(_sharedGame)
 {
-	gs_applicationIsRunning = true;
-	
-	COORD bufferSizeCR;
-	HANDLE outputWindowHandle;
+	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
+}
+#pragma endregion
 
-	SetupConsole(bufferSizeCR, outputWindowHandle);
+#pragma region Updates
+void GameManager::Update()
+{
+	mr_sharedGame.m_gameStateMutex.lock();
 
-	SharedCollisionRender sharedCollisionRender(bufferSizeCR);
-	SharedGame sharedGame;
-	SharedInput sharedInput;
-
-	// NOTE/WARNING: CollisionRenderWriteIntoBuffer requires Scene to be created first
-	enum class ThreadType { Input, Scene, CollisionRenderWriteIntoBuffer, NumberOfTypes };
-
-	// Generate managers
-	GameThreadBase** gameThreadBases = new GameThreadBase * [static_cast<int>(ThreadType::NumberOfTypes)]
+	switch (mr_sharedGame.m_gameState)
 	{
-		new InputManager(sharedGame, sharedInput),
-		new SceneManager(outputWindowHandle, sharedCollisionRender, sharedGame, sharedInput),
-		new CollisionRenderWriteIntoBuffer(sharedCollisionRender, sharedGame)
-	};
-
-	std::thread threads[static_cast<int>(ThreadType::NumberOfTypes)];
-
-	// Start manager threads and detach (if applicable)
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
+	case Enums::GameState::Game:
 	{
-		threads[threadIndex] = std::thread(ManagerThreadEntry, gameThreadBases, threadIndex);
+		mr_sharedGame.m_gameStateMutex.unlock();
 
-		if (threadIndex == static_cast<int>(ThreadType::Input))
+		m_currentTime = std::chrono::high_resolution_clock::now();
+
+		// Fixed Update
+		if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
 		{
-			threads[threadIndex].detach();
-		}
-	}
+			// Update for next iteration
+			m_lastTime = m_currentTime;
 
-	// Join manager threads (if applicable)
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
+			// Update counter
+			++s_fixedFrameCount;
+
+			mp_gameRunManager->FixedUpdate();
+
+			mp_collisionRenderReadOutOfBuffer->FixedUpdate();
+		}
+
+		mp_gameRunManager->Update();
+
+		mp_gameRunManager->LastUpdate();
+	}
+	break;
+	case Enums::GameState::ExitToMain:
 	{
-		if (threadIndex != static_cast<int>(ThreadType::Input))
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_menuManager->ExitToMain();
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	case Enums::GameState::ExitToResults:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_menuManager->ExitToResults();
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	case Enums::GameState::Menu:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		m_currentTime = std::chrono::high_resolution_clock::now();
+
+		// Fixed Update
+		if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
 		{
-			threads[threadIndex].join();
+			// Update for next iteration
+			m_lastTime = m_currentTime;
+
+			// Update counter
+			++s_fixedFrameCount;
+
+			mp_menuManager->FixedUpdate();
+
+			mp_collisionRenderReadOutOfBuffer->FixedUpdate();
 		}
-	}
 
-	// Delete manager pointers
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
+		mp_menuManager->Update();
+	}
+	break;
+	case Enums::GameState::PauseGame:
 	{
-		delete gameThreadBases[threadIndex];
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_gameRunManager->PauseGame();
+		mp_menuManager->PauseGame();
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedGame.m_gameStateMutex.unlock();
 	}
+	break;
+	case Enums::GameState::ResumeGame:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
 
-	// Delete manager container
-	delete[] gameThreadBases;
+		mp_gameRunManager->ResumeGame();
 
-	return 0;
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Game;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	case Enums::GameState::StartGame:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_gameRunManager->StartGame();
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Game;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	default:
+		mr_sharedGame.m_gameStateMutex.unlock();
+		break;
+	}
 }
-void ManagerThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex)
+#pragma endregion
+
+#pragma region Destruction
+GameManager::~GameManager()
 {
-	while (gs_applicationIsRunning)
-	{
-		_gameThreadBase[_threadIndex]->Update();
-	}
+	delete mp_collisionRenderReadOutOfBuffer;
+	delete mp_gameRunManager;
+	delete mp_menuManager;
 }
-void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle)
-{
-	// https://learn.microsoft.com/en-us/windows/console/console-functions
-
-	// Position window in top-left
-	HWND consoleWindow = GetConsoleWindow();
-	SetWindowPos(consoleWindow, 0, -8, -1, 0, 0, SWP_SHOWWINDOW);
-
-	// NOTE/WARNING: THE ORDER OF THESE TWO ARE IMPORTANT!
-	_outputWindowHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-	_bufferSizeCR = GetLargestConsoleWindowSize(_outputWindowHandle);
-
-	// Generate max buffer and screen size
-	SMALL_RECT windowRect
-	{
-		static_cast<SHORT>(Consts::NO_VALUE),
-		static_cast<SHORT>(Consts::NO_VALUE),
-		static_cast<SHORT>(_bufferSizeCR.X - Consts::OFF_BY_ONE),
-		static_cast<SHORT>(_bufferSizeCR.Y - Consts::OFF_BY_ONE)
-	};
-	SetConsoleScreenBufferSize(_outputWindowHandle, _bufferSizeCR);
-	SetConsoleWindowInfo(_outputWindowHandle, true, &windowRect);
-
-	// Removes the minimize & maximize options
-	{
-		LONG windowInfo = GetWindowLong(consoleWindow, GWL_STYLE);
-		windowInfo &= ~(WS_MINIMIZEBOX);
-		windowInfo &= ~(WS_MAXIMIZEBOX);
-		SetWindowLong(consoleWindow, GWL_STYLE, windowInfo);
-	}
-
-	// Hides cursor
-	{
-		CONSOLE_CURSOR_INFO cci;
-		GetConsoleCursorInfo(_outputWindowHandle, &cci);
-		cci.bVisible = false;
-		SetConsoleCursorInfo(_outputWindowHandle, &cci);
-	}
-}
+#pragma endregion

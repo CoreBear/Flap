@@ -2,16 +2,16 @@
 #include "InputManager.h"
 
 #include "Consts.h"
-#include "SceneManager.h"
+#include "GameManager.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
 #pragma endregion
 
 #pragma region Initialization
 InputManager::InputManager(SharedGame& _sharedGame, SharedInput& _sharedInput) :
-	BUFFER_LENGTH(Consts::MAX_NUMBER_OF_PLAYERS* Consts::NUMBER_OF_INPUTS),
+	BUFFER_LENGTH(Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM* Consts::NUMBER_OF_INPUTS),
 	INPUT_WINDOW_HANDLE(GetStdHandle(STD_INPUT_HANDLE)),
-	mpp_inputPressStates(new Enums::InputPressState* [Consts::MAX_NUMBER_OF_PLAYERS]),
+	mpp_inputPressStates(new Enums::InputPressState* [Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM]),
 	m_numberOfEventsRead(Consts::NO_VALUE),
 	m_reusableIterator_1(Consts::NO_VALUE),
 	m_reusableIterator_2(Consts::NO_VALUE),
@@ -19,9 +19,9 @@ InputManager::InputManager(SharedGame& _sharedGame, SharedInput& _sharedInput) :
 	m_reusableIterator_4(Consts::NO_VALUE),
 	mr_sharedGame(_sharedGame),
 	mr_sharedInput(_sharedInput),
-	mpp_deadFramesTargetFrames(new unsigned int*[Consts::MAX_NUMBER_OF_PLAYERS])
+	mpp_deadFramesTargetFrames(new unsigned int*[Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM])
 {
-	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::MAX_NUMBER_OF_PLAYERS; m_reusableIterator_1++)
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_1++)
 	{
 		mpp_inputPressStates[m_reusableIterator_1] = new Enums::InputPressState[Consts::NUMBER_OF_INPUTS];
 		mpp_deadFramesTargetFrames[m_reusableIterator_1] = new unsigned int[Consts::NUMBER_OF_INPUTS];
@@ -55,7 +55,7 @@ void InputManager::Update()
 		if (m_inputRecords[m_reusableIterator_1].EventType == KEY_EVENT)
 		{
 			// For each player
-			for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < Consts::MAX_NUMBER_OF_PLAYERS; m_reusableIterator_2++)
+			for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_2++)
 			{
 				// For each player's inputs being watched
 				for (m_reusableIterator_3 = Consts::NO_VALUE; m_reusableIterator_3 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_3++)
@@ -81,11 +81,10 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	// If input is pressed down
 	if (_inputInfo.bKeyDown)
 	{
+		// NOTE/WARNING: Notice the returns! Dead and hold frames frames shouldn't be enqueued
+
 		switch (mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3])
 		{
-			// Do nothing
-		//case Enums::InputPressState::Held:
-
 		case Enums::InputPressState::Click:
 		case Enums::InputPressState::Released:
 		{
@@ -94,23 +93,23 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		break;
 		case Enums::InputPressState::Dead:
 		{
-			if (SceneManager::s_fixedFrameCount == mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3])
+			if (GameManager::s_fixedFrameCount == mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3])
 			{
 				mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Held;
 			}
 		}
-		return;
-		
-		// NOTE/WARNING: Notice this return! Dead frames shouldn't be enqueues
+		// NOTE: Fallthrough!
+		case Enums::InputPressState::Held:
+			return;
 		case Enums::InputPressState::PressedThisFrame:
 		{
 			mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Dead;
 
 			// Arbitrary value, represents click-to-hold number of frames
 			const unsigned int NUMBER_OF_DEAD_FRAMES = 15;
-			mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3] = SceneManager::s_fixedFrameCount + NUMBER_OF_DEAD_FRAMES;
+			mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3] = GameManager::s_fixedFrameCount + NUMBER_OF_DEAD_FRAMES;
 		}
-		break;
+		return;
 		}
 	}
 
@@ -136,7 +135,6 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		break;
 		}
 	}
-
 	constexpr int PAUSE_INDEX = static_cast<int>(Enums::InputName::Pause);
 
 	// If neither player is trying to pause the game
@@ -146,8 +144,12 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		switch (mr_sharedGame.m_gameState)
 		{
 			// Do nothing
-		//case Enums::GameState::GTO:
-		//case Enums::GameState::OTG:
+		//case Enums::GameState::ExitApp:
+		//case Enums::GameState::ExitToMain:
+		//case Enums::GameState::ExitToResults:
+		//case Enums::GameState::PauseGame:
+		//case Enums::GameState::ResumeGame:
+		//case Enums::GameState::StartGame:
 
 			// If not transitioning, add input
 		case Enums::GameState::Game:
@@ -182,7 +184,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		}
 
 		mr_sharedGame.m_gameStateMutex.lock();
-		mr_sharedGame.m_gameState = Enums::GameState::GTO;
+		mr_sharedGame.m_gameState = Enums::GameState::PauseGame;
 		mr_sharedGame.m_gameStateMutex.unlock();
 		mr_sharedInput.m_inputQueueMutex.unlock();
 	}
@@ -192,7 +194,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 #pragma region Destruction
 InputManager::~InputManager()
 {
-	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::MAX_NUMBER_OF_PLAYERS; m_reusableIterator_1++)
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_1++)
 	{
 		delete[] mpp_inputPressStates[m_reusableIterator_1];
 		delete[] mpp_deadFramesTargetFrames[m_reusableIterator_1];

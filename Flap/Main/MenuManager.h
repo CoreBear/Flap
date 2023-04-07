@@ -11,6 +11,7 @@
 class BufferCell;
 class MenuBase;
 class SharedCollisionRender;
+class SharedGame;
 class SharedInput;
 namespace Structure { struct TextLine; }
 namespace Structure { struct Vector2; }
@@ -19,13 +20,18 @@ class MenuManager final : public InputReceiver
 {
 public:
 	// Initialzation
-	MenuManager(SharedCollisionRender& _sharedCollisionRender);
+	MenuManager(SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame);
 	MenuManager(const MenuManager&) = delete;
 	MenuManager& operator=(const MenuManager&) = delete;
 
 	// Updates
 	void FixedUpdate();
 	void Update() { return; }
+
+	// Functionality
+	inline void ExitToMain() { DisplayMenu(Enums::MenuName::Main); }
+	inline void ExitToResults() { DisplayMenu(Enums::MenuName::Results); }
+	inline void PauseGame() { DisplayMenu(Enums::MenuName::Pause); }
 
 	// Destructor
 	~MenuManager();
@@ -49,6 +55,7 @@ private:
 	int m_textLetterColumnPosition;
 	MenuBase** mpp_menus;
 	SharedCollisionRender& mr_sharedCollisionRender;
+	SharedGame& mr_sharedGame;
 	short lineColor;
 	std::stack<int> m_returnMenuStack;
 	std::unique_lock<std::mutex> m_menuUniqueLock;

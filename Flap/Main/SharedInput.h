@@ -18,7 +18,7 @@ public:
 
 	// Member Variables
 	std::mutex m_inputQueueMutex;
-	std::queue<Structure::Input> m_inputQueue[Consts::MAX_NUMBER_OF_PLAYERS];
+	std::queue<Structure::Input> m_inputQueue[Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM];
 };
 
 #endif SHARED_INPUT_H
