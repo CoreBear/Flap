@@ -14,6 +14,20 @@
 #include <Windows.h>
 #pragma endregion
 
+#pragma region Leak Detection
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+#ifdef _DEBUG
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
+// allocations to be of _CLIENT_BLOCK type
+#else
+#define DBG_NEW new
+#endif
+#pragma endregion
+
 #pragma region Prototypes
 void ManagerThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame);
 void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle);
@@ -21,57 +35,67 @@ void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle);
 
 int main()
 {
-	COORD bufferSizeCR;
-	HANDLE outputWindowHandle;
+	// Memory leak detection code
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	// This function call will set a breakpoint at the location of a leaked block
+	// Set the parameter to the identifier for a leaked block
+	_CrtSetBreakAlloc(-1);
 
-	SetupConsole(bufferSizeCR, outputWindowHandle);
-
-	SharedCollisionRender sharedCollisionRender(bufferSizeCR);
-	SharedGame sharedGame;
-	SharedInput sharedInput;
-
-	// NOTE/WARNING: CollisionRenderWriteIntoBuffer requires Scene to be created first
-	enum class ThreadType { Application, Input, CollisionRenderWriteIntoBuffer, NumberOfTypes };
-
-	// Generate managers
-	GameThreadBase** gameThreadBases = new GameThreadBase * [static_cast<int>(ThreadType::NumberOfTypes)]
+	// Scope required so std containers go out of scope and clean up their memory
 	{
-		new GameManager(outputWindowHandle, sharedCollisionRender, sharedGame, sharedInput),
-		new InputManager(sharedGame, sharedInput),
-		new CollisionRenderWriteIntoBuffer(sharedCollisionRender, sharedGame)
-	};
+		COORD bufferSizeCR;
+		HANDLE outputWindowHandle;
 
-	std::thread threads[static_cast<int>(ThreadType::NumberOfTypes)];
+		SetupConsole(bufferSizeCR, outputWindowHandle);
 
-	// Start manager threads and detach (if applicable)
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
-	{
-		threads[threadIndex] = std::thread(ManagerThreadEntry, gameThreadBases, threadIndex, &sharedGame);
+		SharedCollisionRender sharedCollisionRender(bufferSizeCR);
+		SharedGame sharedGame;
+		SharedInput sharedInput;
 
-		if (threadIndex == static_cast<int>(ThreadType::Input))
+		// NOTE/WARNING: CollisionRenderWriteIntoBuffer requires Scene to be created first
+		enum class ThreadType { Game, Input, CollisionRenderWriteIntoBuffer, NumberOfTypes };
+
+		// Generate thread objects
+		GameThreadBase** gameThreadBases = new GameThreadBase * [static_cast<int>(ThreadType::NumberOfTypes)]
 		{
-			threads[threadIndex].detach();
-		}
-	}
+			new GameManager(outputWindowHandle, sharedCollisionRender, sharedGame, sharedInput),
+				new InputManager(sharedGame, sharedInput),
+				new CollisionRenderWriteIntoBuffer(sharedCollisionRender, sharedGame)
+		};
 
-	// Join manager threads (if applicable)
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
-	{
-		if (threadIndex != static_cast<int>(ThreadType::Input))
+		std::thread threads[static_cast<int>(ThreadType::NumberOfTypes)];
+
+		// Start threads and detach (if applicable)
+		for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 		{
-			threads[threadIndex].join();
+			threads[threadIndex] = std::thread(ManagerThreadEntry, gameThreadBases, threadIndex, &sharedGame);
+
+			if (threadIndex == static_cast<int>(ThreadType::CollisionRenderWriteIntoBuffer))
+			{
+				threads[threadIndex].detach();
+			}
 		}
+
+		// Wait for threads
+		for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
+		{
+			if (threadIndex != static_cast<int>(ThreadType::CollisionRenderWriteIntoBuffer))
+			{
+				threads[threadIndex].join();
+			}
+		}
+
+		// Delete thread pointers
+		for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
+		{
+			delete gameThreadBases[threadIndex];
+		}
+
+		// Delete thread container
+		delete[] gameThreadBases;
 	}
 
-	// Delete manager pointers
-	for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
-	{
-		delete gameThreadBases[threadIndex];
-	}
-
-	// Delete manager container
-	delete[] gameThreadBases;
-
+	_CrtDumpMemoryLeaks();
 	return 0;
 }
 void ManagerThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame)

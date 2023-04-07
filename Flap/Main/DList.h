@@ -311,6 +311,9 @@ public:
 		return false;
 	}
 
+	// Destruction
+	~DList() { Clear(); }
+
 private:
 	// Member Variables
 	Iterator mEnd;
