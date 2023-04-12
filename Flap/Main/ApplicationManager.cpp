@@ -1,13 +1,13 @@
 #pragma region Includes
-#include "CollisionRenderWriteIntoBuffer.h"
 #include "Consts.h"
 #include "Enums.h"
 #include "GameManager.h"
 #include "GameThreadBase.h"
 #include "InputManager.h"
-#include "SharedCollisionRender.h"
+#include "RenderManager.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
+#include "SharedRender.h"
 
 #include <mutex>
 #include <thread>
@@ -29,8 +29,8 @@
 #pragma endregion
 
 #pragma region Prototypes
-void ManagerThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame);
 void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle);
+void ThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame);
 #pragma endregion
 
 int main()
@@ -48,44 +48,35 @@ int main()
 
 		SetupConsole(bufferSizeCR, outputWindowHandle);
 
-		SharedCollisionRender sharedCollisionRender(bufferSizeCR);
 		SharedGame sharedGame;
 		SharedInput sharedInput;
+		SharedRender sharedRender(bufferSizeCR);
 
-		// NOTE/WARNING: CollisionRenderWriteIntoBuffer requires Scene to be created first
-		enum class ThreadType { Game, Input, CollisionRenderWriteIntoBuffer, NumberOfTypes };
+		enum class ThreadType { Game, Input, Render, NumberOfTypes };
 
 		// Generate thread objects
 		GameThreadBase** gameThreadBases = new GameThreadBase * [static_cast<int>(ThreadType::NumberOfTypes)]
 		{
-			new GameManager(outputWindowHandle, sharedCollisionRender, sharedGame, sharedInput),
-				new InputManager(sharedGame, sharedInput),
-				new CollisionRenderWriteIntoBuffer(sharedCollisionRender, sharedGame)
+			new GameManager(outputWindowHandle, sharedGame, sharedInput, sharedRender),
+			new InputManager(sharedGame, sharedInput),
+			new RenderManager(outputWindowHandle, sharedRender)
 		};
 
 		std::thread threads[static_cast<int>(ThreadType::NumberOfTypes)];
 
-		// Start threads and detach (if applicable)
+		// Start threads
 		for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 		{
-			threads[threadIndex] = std::thread(ManagerThreadEntry, gameThreadBases, threadIndex, &sharedGame);
-
-			if (threadIndex == static_cast<int>(ThreadType::CollisionRenderWriteIntoBuffer))
-			{
-				threads[threadIndex].detach();
-			}
+			threads[threadIndex] = std::thread(ThreadEntry, gameThreadBases, threadIndex, &sharedGame);
 		}
 
 		// Wait for threads
 		for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 		{
-			if (threadIndex != static_cast<int>(ThreadType::CollisionRenderWriteIntoBuffer))
-			{
-				threads[threadIndex].join();
-			}
+			threads[threadIndex].join();
 		}
 
-		// Delete thread pointers
+		// Delete thread base pointers
 		for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 		{
 			delete gameThreadBases[threadIndex];
@@ -97,17 +88,6 @@ int main()
 
 	_CrtDumpMemoryLeaks();
 	return 0;
-}
-void ManagerThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame)
-{
-	_sharedGame->m_gameStateMutex.lock();
-	while (_sharedGame->m_gameState != Enums::GameState::ExitApp)
-	{
-		_sharedGame->m_gameStateMutex.unlock();
-		_gameThreadBase[_threadIndex]->Update();
-		_sharedGame->m_gameStateMutex.lock();
-	}
-	_sharedGame->m_gameStateMutex.unlock();
 }
 void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle)
 {
@@ -147,4 +127,15 @@ void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle)
 		cci.bVisible = false;
 		SetConsoleCursorInfo(_outputWindowHandle, &cci);
 	}
+}
+void ThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame)
+{
+	_sharedGame->m_gameStateMutex.lock();
+	while (_sharedGame->m_gameState != Enums::GameState::ExitApp)
+	{
+		_sharedGame->m_gameStateMutex.unlock();
+		_gameThreadBase[_threadIndex]->Update();
+		_sharedGame->m_gameStateMutex.lock();
+	}
+	_sharedGame->m_gameStateMutex.unlock();
 }

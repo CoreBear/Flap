@@ -1,16 +1,18 @@
 #pragma region Includes
 #include "Snake.h"
 
+#include "BufferCell.h"
 #include "Consts.h"
 #include "GameManager.h"
 #include "ObjectManager.h"
-#include "SharedCollisionRender.h"
+#include "SharedGame.h"
+#include "SharedRender.h"
 #include "Structure.h"
 #pragma endregion
 
 #pragma region Static Initialization
 Structure::Generic Snake::s_genericContainer;
-SharedCollisionRender* Snake::sp_sharedCollisionRender = nullptr;
+SharedGame* Snake::sp_sharedGame = nullptr;
 #pragma endregion
 
 #pragma region Initialization
@@ -27,18 +29,26 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 
 	UpdateMoveSpeed(_genericContainer->m_int);
 
-	m_bodyNodes.PushBack(m_position);
+	constexpr int NUMBER_TO_CHAR_OFFSET = static_cast<int>('0');
+	m_newCollisionRenderInfo.m_char = static_cast<char>(_genericContainer->m_int2 + NUMBER_TO_CHAR_OFFSET);
+	m_newCollisionRenderInfo.m_objectType = Enums::ObjectType::Snake;
+	m_newCollisionRenderInfo.m_color = m_color;
+	m_newCollisionRenderInfo.m_position = m_position;
 	
-	mp_renderInfo->m_character = static_cast<char>(_genericContainer->m_int2 + Consts::ASCII_OFFSET);
+	m_bodyNodes.PushBack(m_newCollisionRenderInfo);
+
+	// Reset so the body doesn't have these numbers
+	m_newCollisionRenderInfo.m_char = Consts::EMPTY_SPACE_CHAR;
+
+	m_numberOfTailSectionsToAdd = Consts::NO_VALUE;
 }
 Snake::Snake() : 
-	// NOTE/WARNING: Allocated memory is destroyed in the SceneObject destructor
-	SceneObject(dynamic_cast<Structure::RenderInfo*>(new Structure::SnakeRenderInfo(m_bodyNodes, Enums::ObjectType::Snake, m_position))),
 	m_currentDirection(Enums::InputName::NA), 
 	m_newDirection(Enums::InputName::NA), 
 	m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
 {
-	return;
+	// HACK: Do this else where
+	m_color = Consts::WHITE_BACKGROUND;
 }
 #pragma endregion
 
@@ -57,62 +67,84 @@ void Snake::FixedUpdate()
 
 		Move();
 	}
+
+	WriteIntoFrameBuffer();
 }
 #pragma endregion
 
 #pragma region Public Functionality
-void Snake::Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR)
+bool Snake::Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRenderInfo, bool _collidedWithSelf)
 {
-	// If didn't collide with self
-	if (_otherCollisionPackage != &m_collisionPackage)
-	{
-		// Eating food
-		if (_otherCollisionPackage->m_objectType == Enums::ObjectType::Food)
-		{
-			m_numberOfTailSectionsToAdd = _otherCollisionPackage->m_int;
-
-			m_newTailPosition = *(m_bodyNodes.GetTail());
-		}
-
-		// Collided with another snake
-		else
-		{
-			// If this snake collided with its head
-			if (m_position == _collisionCellCR)
-			{
-				Death();
-			}
-
-			// If this snake did not collide with its head
-			else
-			{
-				// Increase this player's points
-			}
-		}
-	}
-
-	// If collided with self
-	else
+	if (_collidedWithSelf)
 	{
 		Death();
+		return true;
 	}
+	// NOTE: If execution makes it beyond this point, snake is not colliding with itself
+
+	// Eating food
+	if (_collisionRenderInfo.m_objectType == Enums::ObjectType::Food)
+	{
+		m_numberOfTailSectionsToAdd = _collisionRenderInfo.m_value;
+
+		m_newTailPosition = (*m_bodyNodes.GetTail()).m_position;
+	}
+
+	// Collided with another snake
+	else
+	{
+		// If this snake's head collided
+		if (m_position == _collisionRenderInfo.m_position)
+		{
+			Death();
+			return true;
+		}
+
+		// If this snake's head didn't collide
+		else
+		{
+			// Increase this player's points, because other snake's head collided
+		}
+	}
+
+	return false;
 }
 #pragma endregion
 
 #pragma region Private Functionality
 void Snake::Death()
-{	
-	// Multi-player - This player's avatar/snake is turned into food and their inputs do nothing
-	constexpr int EVERY_OTHER_NODE = 2;
-	for (m_headTraversingIterator = m_bodyNodes.Begin(); m_headTraversingIterator != m_bodyNodes.End(); m_headTraversingIterator += EVERY_OTHER_NODE)
+{
+	// On less snake
+	sp_sharedGame->DecrementNumberOfSnakesInGame();
+
+	// If there are more snakes
+	if (sp_sharedGame->GetNumberOfSnakesInGame() != Consts::NO_VALUE)
 	{
-		s_genericContainer.m_int = 1;
-		sp_objectManager->SpawnObject(Enums::ObjectType::Food, *m_headTraversingIterator, &s_genericContainer);
+		// Start at the second node (if it exists)
+		m_headTraversingIterator = m_bodyNodes.Begin();
+		++m_headTraversingIterator;
+
+		constexpr int EVERY_OTHER_NODE = 2;
+
+		// Denitialize snake
+		Denitialize(true);
+
+		// For every other body node, spawn food
+		for (/*Initialization occurs above*/; m_headTraversingIterator != m_bodyNodes.End(); m_headTraversingIterator += EVERY_OTHER_NODE)
+		{
+			// HACK: Give the food different values
+			s_genericContainer.m_int = 1;
+			sp_objectManager->SpawnObject(Enums::ObjectType::Food, (*m_headTraversingIterator).m_position, &s_genericContainer);
+		}
 	}
 
-	Denitialize();
-
-	// Single player - Game over
+	// If there are no more snakes
+	else
+	{
+		sp_sharedGame->m_gameStateMutex.lock();
+		sp_sharedGame->m_gameState = Enums::GameState::ExitToResults;
+		sp_sharedGame->m_gameStateMutex.unlock();
+	}
 }
 void Snake::HorizontalTurn()
 {
@@ -127,63 +159,19 @@ void Snake::Move()
 	switch (m_currentDirection)
 	{
 	case Enums::InputName::Down:
-	{
-		// Bind to screen or die (this needs to be off by one'd)
-		if (m_position.m_y + Consts::OFF_BY_ONE < sp_sharedCollisionRender->SCREEN_BUFFER_CR.Y)
-		{
-			++m_position.m_y;
-		}
-		else
-		{
-			Death();
-			return;
-		}
-	}
-	break;
+		++m_position.m_y;
+		break;
 	case Enums::InputName::Left:
-	{
-		// Bind to screen or die
-		if (m_position.m_x - Consts::OFF_BY_ONE > -Consts::OFF_BY_ONE)
-		{
-			--m_position.m_x;
-		}
-		else
-		{
-			Death();
-			return;
-		}
-	}
-	break;
+		--m_position.m_x;
+		break;
 	case Enums::InputName::Right:
-	{
-		// Bind to screen or die (this needs to be off by one'd)
-		if (m_position.m_x + Consts::OFF_BY_ONE < sp_sharedCollisionRender->SCREEN_BUFFER_CR.X)
-		{
-			++m_position.m_x;
-		}
-		else
-		{
-			Death();
-			return;
-		}
-	}
-	break;
+		++m_position.m_x;
+		break;
 	case Enums::InputName::Up:
-	{
-		// Bind to screen or die
-		if (m_position.m_y - Consts::OFF_BY_ONE > -Consts::OFF_BY_ONE)
-		{
-			--m_position.m_y;
-		}
-		else
-		{
-			Death();
-			return;
-		}
-	}
-	break;
+		--m_position.m_y;
+		break;
 
-	// NOTE: Notice the snake will not move due to the return
+		// NOTE: Notice the snake will not move due to the return
 	default:
 		return;
 	}
@@ -201,23 +189,25 @@ void Snake::Move()
 		for (m_tailTraversingIterator = m_bodyNodes.GetTail(); m_headTraversingIterator != m_bodyNodes.Begin(); --m_headTraversingIterator, --m_tailTraversingIterator)
 		{
 			// Move the position closer to the tail, to the position closer to the head
-			*m_tailTraversingIterator = *m_headTraversingIterator;
+			(*m_tailTraversingIterator).m_position = (*m_headTraversingIterator).m_position;
 		}
 
 		// Move the position closer to the tail, to the position closer to the head
-		*m_tailTraversingIterator = *m_headTraversingIterator;
+		(*m_tailTraversingIterator).m_position = (*m_headTraversingIterator).m_position;
 	}
 
 	// Update first (head) position
-	*m_headTraversingIterator = m_position;
+	(*m_headTraversingIterator).m_position = m_position;
 }
 void Snake::TryAddTail()
 {
 	// If a tail should be added
 	if (m_numberOfTailSectionsToAdd > Consts::NO_VALUE)
 	{
+		m_newCollisionRenderInfo.m_position = m_newTailPosition;
+
 		// Add tail
-		m_bodyNodes.PushBack(m_newTailPosition);
+		m_bodyNodes.PushBack(m_newCollisionRenderInfo);
 
 		// Account for this tail's addition
 		--m_numberOfTailSectionsToAdd;
@@ -300,5 +290,34 @@ void Snake::VerticalTurn()
 	m_numberOfFramesPerCell = m_numberOfFramesPerCellVertical;
 
 	Turn();
+}
+void Snake::WriteIntoFrameBuffer()
+{
+	m_headTraversingIterator = m_bodyNodes.Begin();
+
+	// If new head position is valid
+	if (CheckPositionValidity((*m_headTraversingIterator).m_position) == true)
+	{
+		// Write each body node into the frame buffer 
+		for (/*Initialized above*/; m_headTraversingIterator != m_bodyNodes.End(); ++m_headTraversingIterator)
+		{
+			WriteIntoFrameBufferCell((*m_headTraversingIterator));
+		}
+	}
+
+	// If new head position is invalid
+	else
+	{
+		Death();
+	}
+}
+#pragma endregion
+
+#pragma region Destruction
+void Snake::Denitialize(bool _removeFromSceneObjects)
+{
+	m_bodyNodes.Clear();
+
+	SceneObject::Denitialize(_removeFromSceneObjects);
 }
 #pragma endregion

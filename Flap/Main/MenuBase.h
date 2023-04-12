@@ -5,7 +5,7 @@
 
 namespace Structure { struct TextLine; }
 
-class MenuBase
+class MenuBase 
 {
 public:
 	// Member Variables
@@ -23,6 +23,7 @@ public:
 	void InputLeft();
 	void InputRight();
 	void InputUp();
+	inline void ResetButtonNumber() { m_currentButtonNumber = Consts::OFF_BY_ONE; }	// NOTE: Doesn't go to index 0, because index 0 is the menu name's index
 
 	// Destruction
 	~MenuBase();

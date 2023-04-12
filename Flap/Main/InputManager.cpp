@@ -9,7 +9,7 @@
 
 #pragma region Initialization
 InputManager::InputManager(SharedGame& _sharedGame, SharedInput& _sharedInput) :
-	BUFFER_LENGTH(Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM* Consts::NUMBER_OF_INPUTS),
+	BUFFER_LENGTH(Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM * Consts::NUMBER_OF_INPUTS),
 	INPUT_WINDOW_HANDLE(GetStdHandle(STD_INPUT_HANDLE)),
 	mpp_inputPressStates(new Enums::InputPressState* [Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM]),
 	m_numberOfEventsRead(Consts::NO_VALUE),
@@ -82,7 +82,6 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	if (_inputInfo.bKeyDown)
 	{
 		// NOTE/WARNING: Notice the returns! Dead and hold frames frames shouldn't be enqueued
-
 		switch (mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3])
 		{
 		case Enums::InputPressState::Click:

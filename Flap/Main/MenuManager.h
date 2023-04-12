@@ -5,14 +5,13 @@
 #include "Enums.h"
 #include "InputReceiver.h"
 
-#include <mutex>
 #include <stack>
 
 class BufferCell;
 class MenuBase;
-class SharedCollisionRender;
 class SharedGame;
 class SharedInput;
+class SharedRender;
 namespace Structure { struct TextLine; }
 namespace Structure { struct Vector2; }
 
@@ -20,7 +19,7 @@ class MenuManager final : public InputReceiver
 {
 public:
 	// Initialzation
-	MenuManager(SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame);
+	MenuManager(SharedGame& _sharedGame, SharedRender& _sharedRender);
 	MenuManager(const MenuManager&) = delete;
 	MenuManager& operator=(const MenuManager&) = delete;
 
@@ -29,9 +28,9 @@ public:
 	void Update() { return; }
 
 	// Functionality
-	inline void ExitToMain() { DisplayMenu(Enums::MenuName::Main); }
-	inline void ExitToResults() { DisplayMenu(Enums::MenuName::Results); }
-	inline void PauseGame() { DisplayMenu(Enums::MenuName::Pause); }
+	inline void ExitToMain() { ReadyNextMenu(Enums::MenuName::Main); }
+	inline void ExitToResults() { ReadyNextMenu(Enums::MenuName::Results); }
+	inline void PauseGame() { ReadyNextMenu(Enums::MenuName::Pause); }
 
 	// Destructor
 	~MenuManager();
@@ -54,15 +53,15 @@ private:
 	int m_reusableIterator;
 	int m_textLetterColumnPosition;
 	MenuBase** mpp_menus;
-	SharedCollisionRender& mr_sharedCollisionRender;
 	SharedGame& mr_sharedGame;
-	short lineColor;
+	SharedRender& mr_sharedRender;
+	short m_lineColor;
 	std::stack<int> m_returnMenuStack;
-	std::unique_lock<std::mutex> m_menuUniqueLock;
 
 	// Functionality
-	void DisplayMenu(int _menuNameIndex, bool _isReturning = false);
-	void PostChangeSync();
-	void PreChangeSync();
+	void ReadyNextMenu(int _menuNameIndex, bool _isReturning = false);
+	void ResetAllMenus();
+	void WriteMenuIntoFrameBuffer();
+	void WriteTextLineIntoBuffer(bool _highlightLine, const Structure::TextLine& _textLine);
 };
 #endif MENU_MANAGER_H

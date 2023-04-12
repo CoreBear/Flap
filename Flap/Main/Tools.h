@@ -1,19 +1,18 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
-// Forward Declarations
-class SharedCollisionRender;
+class SharedRender;
 
 class Tools final
 {
 public:
 	// Functionality
-	inline static void AssignSharedCollisionRender(SharedCollisionRender& _sharedCollisionRender) { sp_sharedCollisionRender = &_sharedCollisionRender; }
+	inline static void AssignSharedRender(SharedRender& _sharedRender) { sp_sharedRender = &_sharedRender; }
 	static int CenterText_ReturnStartColumn(const char* _text);
 
 private:
 	// Member Variables
-	static SharedCollisionRender* sp_sharedCollisionRender;
+	static SharedRender* sp_sharedRender;
 };
 
 #endif TOOLS_H

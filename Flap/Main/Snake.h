@@ -5,8 +5,10 @@
 #include "Enums.h"
 #include "SceneObject.h"
 
-class SharedCollisionRender;
-
+class BufferCell;
+namespace Structure { struct CollisionRenderInfo; };
+namespace Structure { struct Generic; };
+class SharedGame;
 namespace Structure { struct Vector2; };
 
 class Snake : public SceneObject
@@ -16,7 +18,7 @@ public:
 	static Structure::Generic s_genericContainer;
 
 	// Static Initialization
-	inline static void AssignSharedCollisionRender(SharedCollisionRender& _sharedCollisionRender) { sp_sharedCollisionRender = &_sharedCollisionRender; }
+	static void AssignSharedGame(SharedGame& _sharedGame) { sp_sharedGame = &_sharedGame; }
 
 	// Initialization
 	void Initialize(const Structure::Generic* const _genericContainer) override final;
@@ -28,7 +30,10 @@ public:
 	void FixedUpdate() override;
 
 	// Functionality
-	void Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR) override final;
+	bool Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRenderInfo, bool _collidedWithSelf = false) override final;
+
+	// Destruction
+	void Denitialize(bool _removeFromSceneObjects) override final;
 
 protected:
 	// Functionality
@@ -39,12 +44,14 @@ protected:
 
 private:
 	// Static Variables
-	static SharedCollisionRender* sp_sharedCollisionRender;
+	static SharedGame* sp_sharedGame;
 
 	// Member Variables
-	DList<Structure::Vector2> m_bodyNodes;
-	DList<Structure::Vector2>::Iterator m_headTraversingIterator;
-	DList<Structure::Vector2>::Iterator m_tailTraversingIterator;
+	BufferCell* mp_bufferCell;
+	Structure::CollisionRenderInfo m_newCollisionRenderInfo;
+	DList<Structure::CollisionRenderInfo> m_bodyNodes;
+	DList<Structure::CollisionRenderInfo>::Iterator m_headTraversingIterator;
+	DList<Structure::CollisionRenderInfo>::Iterator m_tailTraversingIterator;
 	Enums::InputName m_currentDirection;
 	Enums::InputName m_newDirection;
 	unsigned int m_moveTargetFrame;
@@ -63,6 +70,7 @@ private:
 	void Turn();
 	void UpdateMoveSpeed(int _speed);			
 	void VerticalTurn();
+	void WriteIntoFrameBuffer();
 };
 
 #endif BIRD_H

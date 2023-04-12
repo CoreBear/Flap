@@ -4,15 +4,17 @@
 #include "Consts.h"
 #include "Structure.h"
 
+class CollisionManager;
 class ObjectManager;
-class SharedCollisionRender;
+class SharedGame;
 class SharedInput;
+class SharedRender;
 
 class GameRunManager final
 {
 public:
 	// Initialization
-	GameRunManager(SharedCollisionRender& _sharedCollisionRender, SharedInput& _sharedInput);
+	GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender);
 	GameRunManager(const GameRunManager&) = delete;
 	GameRunManager& operator=(const GameRunManager&) = delete;
 
@@ -22,6 +24,7 @@ public:
 	void Update();
 
 	// Functionality
+	void GameOver();
 	void PauseGame();
 	void ResumeGame();
 	void StartGame();
@@ -31,9 +34,11 @@ public:
 
 private:
 	// Member Variables
+	CollisionManager* const mp_collisionManager;
 	Structure::Generic m_genericContainer;
 	int m_reusableIterator;
 	ObjectManager* const mp_objectManager;
+	SharedGame& mr_sharedGame;
 	Structure::Vector2* mp_snakeStartPositions[Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME];
 
 	// Functionality

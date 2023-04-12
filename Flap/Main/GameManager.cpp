@@ -1,25 +1,23 @@
 #pragma region Includes
 #include "GameManager.h"
 
-#include "CollisionRenderReadOutOfBuffer.h"
 #include "Consts.h"
 #include "Enums.h"
 #include "GameRunManager.h"
 #include "MenuManager.h"
-#include "SharedCollisionRender.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
+#include "SharedRender.h"
 #pragma endregion
 
 #pragma region Initialization
 unsigned int GameManager::s_fixedFrameCount = Consts::NO_VALUE;
 
-GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame, SharedInput& _sharedInput) :
-	mp_collisionRenderReadOutOfBuffer(new CollisionRenderReadOutOfBuffer(_outputWindowHandle, _sharedCollisionRender)),
-	mp_gameRunManager(new GameRunManager(_sharedCollisionRender, _sharedInput)),
-	mp_menuManager(new MenuManager(_sharedCollisionRender, _sharedGame)),
-	mr_sharedCollisionRender(_sharedCollisionRender),
-	mr_sharedGame(_sharedGame)
+GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender) :
+	mp_gameRunManager(new GameRunManager(_sharedGame, _sharedInput, _sharedRender)),
+	mp_menuManager(new MenuManager(_sharedGame, _sharedRender)),
+	mr_sharedGame(_sharedGame),
+	mr_sharedRender(_sharedRender)
 {
 	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
 }
@@ -49,7 +47,7 @@ void GameManager::Update()
 
 			mp_gameRunManager->FixedUpdate();
 
-			mp_collisionRenderReadOutOfBuffer->FixedUpdate();
+			//mp_collisionRenderReadOutOfBuffer->FixedUpdate();
 		}
 
 		mp_gameRunManager->Update();
@@ -60,6 +58,8 @@ void GameManager::Update()
 	case Enums::GameState::ExitToMain:
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
+
+		GameOver();
 
 		mp_menuManager->ExitToMain();
 
@@ -72,6 +72,8 @@ void GameManager::Update()
 	case Enums::GameState::ExitToResults:
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
+
+		GameOver();
 
 		mp_menuManager->ExitToResults();
 
@@ -98,16 +100,7 @@ void GameManager::Update()
 
 			mp_menuManager->FixedUpdate();
 
-
-			if (mr_sharedGame.m_gameState == Enums::GameState::ExitApp)
-			{
-				// Run functionality exit here...
-
-				mr_sharedCollisionRender.m_menuConVar.notify_one();
-				return;
-			}
-
-			mp_collisionRenderReadOutOfBuffer->FixedUpdate();
+			//mp_collisionRenderReadOutOfBuffer->FixedUpdate();
 		}
 
 		mp_menuManager->Update();
@@ -157,10 +150,18 @@ void GameManager::Update()
 }
 #pragma endregion
 
+#pragma region Private Functionality
+void GameManager::GameOver()
+{
+	mr_sharedRender.ResetFrameBufferSynced();
+
+	mp_gameRunManager->GameOver();
+}
+#pragma endregion
+
 #pragma region Destruction
 GameManager::~GameManager()
 {
-	delete mp_collisionRenderReadOutOfBuffer;
 	delete mp_gameRunManager;
 	delete mp_menuManager;
 }

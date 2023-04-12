@@ -3,6 +3,9 @@
 
 #include "SceneObject.h"
 
+namespace Structure { struct CollisionRenderInfo; };
+namespace Structure { struct Generic; };
+
 class Food final : public SceneObject
 {
 public:
@@ -12,10 +15,17 @@ public:
 	Food& operator=(const Food&) = delete;
 	void Initialize(const Structure::Generic* const _genericContainer) override;
 
+	// Updates
+	void FixedUpdate() override { WriteIntoFrameBufferCell(m_collisionRenderInfo); }
+
 	// Functionality
-	void Collision(const Structure::Generic* const _otherCollisionPackage, const Structure::Vector2& _collisionCellCR);
+	inline bool Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRenderInfo, bool _collidedWithSelf = false) { Denitialize(true); return true; }
 
 private:
+	// Member Variables
+	BufferCell* mp_bufferCell;
+	Structure::CollisionRenderInfo m_collisionRenderInfo;
+
 	// Functionality
 	void UpdateValue(int _value);
 };

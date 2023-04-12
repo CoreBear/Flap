@@ -1,7 +1,5 @@
 #pragma region Includes
 #include "MenuBase.h"
-
-#include "Structure.h"
 #pragma endregion
 
 #pragma region Public Functionality
