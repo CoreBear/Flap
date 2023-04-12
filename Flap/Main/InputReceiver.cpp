@@ -17,6 +17,7 @@ void InputReceiver::HandleInput()
 	{
 		m_currentInput = sp_sharedInput->m_inputQueue[m_readIndex].front();
 		sp_sharedInput->m_inputQueue[m_readIndex].pop();
+
 		//sp_sharedInput->m_inputQueueMutex.unlock();
 
 		switch ((Enums::InputName)m_currentInput.m_inputIndex)

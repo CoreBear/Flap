@@ -6,12 +6,11 @@
 #include <chrono>
 #include <Windows.h>		// NOTE/WARNING: Has to be here or else the compiler screams about forward declaring HANDLE
 
-class CollisionRenderReadOutOfBuffer;
 class GameRunManager;
 class MenuManager;
-class SharedCollisionRender;
 class SharedGame;
 class SharedInput;
+class SharedRender;
 
 class GameManager final : public GameThreadBase
 {
@@ -20,7 +19,7 @@ public:
 	static unsigned int s_fixedFrameCount;
 
 	// Initialization
-	GameManager(const HANDLE& _outputWindowHandle, SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame, SharedInput& _sharedInput);
+	GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender);
 	GameManager(const GameManager&) = delete;
 	GameManager& operator=(const GameManager&) = delete;
 
@@ -32,10 +31,13 @@ public:
 
 private:
 	// Member Variables
-	CollisionRenderReadOutOfBuffer* const mp_collisionRenderReadOutOfBuffer;
 	GameRunManager* const mp_gameRunManager;
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	MenuManager* const mp_menuManager;
 	SharedGame& mr_sharedGame;
+	SharedRender& mr_sharedRender;
+
+	// Functionality
+	void GameOver();
 };
 #endif GAME_MANAGER_H

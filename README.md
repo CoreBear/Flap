@@ -10,7 +10,12 @@ This project is for learning new techniques and showcasing my knowledge of: arch
 Notes:
 - Ran into an issue where the CollisionRender thread was running it's update before the Scene thread, because the Scene thread released it first. This cannot happen, because the scene needs to update first. Fixed it by adding another wait on the CollisionRender. May need a better solution, but for now, everything seems fine
 - Implemented my own Doubly-Linked List and replaced all usages of std::list
-
+- Pivoting and going down a different path :(
+     - Collision and buffer filling will happen on the game thread
+		- Too much synchronization with this current implementation and it's starting not to make any sense
+     - Input will be on its own thread
+     - Rendering will be on its own thread
+		- A console project won't be able to take advantage of the speed of a separate render thread :(, but it could be used for key-frame interpolation :)
 
 Thoughts:
 - Yes, raw pointers
