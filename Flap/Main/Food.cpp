@@ -11,7 +11,7 @@ Food::Food()
 	m_collisionRenderInfo.m_objectType = Enums::ObjectType::Food;
 
 	// HACK: Do this else where
-	m_color = Consts::WHITE_BACKGROUND;
+	m_color = Consts::BACKGROUND_COLORS[static_cast<int>(Enums::Color::White)] | Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::Black)];
 }
 void Food::Initialize(const Structure::Generic* const _genericContainer)
 {

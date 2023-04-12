@@ -20,6 +20,7 @@ public:
 
 private:
 	// Static Variables
+	enum class CollisionType { HeadOnOrSelf, ObjectOneSurvived, ObjectTwoSurvived };
 	static constexpr int FIRST_OBJECT_INDEX = Consts::NO_VALUE;
 	static constexpr int SECOND_OBJECT_INDEX = Consts::OFF_BY_ONE;
 
@@ -31,7 +32,7 @@ private:
 
 	// Functionality
 	void UpdateCell(BufferCell& _bufferCell);
-	int UpdateColliders(BufferCell& _bufferCell);
+	CollisionType UpdateColliders(BufferCell& _bufferCell);
 };
 
 #endif COLLISION_MANAGER_H

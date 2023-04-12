@@ -48,7 +48,7 @@ Snake::Snake() :
 	m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
 {
 	// HACK: Do this else where
-	m_color = Consts::WHITE_BACKGROUND;
+	m_color = Consts::BACKGROUND_COLORS[static_cast<int>(Enums::Color::Magenta)] | Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::White)];
 }
 #pragma endregion
 

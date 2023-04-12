@@ -55,8 +55,8 @@ private:
 	MenuBase** mpp_menus;
 	SharedGame& mr_sharedGame;
 	SharedRender& mr_sharedRender;
-	short m_lineColor;
 	std::stack<int> m_returnMenuStack;
+	unsigned short m_lineColor;
 
 	// Functionality
 	void ReadyNextMenu(int _menuNameIndex, bool _isReturning = false);

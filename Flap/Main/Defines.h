@@ -1,9 +1,7 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-#if 1
-#define WINDOWS
-#else
-#endif
+#define LEAK_DETECTION 1
+#define WINDOWS 0
 
 #endif

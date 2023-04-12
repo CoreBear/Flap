@@ -1,6 +1,8 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
+#include "Enums.h"
+
 #include <Windows.h>
 
 namespace Consts
@@ -22,8 +24,28 @@ namespace Consts
 	constexpr int OFF_BY_ONE = 1;
 
 	// Shorts
-	constexpr short WHITE_BACKGROUND = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED;
-	constexpr short WHITE_FOREGROUND = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
+	constexpr unsigned short BACKGROUND_COLORS[static_cast<int>(Enums::Color::NumberOfColors)]
+	{
+		 NULL,
+		 BACKGROUND_BLUE,
+		 BACKGROUND_GREEN,
+		 BACKGROUND_BLUE | BACKGROUND_GREEN,
+		 BACKGROUND_BLUE | BACKGROUND_RED,
+		 BACKGROUND_RED,
+		 BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED,
+		 BACKGROUND_GREEN | BACKGROUND_RED
+	};
+	constexpr unsigned short FOREGROUND_COLORS[static_cast<int>(Enums::Color::NumberOfColors)]
+	{
+		 NULL,
+		 FOREGROUND_BLUE,
+		 FOREGROUND_GREEN,
+		 FOREGROUND_BLUE | FOREGROUND_GREEN,
+		 FOREGROUND_BLUE | FOREGROUND_RED,
+		 FOREGROUND_RED,
+		 FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED,
+		 FOREGROUND_GREEN | FOREGROUND_RED
+	};
 	constexpr unsigned short INPUTS[MAX_NUMBER_OF_PLAYERS_PER_SYSTEM][NUMBER_OF_INPUTS]
 	{
 		// Player 1 Input

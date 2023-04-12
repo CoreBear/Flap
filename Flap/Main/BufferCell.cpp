@@ -5,7 +5,6 @@
 #pragma region Public Functionality
 void BufferCell::ResetCell()
 {
-	m_cellState = Enums::CellState::Empty;
 	mp_collisionRenderInfo[Consts::NO_VALUE] = nullptr;
 	mp_collisionRenderInfo[Consts::OFF_BY_ONE] = nullptr;
 	m_character = Consts::EMPTY_SPACE_CHAR;

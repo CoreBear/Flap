@@ -3,6 +3,7 @@
 
 namespace Enums
 {
+	enum class Color { Black, Blue, Green, LightBlue, Magenta, Red, White, Yellow, NumberOfColors };
 	enum class CellState { Collision, Empty, Food, Snake };
 	enum class CollisionType { HeadToBody, HeadToFruit, HeadToHead };
 	enum class GameState { Game, ExitApp, ExitToMain, ExitToResults, Menu, PauseGame, ResumeGame, StartGame};

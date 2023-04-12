@@ -49,7 +49,6 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 			break;
 			case Enums::ObjectType::Snake:
 			{
-				_bufferCell.m_cellState = Enums::CellState::Snake;
 				_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_char;
 				_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_color;
 
@@ -68,7 +67,6 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 
 			case Enums::ObjectType::Food:
 			{
-				_bufferCell.m_cellState = Enums::CellState::Snake;
 				_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_char;
 				_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_color;
 
@@ -80,23 +78,20 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 				// HACK: Create an enum: 0 - Collided with self OR head-on collision. 1 - Only object 1 survives. 2 - Only object 2 survives.
 				switch (UpdateColliders(_bufferCell))
 				{
-				case 0:
+				case CollisionType::HeadOnOrSelf:
 				{
-					_bufferCell.m_cellState = Enums::CellState::Empty;
 					_bufferCell.m_character = Consts::EMPTY_SPACE_CHAR;
 					_bufferCell.m_colorBFGround = NULL;
 				}
 				break;
-				case 1:
+				case CollisionType::ObjectOneSurvived:
 				{
-					_bufferCell.m_cellState = Enums::CellState::Snake;
 					_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_char;
 					_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_color;
 				}
 				break;
-				case 2:
+				case CollisionType::ObjectTwoSurvived:
 				{
-					_bufferCell.m_cellState = Enums::CellState::Snake;
 					_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_char;
 					_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_color;
 				}
@@ -115,19 +110,6 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 	// If one object in cell
 	case Consts::OFF_BY_ONE:
 	{
-		switch (_bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_objectType)
-		{
-			// Do nothing, Avatars are snakes
-		//case Enums::ObjectType::Avatar:
-
-		case Enums::ObjectType::Food:
-			_bufferCell.m_cellState = Enums::CellState::Food;
-			break;
-		case Enums::ObjectType::Snake:
-			_bufferCell.m_cellState = Enums::CellState::Snake;
-			break;
-		}
-
 		_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_char;
 		_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_color;
 	}
@@ -140,7 +122,7 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 	}
 }
 
-int CollisionManager::UpdateColliders(BufferCell& _bufferCell)
+CollisionManager::CollisionType CollisionManager::UpdateColliders(BufferCell& _bufferCell)
 {
 	mp_firstSceneObject = reinterpret_cast<SceneObject*>(_bufferCell.mp_voidSceneObject[Consts::NO_VALUE]);
 	mp_secondSceneObject = reinterpret_cast<SceneObject*>(_bufferCell.mp_voidSceneObject[Consts::OFF_BY_ONE]);
@@ -151,7 +133,7 @@ int CollisionManager::UpdateColliders(BufferCell& _bufferCell)
 	if (mp_firstSceneObject == mp_secondSceneObject)
 	{
 		mp_firstSceneObject->Collision_IsDead(*_bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]);
-		return 0;
+		return CollisionType::HeadOnOrSelf;
 	}
 
 	// If 2 different objects collided
@@ -161,14 +143,14 @@ int CollisionManager::UpdateColliders(BufferCell& _bufferCell)
 		if (mp_firstSceneObject->Collision_IsDead(*_bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]))
 		{
 			// If second colliding object denits, else survives
-			return (mp_secondSceneObject->Collision_IsDead(*_bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX])) ? 0 : 2;
+			return (mp_secondSceneObject->Collision_IsDead(*_bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX])) ? CollisionType::HeadOnOrSelf : CollisionType::ObjectTwoSurvived;
 		}
 
 		// If first colliding object survives
 		else
 		{
 			mp_secondSceneObject->Collision_IsDead(*_bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]);
-			return 1;
+			return CollisionType::ObjectOneSurvived;
 
 		}
 	}

@@ -45,7 +45,7 @@ namespace Structure
 		char m_char;
 		Enums::ObjectType m_objectType;
 		int m_value;
-		short m_color;
+		unsigned short m_color;
 		Vector2 m_position;
 
 		// Initialization

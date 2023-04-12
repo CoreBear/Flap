@@ -251,7 +251,9 @@ void MenuManager::WriteTextLineIntoBuffer(bool _highlightLine, const Structure::
 	m_textLetterColumnPosition = _textLine.m_position.m_x;
 
 	// If option should be highlighted, else not
-	m_lineColor = (_highlightLine) ? Consts::WHITE_BACKGROUND : Consts::WHITE_FOREGROUND;
+	m_lineColor = (_highlightLine) ?
+	Consts::BACKGROUND_COLORS[static_cast<int>(Enums::Color::White)] | Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::Black)] :
+	Consts::BACKGROUND_COLORS[static_cast<int>(Enums::Color::Black)] | Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::White)] ;
 
 	constexpr char const END_OF_STRING = '\0';
 	while (*mp_walker != END_OF_STRING)

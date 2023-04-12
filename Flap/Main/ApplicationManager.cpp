@@ -1,5 +1,6 @@
 #pragma region Includes
 #include "Consts.h"
+#include "Defines.h"
 #include "Enums.h"
 #include "GameManager.h"
 #include "GameThreadBase.h"
@@ -14,7 +15,7 @@
 #include <Windows.h>
 #pragma endregion
 
-#pragma region Leak Detection
+#if LEAK_DETECTION
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -26,7 +27,7 @@
 #else
 #define DBG_NEW new
 #endif
-#pragma endregion
+#endif	// LEAK_DECTION
 
 #pragma region Prototypes
 void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle);
@@ -35,11 +36,13 @@ void ThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex, Share
 
 int main()
 {
+#if LEAK_DETECTION
 	// Memory leak detection code
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	// This function call will set a breakpoint at the location of a leaked block
 	// Set the parameter to the identifier for a leaked block
 	_CrtSetBreakAlloc(-1);
+#endif	// LEAK_DECTION
 
 	// Scope required so std containers go out of scope and clean up their memory
 	{
@@ -86,7 +89,10 @@ int main()
 		delete[] gameThreadBases;
 	}
 
+#if LEAK_DETECTION
 	_CrtDumpMemoryLeaks();
+#endif	// LEAK_DECTION
+
 	return 0;
 }
 void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle)

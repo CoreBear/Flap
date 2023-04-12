@@ -40,13 +40,6 @@ void RenderManager::Update()
 		// For each cell
 		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedRender.m_bufferSize; m_reusableIterator++)
 		{
-			//if (mr_sharedRender.mp_frameBuffer[m_reusableIterator].m_cellState == Enums::CellState::Collision)
-			//{
-			//	// Send each object, the other object and the collision cell's column and row
-			//	(*mr_sharedRender.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE])->Collision_IsDead(&(*mr_sharedRender.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE])->GetCellCollisionPackageRef(), m_collisionCellPosition);
-			//	(*mr_sharedRender.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::OFF_BY_ONE])->Collision_IsDead(&(*mr_sharedRender.mp_frameBuffer[m_reusableIterator].mp_objectsInCellIterators[Consts::NO_VALUE])->GetCellCollisionPackageRef(), m_collisionCellPosition);
-			//}
-
 			mp_renderBuffer[m_reusableIterator].Attributes = mr_sharedRender.mp_frameBuffer[m_reusableIterator].m_colorBFGround;
 			mp_renderBuffer[m_reusableIterator].Char.UnicodeChar = mr_sharedRender.mp_frameBuffer[m_reusableIterator].m_character;
 		}
