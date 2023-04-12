@@ -1,2 +1,24 @@
 ﻿  ApplicationManager.cpp
+  Avatar.cpp
+  BufferCell.cpp
+  CollisionRenderReadOutOfBuffer.cpp
+  CollisionRenderWriteIntoBuffer.cpp
+  Food.cpp
+  GameManager.cpp
+  GameRunManager.cpp
+  InputManager.cpp
+  InputReceiver.cpp
+  MenuBase.cpp
+  MenuManager.cpp
+  NetworkManager.cpp
+  ObjectManager.cpp
+  SceneObject.cpp
+  SharedCollisionRender.cpp
+  SharedGame.cpp
+  SharedInput.cpp
+  Snake.cpp
+  Tools.cpp
+C:\Flap\Flap\Main\Tools.cpp(16,79): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  Generating Code...
+  LINK : C:\Flap\Flap\x64\Debug\Main.exe not found or not built by the last incremental link; performing full link
   Main.vcxproj -> C:\Flap\Flap\x64\Debug\Main.exe
