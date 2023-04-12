@@ -65,7 +65,6 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
-		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -79,7 +78,6 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
-		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -115,7 +113,6 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
-		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -127,7 +124,6 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Game;
-		mr_sharedCollisionRender.m_menuConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -139,7 +135,6 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Game;
-		mr_sharedCollisionRender.m_menuConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
