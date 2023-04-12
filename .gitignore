@@ -47,3 +47,5 @@
 *.pdb
 *.tlog
 *.vs
+*1.tlog
+/Flap/Main/x64/Debug/Main.tlog/CL.command.1.tlog
