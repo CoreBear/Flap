@@ -33,7 +33,6 @@ public:
 	const MenuBase* mp_menu;
 	std::mutex m_bufferWriterIteratorMutex;
 	std::mutex m_menuMutex;
-	std::mutex m_renderMutex;
 
 	// Destruction
 	~SharedCollisionRender();

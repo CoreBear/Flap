@@ -16,7 +16,7 @@ unsigned int GameManager::s_fixedFrameCount = Consts::NO_VALUE;
 
 GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame, SharedInput& _sharedInput) :
 	mp_collisionRenderReadOutOfBuffer(new CollisionRenderReadOutOfBuffer(_outputWindowHandle, _sharedCollisionRender)),
-	mp_gameRunManager(new GameRunManager(_sharedCollisionRender, _sharedGame, _sharedInput)),
+	mp_gameRunManager(new GameRunManager(_sharedCollisionRender, _sharedInput)),
 	mp_menuManager(new MenuManager(_sharedCollisionRender, _sharedGame)),
 	mr_sharedCollisionRender(_sharedCollisionRender),
 	mr_sharedGame(_sharedGame)
@@ -61,12 +61,11 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
 
-		mp_gameRunManager->CleanScene();
 		mp_menuManager->ExitToMain();
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
-		mr_sharedCollisionRender.m_menuConVar.notify_one();
+		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -74,11 +73,11 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
 
-		mp_gameRunManager->CleanScene();
 		mp_menuManager->ExitToResults();
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedCollisionRender.m_bufferWriterIteratorConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -147,7 +146,7 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Game;
-		//mr_sharedCollisionRender.m_menuConVar.notify_one();
+		mr_sharedCollisionRender.m_menuConVar.notify_one();
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;

@@ -5,14 +5,12 @@
 #include "GameManager.h"
 #include "ObjectManager.h"
 #include "SharedCollisionRender.h"
-#include "SharedGame.h"
 #include "Structure.h"
 #pragma endregion
 
 #pragma region Static Initialization
 Structure::Generic Snake::s_genericContainer;
 SharedCollisionRender* Snake::sp_sharedCollisionRender = nullptr;
-SharedGame* Snake::sp_sharedGame = nullptr;
 #pragma endregion
 
 #pragma region Initialization
@@ -104,29 +102,15 @@ void Snake::Collision(const Structure::Generic* const _otherCollisionPackage, co
 #pragma region Private Functionality
 void Snake::Death()
 {	
-	// If only 1 player left, game over
-	if (sp_sharedGame->GetNumberOfPlayersInGame() == 1)
+	// Multi-player - This player's avatar/snake is turned into food and their inputs do nothing
+	constexpr int EVERY_OTHER_NODE = 2;
+	for (m_headTraversingIterator = m_bodyNodes.Begin(); m_headTraversingIterator != m_bodyNodes.End(); m_headTraversingIterator += EVERY_OTHER_NODE)
 	{
-		sp_sharedGame->m_gameStateMutex.lock();
-		sp_sharedGame->m_gameState = Enums::GameState::ExitToResults;
-		sp_sharedGame->m_gameStateMutex.unlock();
+		s_genericContainer.m_int = 1;
+		sp_objectManager->SpawnObject(Enums::ObjectType::Food, *m_headTraversingIterator, &s_genericContainer);
 	}
 
-	// If multiple players
-	else
-	{
-		// Multi-player - This player's avatar/snake is turned into food and their inputs do nothing
-		constexpr int EVERY_OTHER_NODE = 2;
-		for (m_headTraversingIterator = m_bodyNodes.Begin(); m_headTraversingIterator != m_bodyNodes.End(); m_headTraversingIterator += EVERY_OTHER_NODE)
-		{
-			s_genericContainer.m_int = 1;
-			sp_objectManager->SpawnObject(Enums::ObjectType::Food, *m_headTraversingIterator, &s_genericContainer);
-		}
-
-		sp_sharedGame->DecrementNumberOfPlayersInGame();
-
-		Denitialize(true);
-	}
+	Denitialize();
 
 	// Single player - Game over
 }
@@ -316,14 +300,5 @@ void Snake::VerticalTurn()
 	m_numberOfFramesPerCell = m_numberOfFramesPerCellVertical;
 
 	Turn();
-}
-#pragma endregion
-
-#pragma region Destruction
-void Snake::Denitialize(bool _properDenit)
-{
-	m_bodyNodes.Clear();
-
-	SceneObject::Denitialize(_properDenit);
 }
 #pragma endregion

@@ -7,15 +7,13 @@
 #include "Food.h"
 #include "SceneObject.h"
 #include "SharedCollisionRender.h"
-#include "SharedGame.h"
 #include "Snake.h"
 #include "Structure.h"
 #pragma endregion
 
 #pragma region Initialization
-ObjectManager::ObjectManager(SharedCollisionRender& _sharedCollisionRender, SharedGame& _sharedGame, SharedInput& _sharedInput) :
+ObjectManager::ObjectManager(SharedCollisionRender& _sharedCollisionRender, SharedInput& _sharedInput) :
 	mr_sharedCollisionRender(_sharedCollisionRender),
-	mr_sharedGame(_sharedGame),
 	m_bufferWriterIteratorUniqueLock(_sharedCollisionRender.m_bufferWriterIteratorMutex)
 {
 	SceneObject::AssignObjectManager(*this);
@@ -102,14 +100,6 @@ void ObjectManager::FixedUpdate()
 			(*mr_sharedCollisionRender.m_sceneObjectsIterator)->FixedUpdate();
 		}
 
-		mr_sharedGame.m_gameStateMutex.lock();
-		if (mr_sharedGame.m_gameState == Enums::GameState::ExitToResults)
-		{
-			mr_sharedGame.m_gameStateMutex.unlock();
-			return;
-		}
-		mr_sharedGame.m_gameStateMutex.unlock();
-
 		m_bufferWriterIteratorUniqueLock.lock();
 
 		// If Buffer thread is already waiting
@@ -165,27 +155,6 @@ void ObjectManager::Update()
 #pragma endregion
 
 #pragma region Public Functionality
-void ObjectManager::CleanScene()
-{
-	// Empty container
-	while (m_removeFromSceneObjects.empty() == false)
-	{
-		m_removeFromSceneObjects.pop();
-	}
-
-	// Empty container
-	while (m_addToSceneObjects.empty() == false)
-	{
-		m_addToSceneObjects.pop();
-	}
-	
-	for (mr_sharedCollisionRender.m_sceneObjectsIterator = m_sceneObjectsList.Begin(); mr_sharedCollisionRender.m_sceneObjectsIterator != m_sceneObjectsList.End(); ++mr_sharedCollisionRender.m_sceneObjectsIterator)
-	{
-		(*mr_sharedCollisionRender.m_sceneObjectsIterator)->Denitialize(false);
-	}
-
-	m_sceneObjectsList.Clear();
-}
 void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic* const _genericContainer)
 {
 	m_numberOfObjectsPooledForThisType = NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE[static_cast<int>(_objectType)];

@@ -23,7 +23,6 @@ public:
 	void InputLeft();
 	void InputRight();
 	void InputUp();
-	inline void ResetButton() { m_currentButtonNumber = Consts::OFF_BY_ONE; }
 
 	// Destruction
 	~MenuBase();

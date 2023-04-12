@@ -28,12 +28,9 @@ void SceneObject::SetPosition(const Structure::Vector2& _position)
 #pragma endregion
 
 #pragma region Destruction
-void SceneObject::Denitialize(bool _properDenit)
+void SceneObject::Denitialize()
 {
-	if (_properDenit)
-	{
-		sp_objectManager->RemoveFromSceneObjects(this);
-	}
+	sp_objectManager->RemoveFromSceneObjects(this);
 }
 SceneObject::~SceneObject() 
 { 

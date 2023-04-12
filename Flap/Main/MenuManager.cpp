@@ -107,6 +107,28 @@ void MenuManager::FixedUpdate()
 }
 #pragma endregion
 
+#pragma region Public Functionality
+void MenuManager::DisplayMenu(int _menuNameIndex, bool _isReturning)
+{
+	if (_isReturning)
+	{
+		m_returnMenuStack.pop();
+	}
+	else
+	{
+		if (m_menuCanBeReturnedTo[m_currentMenuIndex])
+		{
+			m_returnMenuStack.push(m_currentMenuIndex);
+		}
+	}
+
+	// Toggle on next menu
+	m_currentMenuIndex = _menuNameIndex;
+
+	mr_sharedCollisionRender.mp_menu = mpp_menus[m_currentMenuIndex];
+}
+#pragma endregion
+
 #pragma region Protected Functionality
 void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 {
@@ -123,7 +145,7 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 			mr_sharedGame.m_gameState = Enums::GameState::ExitApp;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
-		break;
+			break;
 
 		case Enums::MenuReturn::ExitToMain:
 		{
@@ -131,27 +153,27 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 			mr_sharedGame.m_gameState = Enums::GameState::ExitToMain;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
-		break;
+			break;
 
-		// Display nothing and move into the game state
+			// Display nothing and move into the game state
 		case Enums::MenuReturn::PlayGame:
 		{
 			mr_sharedGame.m_gameStateMutex.lock();
 			mr_sharedGame.m_gameState = Enums::GameState::StartGame;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
-		break;
+			break;
 
-		// Display nothing and move back into the game state
+			// Display nothing and move back into the game state
 		case Enums::MenuReturn::Resume:
 		{
 			mr_sharedGame.m_gameStateMutex.lock();
 			mr_sharedGame.m_gameState = Enums::GameState::ResumeGame;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
-		break;
+			break;
 
-		// Return to previous menu
+			// Return to previous menu
 		case Enums::MenuReturn::Return:
 		{
 			m_menuUniqueLock.lock();
@@ -169,9 +191,9 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 			//mr_sharedGame.m_gameState = Enums::GameState::net;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
-		break;
+			break;
 
-		// Display the next menu
+			// Display the next menu
 		default:
 		{
 			m_menuUniqueLock.lock();
@@ -231,31 +253,6 @@ void MenuManager::InputUp(Enums::InputPressState _inputPressState)
 #pragma endregion
 
 #pragma region Private Functionality
-void MenuManager::DisplayMenu(int _menuNameIndex, bool _isReturning)
-{
-	if (_isReturning)
-	{
-		m_returnMenuStack.pop();
-	}
-
-	// If not returning to a menu
-	else
-	{
-		// If menu can be returned to, add it to the list
-		if (m_menuCanBeReturnedTo[m_currentMenuIndex])
-		{
-			m_returnMenuStack.push(m_currentMenuIndex);
-		}
-
-		// Reset the next menu's button number
-		mpp_menus[_menuNameIndex]->ResetButton();
-	}
-
-	// Toggle on next menu
-	m_currentMenuIndex = _menuNameIndex;
-
-	mr_sharedCollisionRender.mp_menu = mpp_menus[m_currentMenuIndex];
-}
 void MenuManager::PostChangeSync()
 {
 	m_menuUniqueLock.lock();

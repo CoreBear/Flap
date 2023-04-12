@@ -29,8 +29,8 @@ public:
 	void Update() { return; }
 
 	// Functionality
-	void ExitToMain() { DisplayMenu(Enums::MenuName::Main); }
-	void ExitToResults() { DisplayMenu(Enums::MenuName::Results); }
+	inline void ExitToMain() { DisplayMenu(Enums::MenuName::Main); }
+	inline void ExitToResults() { DisplayMenu(Enums::MenuName::Results); }
 	inline void PauseGame() { DisplayMenu(Enums::MenuName::Pause); }
 
 	// Destructor
