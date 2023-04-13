@@ -9,6 +9,7 @@
 
 namespace Structure { struct Generic; }
 class SceneObject;
+class SharedGame;
 class SharedInput;
 class SharedRender;
 namespace Structure { struct Vector2; }
@@ -17,7 +18,7 @@ class ObjectManager final
 {
 public:
 	// Initialization
-	ObjectManager(SharedInput& _sharedInput, SharedRender& _sharedRender);
+	ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender);
 	ObjectManager(const ObjectManager&) = delete;
 	ObjectManager& operator=(const ObjectManager&) = delete;
 
@@ -30,7 +31,10 @@ public:
 	inline void AddToSceneObjects(SceneObject* const _sceneObject) { m_addToSceneObjects.push(_sceneObject); }
 	void CleanScene();
 	inline void RemoveFromSceneObjects(SceneObject* const _sceneObject) { m_removeFromSceneObjects.push(_sceneObject); }
+	void Pause();
+	void Resume();
 	void SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic* const _genericContainer = nullptr);
+	void Start();
 
 	// Desturction
 	~ObjectManager();
@@ -46,6 +50,7 @@ private:
 	std::queue<SceneObject*> m_removeFromSceneObjects;
 	SceneObject* mp_addRemove;
 	SceneObject*** mppp_pooledObjects;
+	SharedGame& mr_sharedGame;
 	SharedRender& mr_sharedRender;
 };
 #endif OBJECT_MANAGER_H

@@ -23,7 +23,8 @@ public:
 	inline void DecrementNumberOfSnakesInGame() { --m_numberOfSnakesInGame; }
 	inline bool GetIsInGameSession() const { return m_isInGameSession; }
 	inline int GetNumberOfSnakesInGame() const { return m_numberOfSnakesInGame; }
-	int& GetPlayerSnakeColorIndexRef(int _playerIndex) { return (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex : m_playerTwoSnakeColorIndex; }
+	inline int& GetPlayerSnakeColorIndexRef(int _playerIndex) { return (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex : m_playerTwoSnakeColorIndex; }
+	inline int GetSnakeStartingSpeed() const { return m_snakeStartingSpeed; }
 	inline void IncrementNumberOfSnakesInGame() { ++m_numberOfSnakesInGame; }
 	inline void SetPlayerSnakeColorIndex(int _colorIndex, int _playerIndex) { (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex = _colorIndex : m_playerTwoSnakeColorIndex = _colorIndex; }
 	inline void ToggleIsInGameSession() { m_isInGameSession = !m_isInGameSession; }
@@ -34,6 +35,8 @@ private:
 	int m_numberOfSnakesInGame;
 	int m_playerOneSnakeColorIndex;
 	int m_playerTwoSnakeColorIndex;
+	int m_snakeCurrentSpeed;
+	int m_snakeStartingSpeed = 10;
 };
 
 #endif SHARED_GAME_H

@@ -11,7 +11,7 @@
 #pragma region Initialization
 GameRunManager::GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender) :
 	mp_collisionManager(new CollisionManager(_sharedRender)),
-	mp_objectManager(new ObjectManager(_sharedInput, _sharedRender)),
+	mp_objectManager(new ObjectManager(_sharedGame, _sharedInput, _sharedRender)),
 	mr_sharedGame(_sharedGame)
 {
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; m_reusableIterator ++)
@@ -101,24 +101,23 @@ void GameRunManager::GameOver()
 }
 void GameRunManager::PauseGame()
 {
-	//mp_objectManager->PauseObjects();
+	mp_objectManager->Pause();
 }
 void GameRunManager::ResumeGame()
 {
-	//mp_objectManager->ResumeObjects();
+	mp_objectManager->Pause();
 }
 void GameRunManager::StartGame()
 {
 	SetupGame();
+
+	mp_objectManager->Start();
 }
 #pragma endregion
 
 #pragma region Private Functionality
 void GameRunManager::SetupGame()
 {
-	// HACk: Snake speed
-	m_genericContainer.m_int = 10;
-
 	// HACK: Figure out who is an avatar and who is a snake (piloted by networked player or AI)
 	
 	// HACK: Make this all dynamic
@@ -129,7 +128,7 @@ void GameRunManager::SetupGame()
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < numberOfPlayers; m_reusableIterator++)
 	{
 		// Snake number
-		m_genericContainer.m_int2 = m_reusableIterator + Consts::OFF_BY_ONE;
+		m_genericContainer.m_int = m_reusableIterator + Consts::OFF_BY_ONE;
 
 		if (m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM)
 		{

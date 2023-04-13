@@ -31,7 +31,6 @@ namespace Structure
 	public:
 		// Member Variables
 		int m_int;
-		int m_int2;
 
 		// Initialization
 		Generic() = default;

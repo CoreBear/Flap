@@ -3,7 +3,6 @@
 
 #include "BufferCell.h"
 #include "Consts.h"
-#include "GameManager.h"
 #include "ObjectManager.h"
 #include "SharedGame.h"
 #include "SharedRender.h"
@@ -11,8 +10,12 @@
 #pragma endregion
 
 #pragma region Static Initialization
+bool Snake::s_moveThisFrame = false;
 Structure::Generic Snake::s_genericContainer;
 SharedGame* Snake::sp_sharedGame = nullptr;
+unsigned int Snake::s_numberOfFramesBetweenMoves;
+unsigned int Snake::s_numberOfFramesLeftBeforePause;
+unsigned int Snake::s_snakeMoveTargetFrame;
 #pragma endregion
 
 #pragma region Initialization
@@ -23,16 +26,10 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 	m_currentDirection = Enums::InputName::NA;
 	m_newDirection = Enums::InputName::NA;
 
-	// HACK: Forces snake to check for first input, each frame, at the start
-	m_numberOfFramesPerCell = static_cast<unsigned int>(2);
-	m_moveTargetFrame = GameManager::s_fixedFrameCount + m_numberOfFramesPerCell;
-
-	UpdateMoveSpeed(_genericContainer->m_int);
-
 	constexpr int NUMBER_TO_CHAR_OFFSET = static_cast<int>('0');
-	m_newCollisionRenderInfo.m_char = static_cast<char>(_genericContainer->m_int2 + NUMBER_TO_CHAR_OFFSET);
+	m_newCollisionRenderInfo.m_char = static_cast<char>(_genericContainer->m_int + NUMBER_TO_CHAR_OFFSET);
 	m_newCollisionRenderInfo.m_objectType = Enums::ObjectType::Snake;
-	m_newCollisionRenderInfo.m_color = Consts::BACKGROUND_COLORS[sp_sharedGame->GetPlayerSnakeColorIndexRef(_genericContainer->m_int2 - Consts::OFF_BY_ONE)];
+	m_newCollisionRenderInfo.m_color = Consts::BACKGROUND_COLORS[sp_sharedGame->GetPlayerSnakeColorIndexRef(_genericContainer->m_int - Consts::OFF_BY_ONE)];
 	m_newCollisionRenderInfo.m_position = m_position;
 	
 	m_bodyNodes.PushBack(m_newCollisionRenderInfo);
@@ -55,11 +52,8 @@ Snake::Snake() :
 void Snake::FixedUpdate()
 {
 	// If movement frame
-	if (GameManager::s_fixedFrameCount == m_moveTargetFrame)
+	if (s_moveThisFrame)
 	{
-		// Reset movement target
-		m_moveTargetFrame = GameManager::s_fixedFrameCount + m_numberOfFramesPerCell;
-
 		TryAddTail();
 
 		TryTurn();
@@ -145,13 +139,6 @@ void Snake::Death()
 		sp_sharedGame->m_gameStateMutex.unlock();
 	}
 }
-void Snake::HorizontalTurn()
-{
-	// Store speed type
-	m_numberOfFramesPerCell = m_numberOfFramesPerCellHorizontal;
-
-	Turn();
-}
 void Snake::Move()
 {
 	// Update head's new position
@@ -225,8 +212,11 @@ void Snake::TryTurn()
 		{
 		case Enums::InputName::Left:
 		case Enums::InputName::Right:
-			HorizontalTurn();
-			break;
+		{
+			// Change direction
+			m_currentDirection = m_newDirection;
+		}
+		break;
 		}
 	}
 	break;
@@ -240,8 +230,11 @@ void Snake::TryTurn()
 		{
 		case Enums::InputName::Down:
 		case Enums::InputName::Up:
-			VerticalTurn();
-			break;
+		{
+			// Change direction
+			m_currentDirection = m_newDirection;
+		}
+		break;
 		}
 	}
 	break;
@@ -253,42 +246,21 @@ void Snake::TryTurn()
 		{
 		case Enums::InputName::Down:
 		case Enums::InputName::Up:
-			VerticalTurn();
-			break;
 		case Enums::InputName::Left:
 		case Enums::InputName::Right:
-			HorizontalTurn();
-			break;
+		{
+			// Change direction
+			m_currentDirection = m_newDirection;
+		}
+		break;
 
-			// NOTE: No direction has been pressed
+		// NOTE: No direction has been pressed
 		default:
 			break;
 		}
 	}
 	break;
 	}
-}
-void Snake::Turn()
-{
-	// Change direction
-	m_currentDirection = m_newDirection;
-
-	// Set speed
-	m_moveTargetFrame = GameManager::s_fixedFrameCount + m_numberOfFramesPerCell;
-}
-void Snake::UpdateMoveSpeed(int _speed)
-{
-	m_numberOfFramesPerCellVertical = static_cast<unsigned int>(Consts::FPS_TARGET / _speed);
-
-	// HACK: Hardcoded...
-	m_numberOfFramesPerCellHorizontal = static_cast<unsigned int>(m_numberOfFramesPerCellVertical);// / 3.7F);
-}
-void Snake::VerticalTurn()
-{
-	// Store speed type
-	m_numberOfFramesPerCell = m_numberOfFramesPerCellVertical;
-
-	Turn();
 }
 void Snake::WriteIntoFrameBuffer()
 {

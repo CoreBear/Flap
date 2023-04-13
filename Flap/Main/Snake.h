@@ -15,7 +15,11 @@ class Snake : public SceneObject
 {
 public:
 	// Static Variables
+	static bool s_moveThisFrame;
 	static Structure::Generic s_genericContainer;
+	static unsigned int s_numberOfFramesBetweenMoves;
+	static unsigned int s_numberOfFramesLeftBeforePause;
+	static unsigned int s_snakeMoveTargetFrame;
 
 	// Static Initialization
 	static void AssignSharedGame(SharedGame& _sharedGame) { sp_sharedGame = &_sharedGame; }
@@ -54,22 +58,14 @@ private:
 	DList<Structure::CollisionRenderInfo>::Iterator m_tailTraversingIterator;
 	Enums::InputName m_currentDirection;
 	Enums::InputName m_newDirection;
-	unsigned int m_moveTargetFrame;
-	unsigned int m_numberOfFramesPerCell;
-	unsigned int m_numberOfFramesPerCellHorizontal;
-	unsigned int m_numberOfFramesPerCellVertical;
 	unsigned int m_numberOfTailSectionsToAdd;
 	Structure::Vector2 m_newTailPosition;
 
 	// Functionality
 	void Death();
-	void HorizontalTurn();
 	void Move();
 	void TryAddTail();
 	void TryTurn();
-	void Turn();
-	void UpdateMoveSpeed(int _speed);			
-	void VerticalTurn();
 	void WriteIntoFrameBuffer();
 };
 

@@ -5,7 +5,9 @@
 #include "Consts.h"
 #include "Enums.h"
 #include "Food.h"
+#include "GameManager.h"
 #include "SceneObject.h"
+#include "SharedGame.h"
 #include "SharedRender.h"
 #include "Snake.h"
 #include "Structure.h"
@@ -14,7 +16,8 @@
 #pragma endregion
 
 #pragma region Initialization
-ObjectManager::ObjectManager(SharedInput& _sharedInput, SharedRender& _sharedRender) :
+ObjectManager::ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender) :
+	mr_sharedGame(_sharedGame),
 	mr_sharedRender(_sharedRender)
 {
 	SceneObject::AssignObjectManager(*this);
@@ -57,10 +60,27 @@ ObjectManager::ObjectManager(SharedInput& _sharedInput, SharedRender& _sharedRen
 void ObjectManager::FixedUpdate()
 {
 	mr_sharedRender.m_frameBufferMutex.lock();
-
-	for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
+	
+	if (GameManager::s_fixedFrameCount == Snake::s_snakeMoveTargetFrame)
 	{
-		(*m_sceneObjectsIterator)->FixedUpdate();
+		Snake::s_snakeMoveTargetFrame = GameManager::s_fixedFrameCount + Snake::s_numberOfFramesBetweenMoves;
+
+		Snake::s_moveThisFrame = true;
+
+		for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
+		{
+			(*m_sceneObjectsIterator)->FixedUpdate();
+		}
+
+		Snake::s_moveThisFrame = false;
+	}
+
+	else
+	{
+		for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
+		{
+			(*m_sceneObjectsIterator)->FixedUpdate();
+		}
 	}
 
 	mr_sharedRender.m_somethingToRender = true;
@@ -121,6 +141,14 @@ void ObjectManager::CleanScene()
 
 	m_sceneObjectsList.Clear();
 }
+void ObjectManager::Pause()
+{
+	Snake::s_numberOfFramesLeftBeforePause = Snake::s_snakeMoveTargetFrame - GameManager::s_fixedFrameCount;
+}
+void ObjectManager::Resume()
+{
+	Snake::s_snakeMoveTargetFrame = GameManager::s_fixedFrameCount + Snake::s_numberOfFramesLeftBeforePause;
+}
 void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic* const _genericContainer)
 {
 	m_numberOfObjectsPooledForThisType = NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE[static_cast<int>(_objectType)];
@@ -140,6 +168,11 @@ void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::
 			break;
 		}
 	}
+}
+void ObjectManager::Start()
+{
+	Snake::s_numberOfFramesBetweenMoves = static_cast<unsigned int>(Consts::FPS_TARGET / mr_sharedGame.GetSnakeStartingSpeed());
+	Snake::s_snakeMoveTargetFrame = GameManager::s_fixedFrameCount + Snake::s_numberOfFramesBetweenMoves;
 }
 #pragma endregion
 
