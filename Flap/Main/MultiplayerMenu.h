@@ -4,6 +4,7 @@
 #include "Consts.h"
 #include "MenuBase.h"
 #include "Structure.h"
+#include "TextLine.h"
 
 class MultiplayerMenu final : public MenuBase
 {
@@ -11,12 +12,12 @@ public:
 	// Initialization
 	MultiplayerMenu() : MenuBase(4)	// This value must match the number of text lines below
 	{
-		mp_textLines = new Structure::TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
-			new Structure::TextLine("Multiplayer", Consts::OFF_BY_ONE),   // Menu Title
-			new Structure::TextLine("Local", 5),
-			new Structure::TextLine("Networked", 10),
-			new Structure::TextLine("Return", 15),
+			new TextLine("Multiplayer", Consts::OFF_BY_ONE),   // Menu Title
+			new TextLine("Local", 5),
+			new TextLine("Networked", 10),
+			new TextLine("Return", 15),
 		};
 	}
 	MultiplayerMenu(const MultiplayerMenu&) = delete;
@@ -39,9 +40,8 @@ protected:
 		}
 		}
 
-		// NOTE/WARNING: Execution shouldn't make it here
-		throw std::exception();
-		return -Consts::OFF_BY_ONE;
+		// NOTE: If player clicks accept on a non-button
+		return Enums::MenuReturn::NA;
 	};
 };
 

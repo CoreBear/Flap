@@ -4,6 +4,7 @@
 #include "Consts.h"
 #include "MenuBase.h"
 #include "Structure.h"
+#include "TextLine.h"
 
 class ExitMenu final : public MenuBase
 {
@@ -11,11 +12,11 @@ public:
 	// Initialization
 	ExitMenu() : MenuBase(3)	// This value must match the number of text lines below
 	{
-		mp_textLines = new Structure::TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
-			new Structure::TextLine("Exit", Consts::OFF_BY_ONE),   // Menu Title
-			new Structure::TextLine("Return", 5),
-			new Structure::TextLine("Quit Game", 10)
+			new TextLine("Exit", Consts::OFF_BY_ONE),   // Menu Title
+			new TextLine("Return", 5),
+			new TextLine("Quit Game", 10)
 		};
 	}
 	ExitMenu(const ExitMenu&) = delete;
@@ -28,17 +29,13 @@ protected:
 		switch (m_currentButtonNumber)
 		{
 		case 1:
-		{
-			m_currentButtonNumber = Consts::OFF_BY_ONE;
 			return Enums::MenuReturn::Return;
-		}
 		case 2:
 			return Enums::MenuReturn::ExitToMain;
 		}
 
-		// NOTE/WARNING: Execution shouldn't make it here
-		throw std::exception();
-		return -Consts::OFF_BY_ONE;
+		// NOTE: If player clicks accept on a non-button
+		return Enums::MenuReturn::NA;
 	};
 };
 

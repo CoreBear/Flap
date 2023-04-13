@@ -4,6 +4,7 @@
 #include "Consts.h"
 #include "MenuBase.h"
 #include "Structure.h"
+#include "TextLine.h"
 
 class WelcomeMenu final : public MenuBase
 {
@@ -11,10 +12,10 @@ public:
 	// Initialization
 	WelcomeMenu() : MenuBase(2)	// This value must match the number of text lines below
 	{
-		mp_textLines = new Structure::TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
-			new Structure::TextLine("Welcome", Consts::OFF_BY_ONE),			// Menu Title
-			new Structure::TextLine("Press ENTER to continue.", 20)
+			new TextLine("Welcome", Consts::OFF_BY_ONE),			// Menu Title
+			new TextLine("Press ENTER to continue.", 20)
 		};
 	}
 	WelcomeMenu(const WelcomeMenu&) = delete;

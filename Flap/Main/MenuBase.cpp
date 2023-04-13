@@ -1,5 +1,12 @@
 #pragma region Includes
 #include "MenuBase.h"
+
+#include "SharedGame.h"
+#include "TextLine.h"
+#pragma endregion
+
+#pragma region Static Initialization
+SharedGame* MenuBase::sp_sharedGame = nullptr;
 #pragma endregion
 
 #pragma region Public Functionality
@@ -13,11 +20,11 @@ void MenuBase::InputDown()
 }
 void MenuBase::InputLeft()
 {
-
+	PreviousOption();
 }
 void MenuBase::InputRight()
 {
-
+	NextOption();
 }
 void MenuBase::InputUp()
 {

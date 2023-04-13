@@ -2,8 +2,6 @@
 #include "Tools.h"
 
 #include "SharedRender.h"
-
-#include <cstring>
 #pragma endregion
 
 #pragma region Static Initialization
@@ -11,8 +9,8 @@ SharedRender* Tools::sp_sharedRender = nullptr;
 #pragma endregion
 
 #pragma region Functionality
-int Tools::CenterText_ReturnStartColumn(const char* _text)
+int Tools::CenterText_ReturnStartColumn(int _textLineLength)
 {
-	return (sp_sharedRender->m_bufferHW.X / 2) - strlen(_text) / 2;
+	return (sp_sharedRender->m_bufferHW.X / 2) - _textLineLength / 2;
 }
 #pragma endregion

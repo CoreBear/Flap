@@ -32,7 +32,7 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 	constexpr int NUMBER_TO_CHAR_OFFSET = static_cast<int>('0');
 	m_newCollisionRenderInfo.m_char = static_cast<char>(_genericContainer->m_int2 + NUMBER_TO_CHAR_OFFSET);
 	m_newCollisionRenderInfo.m_objectType = Enums::ObjectType::Snake;
-	m_newCollisionRenderInfo.m_color = m_color;
+	m_newCollisionRenderInfo.m_color = Consts::BACKGROUND_COLORS[sp_sharedGame->GetPlayerSnakeColorIndexRef(_genericContainer->m_int2 - Consts::OFF_BY_ONE)];
 	m_newCollisionRenderInfo.m_position = m_position;
 	
 	m_bodyNodes.PushBack(m_newCollisionRenderInfo);
@@ -47,8 +47,7 @@ Snake::Snake() :
 	m_newDirection(Enums::InputName::NA), 
 	m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
 {
-	// HACK: Do this else where
-	m_color = Consts::BACKGROUND_COLORS[static_cast<int>(Enums::Color::Magenta)] | Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::White)];
+	return;
 }
 #pragma endregion
 

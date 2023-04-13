@@ -101,11 +101,11 @@ void GameRunManager::GameOver()
 }
 void GameRunManager::PauseGame()
 {
-
+	//mp_objectManager->PauseObjects();
 }
 void GameRunManager::ResumeGame()
 {
-
+	//mp_objectManager->ResumeObjects();
 }
 void GameRunManager::StartGame()
 {

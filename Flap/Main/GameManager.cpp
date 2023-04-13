@@ -131,6 +131,8 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
 
+		mr_sharedGame.ToggleIsInGameSession();
+
 		mp_gameRunManager->StartGame();
 
 		mr_sharedGame.m_gameStateMutex.lock();
@@ -148,6 +150,8 @@ void GameManager::Update()
 #pragma region Private Functionality
 void GameManager::GameOver()
 {
+	mr_sharedGame.ToggleIsInGameSession();
+
 	mr_sharedRender.ResetFrameBufferSynced();
 
 	mp_gameRunManager->GameOver();

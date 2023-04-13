@@ -147,6 +147,7 @@
     <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="SceneObject.cpp" />
+    <ClCompile Include="TextLine.cpp" />
     <ClCompile Include="Tools.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +184,7 @@
     <ClInclude Include="MenuManager.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="SceneObject.h" />
+    <ClInclude Include="TextLine.h" />
     <ClInclude Include="Tools.h" />
     <ClInclude Include="WelcomeMenu.h" />
   </ItemGroup>

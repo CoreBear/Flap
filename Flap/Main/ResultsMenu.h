@@ -4,6 +4,7 @@
 #include "Consts.h"
 #include "MenuBase.h"
 #include "Structure.h"
+#include "TextLine.h"
 
 class ResultsMenu final : public MenuBase
 {
@@ -11,10 +12,10 @@ public:
 	// Initialization
 	ResultsMenu() : MenuBase(2)	// This value must match the number of text lines below
 	{
-		mp_textLines = new Structure::TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
-			new Structure::TextLine("Results", Consts::OFF_BY_ONE),   // Menu Title
-			new Structure::TextLine("To Main", 5)
+			new TextLine("Results", Consts::OFF_BY_ONE),   // Menu Title
+			new TextLine("To Main", 5)
 		};
 	}
 	ResultsMenu(const ResultsMenu&) = delete;
@@ -30,9 +31,8 @@ protected:
 			return Enums::MenuReturn::ExitToMain;
 		}
 
-		// NOTE/WARNING: Execution shouldn't make it here
-		throw std::exception();
-		return -Consts::OFF_BY_ONE;
+		// NOTE: If player clicks accept on a non-button
+		return Enums::MenuReturn::NA;
 	};
 };
 

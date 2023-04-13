@@ -1,9 +1,7 @@
 #ifndef BUFFER_CELL_H
 #define BUFFER_CELL_H
 
-#include "DList.h"
-
-namespace Structure{ struct CollisionRenderInfo; }
+#include "Structure.h"
 
 class BufferCell final
 {
@@ -16,6 +14,7 @@ public:
 	char m_character;
 	int m_objectInCellIndex;
 	unsigned short m_colorBFGround;
+	Structure::Vector2 m_position;
 	void* mp_voidSceneObject[MAX_NUMBER_OF_OBJECTS_IN_CELL];
 
 	// Initialization

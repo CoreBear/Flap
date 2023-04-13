@@ -21,12 +21,19 @@ public:
 
 	// Functionality
 	inline void DecrementNumberOfSnakesInGame() { --m_numberOfSnakesInGame; }
+	inline bool GetIsInGameSession() const { return m_isInGameSession; }
 	inline int GetNumberOfSnakesInGame() const { return m_numberOfSnakesInGame; }
+	int& GetPlayerSnakeColorIndexRef(int _playerIndex) { return (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex : m_playerTwoSnakeColorIndex; }
 	inline void IncrementNumberOfSnakesInGame() { ++m_numberOfSnakesInGame; }
+	inline void SetPlayerSnakeColorIndex(int _colorIndex, int _playerIndex) { (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex = _colorIndex : m_playerTwoSnakeColorIndex = _colorIndex; }
+	inline void ToggleIsInGameSession() { m_isInGameSession = !m_isInGameSession; }
 	inline void ZeroNumberOfSnakesInGame() { m_numberOfSnakesInGame = Consts::NO_VALUE; }
 
 private:
+	bool m_isInGameSession;
 	int m_numberOfSnakesInGame;
+	int m_playerOneSnakeColorIndex;
+	int m_playerTwoSnakeColorIndex;
 };
 
 #endif SHARED_GAME_H

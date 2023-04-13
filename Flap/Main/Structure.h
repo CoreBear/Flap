@@ -65,24 +65,6 @@ namespace Structure
 		Input(const Input&) = default;
 		Input& operator=(const Input&) = default;
 	};
-
-	struct TextLine
-	{
-	public:
-		// Member Variables
-		const char* m_text;
-		Vector2 m_position;
-
-		// Initialization
-		TextLine() = delete;
-		TextLine(const char* _text, int _row) : m_text(_text)
-		{
-			m_position.m_x = Tools::CenterText_ReturnStartColumn(_text);
-			m_position.m_y = _row;
-		}
-		TextLine(const TextLine&) = delete;
-		TextLine& operator=(const TextLine&) = delete;
-	};
 }
 
 #endif STRUCTURE_H

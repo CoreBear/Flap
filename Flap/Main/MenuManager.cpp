@@ -16,6 +16,7 @@
 #include "SharedRender.h"
 #include "SinglePlayerMenu.h"
 #include "Structure.h"
+#include "TextLine.h"
 #include "WelcomeMenu.h"
 
 #include <mutex>
@@ -116,6 +117,9 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 
 		switch (m_potentialNextMenuIndex)
 		{
+			// Do nothing, because a non-button was clicked
+		case Enums::MenuReturn::NA:
+			break;
 			// Completely exit the application
 		case Enums::MenuReturn::ExitApp:
 		{
@@ -123,7 +127,7 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 			mr_sharedGame.m_gameState = Enums::GameState::ExitApp;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
-			break;
+		break;
 
 		case Enums::MenuReturn::ExitToMain:
 		{
@@ -131,44 +135,44 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 			mr_sharedGame.m_gameState = Enums::GameState::ExitToMain;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
-			break;
+		break;
 
-			// Display nothing and move into the game state
+		// Display nothing and move into the game state
 		case Enums::MenuReturn::PlayGame:
 		{
 			mr_sharedGame.m_gameStateMutex.lock();
 			mr_sharedGame.m_gameState = Enums::GameState::StartGame;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
-			break;
+		break;
 
-			// Display nothing and move back into the game state
+		// Display nothing and move back into the game state
 		case Enums::MenuReturn::Resume:
 		{
 			mr_sharedGame.m_gameStateMutex.lock();
 			mr_sharedGame.m_gameState = Enums::GameState::ResumeGame;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
-			break;
-
-			// Return to previous menu
-		case Enums::MenuReturn::Return:
-			ReadyNextMenu(m_returnMenuStack.top(), true);
 		break;
 
-		// Networking search
+		// Return to previous menu
+		case Enums::MenuReturn::Return:
+			ReadyNextMenu(m_returnMenuStack.top(), true);
+			break;
+
+			// Networking search
 		case Enums::MenuReturn::Search:
 		{
 			mr_sharedGame.m_gameStateMutex.lock();
 			//mr_sharedGame.m_gameState = Enums::GameState::net;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
-			break;
+		break;
 
-			// Display the next menu
+		// Display the next menu
 		default:
 			ReadyNextMenu(m_potentialNextMenuIndex);
-		break;
+			break;
 		}
 	}
 }
@@ -234,16 +238,23 @@ void MenuManager::WriteMenuIntoFrameBuffer()
 {
 	mr_sharedRender.m_frameBufferMutex.lock();
 
-	for (int m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mpp_menus[m_currentMenuIndex]->m_numberOfTextLines; m_reusableIterator++)
+	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mpp_menus[m_currentMenuIndex]->m_numberOfTextLines; m_reusableIterator++)
 	{
 		WriteTextLineIntoBuffer(mpp_menus[m_currentMenuIndex]->GetCurrentButtonNumber() == m_reusableIterator, *mpp_menus[m_currentMenuIndex]->mp_textLines[m_reusableIterator]);
+	}
+
+	for (m_menuCellsIterator = mpp_menus[m_currentMenuIndex]->m_cells.Begin(); m_menuCellsIterator != mpp_menus[m_currentMenuIndex]->m_cells.End(); ++m_menuCellsIterator)
+	{
+		mp_bufferCell = &mr_sharedRender.mp_frameBuffer[((*m_menuCellsIterator)->m_position.m_y * mr_sharedRender.m_bufferHW.X) + (*m_menuCellsIterator)->m_position.m_x];
+		mp_bufferCell->m_character = (*m_menuCellsIterator)->m_character;
+		mp_bufferCell->m_colorBFGround = (*m_menuCellsIterator)->m_colorBFGround;
 	}
 
 	mr_sharedRender.m_somethingToRender = true;
 
 	mr_sharedRender.m_frameBufferMutex.unlock();
 }
-void MenuManager::WriteTextLineIntoBuffer(bool _highlightLine, const Structure::TextLine& _textLine)
+void MenuManager::WriteTextLineIntoBuffer(bool _highlightLine, const TextLine& _textLine)
 {
 	// NOTE: I know I can use strlen, but I wanted to do it this way. I'll use strlen in Tools
 

@@ -2,15 +2,22 @@
 #define MENU_BASE_H
 
 #include "Consts.h"
+#include "DList.h"
 
-namespace Structure { struct TextLine; }
+class BufferCell;
+class SharedGame;
+class TextLine; 
 
 class MenuBase 
 {
 public:
+	// Static Initialization
+	static void AssignSharedGame(SharedGame& _sharedGame) { sp_sharedGame = &_sharedGame; }
+
 	// Member Variables
+	DList<BufferCell*> m_cells;
 	const int m_numberOfTextLines;
-	Structure::TextLine** mp_textLines;
+	TextLine** mp_textLines;
 
 	// Initialzation
 	MenuBase(const MenuBase&) = delete;
@@ -29,6 +36,9 @@ public:
 	~MenuBase();
 
 protected:
+	// Static Variables
+	static SharedGame* sp_sharedGame;
+
 	// Member Variables
 	int m_currentButtonNumber;	// NOTE/WARNING: Using number, not index, because the title is accessible text
 
@@ -38,6 +48,8 @@ protected:
 	// Functionality
 	// NOTE: This function should never actually be called
 	inline virtual int InputAcceptHandling() { return -1; };
+	virtual void NextOption() { return; }
+	virtual void PreviousOption() { return; }
 };
 
 #endif MENU_BASE_H

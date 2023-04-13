@@ -2,6 +2,7 @@
 #define MENU_MANAGER_H
 
 #include "Consts.h"
+#include "DList.h"
 #include "Enums.h"
 #include "InputReceiver.h"
 
@@ -12,7 +13,7 @@ class MenuBase;
 class SharedGame;
 class SharedInput;
 class SharedRender;
-namespace Structure { struct TextLine; }
+class TextLine;
 namespace Structure { struct Vector2; }
 
 class MenuManager final : public InputReceiver
@@ -52,6 +53,7 @@ private:
 	int m_potentialNextMenuIndex;
 	int m_reusableIterator;
 	int m_textLetterColumnPosition;
+	DList<BufferCell*>::Iterator m_menuCellsIterator;
 	MenuBase** mpp_menus;
 	SharedGame& mr_sharedGame;
 	SharedRender& mr_sharedRender;
@@ -62,6 +64,6 @@ private:
 	void ReadyNextMenu(int _menuNameIndex, bool _isReturning = false);
 	void ResetAllMenus();
 	void WriteMenuIntoFrameBuffer();
-	void WriteTextLineIntoBuffer(bool _highlightLine, const Structure::TextLine& _textLine);
+	void WriteTextLineIntoBuffer(bool _highlightLine, const TextLine& _textLine);
 };
 #endif MENU_MANAGER_H

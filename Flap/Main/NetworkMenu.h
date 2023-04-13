@@ -4,6 +4,7 @@
 #include "Consts.h"
 #include "MenuBase.h"
 #include "Structure.h"
+#include "TextLine.h"
 
 class NetworkMenu final : public MenuBase
 {
@@ -11,11 +12,11 @@ public:
 	// Initialization
 	NetworkMenu() : MenuBase(3)	// This value must match the number of text lines below
 	{
-		mp_textLines = new Structure::TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
-			new Structure::TextLine("Network", Consts::OFF_BY_ONE),   // Menu Title
-			new Structure::TextLine("Begin Searching", 5),
-			new Structure::TextLine("Return", 10)
+			new TextLine("Network", Consts::OFF_BY_ONE),   // Menu Title
+			new TextLine("Begin Searching", 5),
+			new TextLine("Return", 10)
 		};
 	}
 
@@ -34,9 +35,8 @@ protected:
 		}
 		}
 
-		// NOTE/WARNING: Execution shouldn't make it here
-		throw std::exception();
-		return -Consts::OFF_BY_ONE;
+		// NOTE: If player clicks accept on a non-button
+		return Enums::MenuReturn::NA;
 	}
 };
 

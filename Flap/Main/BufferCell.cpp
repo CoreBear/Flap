@@ -10,6 +10,8 @@ void BufferCell::ResetCell()
 	m_character = Consts::EMPTY_SPACE_CHAR;
 	m_objectInCellIndex = Consts::NO_VALUE;
 	m_colorBFGround = NULL;
+	m_position.m_x = Consts::NO_VALUE;
+	m_position.m_y = Consts::NO_VALUE;
 	mp_voidSceneObject[Consts::NO_VALUE] = nullptr;
 	mp_voidSceneObject[Consts::OFF_BY_ONE] = nullptr;
 }
