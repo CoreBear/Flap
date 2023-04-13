@@ -16,7 +16,7 @@ class GameManager final : public GameThreadBase
 {
 public:
 	// Static Variables
-	static unsigned int s_fixedFrameCount;
+	static unsigned int s_masterFixedFrameCount;
 
 	// Initialization
 	GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender);

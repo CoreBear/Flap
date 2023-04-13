@@ -92,7 +92,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		break;
 		case Enums::InputPressState::Dead:
 		{
-			if (GameManager::s_fixedFrameCount == mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3])
+			if (GameManager::s_masterFixedFrameCount == mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3])
 			{
 				mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Held;
 			}
@@ -106,7 +106,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 
 			// Arbitrary value, represents click-to-hold number of frames
 			const unsigned int NUMBER_OF_DEAD_FRAMES = 15;
-			mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3] = GameManager::s_fixedFrameCount + NUMBER_OF_DEAD_FRAMES;
+			mpp_deadFramesTargetFrames[m_reusableIterator_2][m_reusableIterator_3] = GameManager::s_masterFixedFrameCount + NUMBER_OF_DEAD_FRAMES;
 		}
 		return;
 		}

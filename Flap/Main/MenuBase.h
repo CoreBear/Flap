@@ -33,7 +33,7 @@ public:
 	inline void ResetButtonNumber() { m_currentButtonNumber = Consts::OFF_BY_ONE; }	// NOTE: Doesn't go to index 0, because index 0 is the menu name's index
 
 	// Destruction
-	~MenuBase();
+	virtual ~MenuBase();
 
 protected:
 	// Static Variables

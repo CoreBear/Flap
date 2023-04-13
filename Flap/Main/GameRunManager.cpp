@@ -105,7 +105,7 @@ void GameRunManager::PauseGame()
 }
 void GameRunManager::ResumeGame()
 {
-	mp_objectManager->Pause();
+	mp_objectManager->Resume();
 }
 void GameRunManager::StartGame()
 {
@@ -144,7 +144,7 @@ void GameRunManager::SetupGame()
 	Structure::Vector2 position;
 	position.m_x = 10;
 	position.m_y = 10;
-	m_genericContainer.m_int = 20;
+	m_genericContainer.m_int = 100;
 	mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, &m_genericContainer);
 }
 #pragma endregion

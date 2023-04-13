@@ -47,7 +47,7 @@ public:
 	OptionsMenu& operator=(const OptionsMenu&) = delete;
 
 	// Destruction
-	~OptionsMenu()
+	~OptionsMenu() override
 	{
 		delete mp_playerOneSnakeColorBufferCell;
 		delete mp_playerTwoSnakeColorBufferCell;

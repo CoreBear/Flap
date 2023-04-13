@@ -44,7 +44,7 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 			case Enums::ObjectType::Food:
 			{
 				// Execution should not make it here
-				throw std::exception();
+				//throw std::exception();
 			}
 			break;
 			case Enums::ObjectType::Snake:

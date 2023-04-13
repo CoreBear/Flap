@@ -11,7 +11,7 @@
 #pragma endregion
 
 #pragma region Initialization
-unsigned int GameManager::s_fixedFrameCount = Consts::NO_VALUE;
+unsigned int GameManager::s_masterFixedFrameCount = Consts::NO_VALUE;
 
 GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender) :
 	mp_gameRunManager(new GameRunManager(_sharedGame, _sharedInput, _sharedRender)),
@@ -43,7 +43,7 @@ void GameManager::Update()
 			m_lastTime = m_currentTime;
 
 			// Update counter
-			++s_fixedFrameCount;
+			++s_masterFixedFrameCount;
 
 			mp_gameRunManager->FixedUpdate();
 
@@ -94,7 +94,7 @@ void GameManager::Update()
 			m_lastTime = m_currentTime;
 
 			// Update counter
-			++s_fixedFrameCount;
+			++s_masterFixedFrameCount;
 
 			mp_menuManager->FixedUpdate();
 

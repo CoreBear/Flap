@@ -61,9 +61,9 @@ void ObjectManager::FixedUpdate()
 {
 	mr_sharedRender.m_frameBufferMutex.lock();
 	
-	if (GameManager::s_fixedFrameCount == Snake::s_snakeMoveTargetFrame)
+	if (GameManager::s_masterFixedFrameCount == Snake::s_snakeMoveTargetFrame)
 	{
-		Snake::s_snakeMoveTargetFrame = GameManager::s_fixedFrameCount + Snake::s_numberOfFramesBetweenMoves;
+		Snake::s_snakeMoveTargetFrame = GameManager::s_masterFixedFrameCount + Snake::s_numberOfFramesBetweenMoves;
 
 		Snake::s_moveThisFrame = true;
 
@@ -143,11 +143,17 @@ void ObjectManager::CleanScene()
 }
 void ObjectManager::Pause()
 {
-	Snake::s_numberOfFramesLeftBeforePause = Snake::s_snakeMoveTargetFrame - GameManager::s_fixedFrameCount;
+	Snake::s_numberOfFramesLeftBeforePause = Snake::s_snakeMoveTargetFrame - GameManager::s_masterFixedFrameCount;
+
+	if (Snake::s_numberOfFramesLeftBeforePause < 3)
+	{
+		++Snake::s_numberOfFramesLeftBeforePause;
+	}
 }
 void ObjectManager::Resume()
 {
-	Snake::s_snakeMoveTargetFrame = GameManager::s_fixedFrameCount + Snake::s_numberOfFramesLeftBeforePause;
+	Snake::s_numberOfFramesBetweenMoves = static_cast<unsigned int>(Consts::FPS_TARGET / mr_sharedGame.GetSnakeSpeed());
+	Snake::s_snakeMoveTargetFrame = GameManager::s_masterFixedFrameCount + Snake::s_numberOfFramesBetweenMoves;
 }
 void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic* const _genericContainer)
 {
@@ -171,8 +177,8 @@ void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::
 }
 void ObjectManager::Start()
 {
-	Snake::s_numberOfFramesBetweenMoves = static_cast<unsigned int>(Consts::FPS_TARGET / mr_sharedGame.GetSnakeStartingSpeed());
-	Snake::s_snakeMoveTargetFrame = GameManager::s_fixedFrameCount + Snake::s_numberOfFramesBetweenMoves;
+	mr_sharedGame.ResetSnakeSpeed();
+	Resume();
 }
 #pragma endregion
 
