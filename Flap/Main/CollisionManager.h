@@ -3,6 +3,8 @@
 
 #include "Consts.h"
 
+#include <mutex>
+
 class BufferCell;
 class SharedRender;
 class SceneObject;
@@ -11,7 +13,7 @@ class CollisionManager final
 {
 public:
 	// Initialization
-	inline CollisionManager(SharedRender& _sharedRender) : mr_sharedRender(_sharedRender) { return; }
+	CollisionManager(SharedRender& _sharedRender);
 	CollisionManager(const CollisionManager&) = delete;
 	CollisionManager& operator=(const CollisionManager&) = delete;
 
@@ -29,6 +31,7 @@ private:
 	SceneObject* mp_firstSceneObject;
 	SceneObject* mp_secondSceneObject;
 	SharedRender& mr_sharedRender;
+	std::unique_lock<std::mutex> m_frameBufferUniqueLock;
 
 	// Functionality
 	void UpdateCell(BufferCell& _bufferCell);

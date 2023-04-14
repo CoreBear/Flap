@@ -4,6 +4,7 @@
 #include "GameThreadBase.h"
 #include "Structure.h"
 
+#include <mutex>
 #include <Windows.h>
 
 class SharedRender;
@@ -29,6 +30,7 @@ private:
 	int m_reusableIterator;						
 	SharedRender& mr_sharedRender;
 	SMALL_RECT m_writeRegionRect;
+	std::unique_lock<std::mutex> m_frameBufferUniqueLock;
 };
 
 #endif RENDER_MANAGER_H

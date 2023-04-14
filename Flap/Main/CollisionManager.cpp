@@ -7,6 +7,15 @@
 #include "Structure.h"
 #pragma endregion
 
+#pragma region Initialization
+CollisionManager::CollisionManager(SharedRender& _sharedRender) :
+	mr_sharedRender(_sharedRender),
+	m_frameBufferUniqueLock(_sharedRender.m_frameBufferMutex)
+{
+	m_frameBufferUniqueLock.unlock();
+}
+#pragma endregion
+
 #pragma region Updates
 void CollisionManager::FixedUpdate()
 {
@@ -18,6 +27,7 @@ void CollisionManager::FixedUpdate()
 	}
 
 	mr_sharedRender.m_frameBufferMutex.unlock();
+	mr_sharedRender.m_frameBufferConVar.notify_one();
 }
 #pragma endregion
 

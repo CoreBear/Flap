@@ -18,6 +18,7 @@ Notes:
 		- A console project won't be able to take advantage of the speed of a separate render thread :(, but it could be used for key-frame interpolation :)
 
 Thoughts:
+- No work-tickets, since I'm working alone. I'm bouncing around, because I've been creating a backlong on Notepad++ and handling them as I build out the structure of the game.
 - Yes, raw pointers
 - I really like concurrency/parallelism and system architecture
 - Sending collision notification was an issue, but it's now working fine

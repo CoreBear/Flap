@@ -250,9 +250,8 @@ void MenuManager::WriteMenuIntoFrameBuffer()
 		mp_bufferCell->m_colorBFGround = (*m_menuCellsIterator)->m_colorBFGround;
 	}
 
-	mr_sharedRender.m_somethingToRender = true;
-
 	mr_sharedRender.m_frameBufferMutex.unlock();
+	mr_sharedRender.m_frameBufferConVar.notify_one();
 }
 void MenuManager::WriteTextLineIntoBuffer(bool _highlightLine, const TextLine& _textLine)
 {

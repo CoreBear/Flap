@@ -13,8 +13,11 @@ RenderManager::RenderManager(const HANDLE& _outputWindowHandle, SharedRender& _s
 	mp_renderBuffer(new CHAR_INFO[_sharedRender.m_bufferSize]),
 	OUTPUT_WINDOW_HANDLE(_outputWindowHandle),
 	m_reusableIterator(Consts::NO_VALUE),
-	mr_sharedRender(_sharedRender)
+	mr_sharedRender(_sharedRender),
+	m_frameBufferUniqueLock(mr_sharedRender.m_frameBufferMutex)
 {
+	m_frameBufferUniqueLock.unlock();
+
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < _sharedRender.m_bufferSize; m_reusableIterator++)
 	{
 		mp_renderBuffer[m_reusableIterator].Char.UnicodeChar = Consts::EMPTY_SPACE_CHAR;
@@ -33,24 +36,22 @@ RenderManager::RenderManager(const HANDLE& _outputWindowHandle, SharedRender& _s
 #pragma region Updates
 void RenderManager::Update()
 {
-	mr_sharedRender.m_frameBufferMutex.lock();
+	m_frameBufferUniqueLock.lock();
+	mr_sharedRender.m_frameBufferConVar.wait(m_frameBufferUniqueLock);
 
-	if (mr_sharedRender.m_somethingToRender)
+	// For each cell
+	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedRender.m_bufferSize; m_reusableIterator++)
 	{
-		// For each cell
-		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedRender.m_bufferSize; m_reusableIterator++)
-		{
-			mp_renderBuffer[m_reusableIterator].Attributes = mr_sharedRender.mp_frameBuffer[m_reusableIterator].m_colorBFGround;
-			mp_renderBuffer[m_reusableIterator].Char.UnicodeChar = mr_sharedRender.mp_frameBuffer[m_reusableIterator].m_character;
-		}
-
-		// Render from buffer
-		WriteConsoleOutput(OUTPUT_WINDOW_HANDLE, mp_renderBuffer, mr_sharedRender.m_bufferHW, m_topLeftCellCR, &m_writeRegionRect);
-
-		mr_sharedRender.ResetFrameBuffer();
+		mp_renderBuffer[m_reusableIterator].Attributes = mr_sharedRender.mp_frameBuffer[m_reusableIterator].m_colorBFGround;
+		mp_renderBuffer[m_reusableIterator].Char.UnicodeChar = mr_sharedRender.mp_frameBuffer[m_reusableIterator].m_character;
 	}
 
-	mr_sharedRender.m_frameBufferMutex.unlock();
+	// Render from buffer
+	WriteConsoleOutput(OUTPUT_WINDOW_HANDLE, mp_renderBuffer, mr_sharedRender.m_bufferHW, m_topLeftCellCR, &m_writeRegionRect);
+
+	mr_sharedRender.ResetFrameBuffer();
+
+	m_frameBufferUniqueLock.unlock();
 }
 #pragma endregion
 

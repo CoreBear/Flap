@@ -87,8 +87,6 @@ void ObjectManager::FixedUpdate()
 		}
 	}
 
-	mr_sharedRender.m_somethingToRender = true;
-
 	mr_sharedRender.m_frameBufferMutex.unlock();
 }
 void ObjectManager::LastUpdate()

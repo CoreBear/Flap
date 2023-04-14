@@ -24,8 +24,6 @@ SharedRender::SharedRender(const COORD& _bufferSize) :
 #pragma region Public Functionality
 void SharedRender::ResetFrameBuffer()
 {
-	m_somethingToRender = false;
-
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < m_bufferSize; m_reusableIterator++)
 	{
 		mp_frameBuffer[m_reusableIterator].ResetCell();

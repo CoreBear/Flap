@@ -1,6 +1,7 @@
 #ifndef SHARED_RENDER_H
 #define SHARED_RENDER_H
 
+#include <condition_variable>
 #include <mutex>
 #include <Windows.h>
 
@@ -11,8 +12,8 @@ class SharedRender final
 public:
 	// Member Variables
 	int m_bufferSize;	// Has to be up here to initialize before other things
-	bool m_somethingToRender;
 	BufferCell* const mp_frameBuffer;
+	std::condition_variable m_frameBufferConVar;
 	const COORD m_bufferHW;
 	std::mutex m_frameBufferMutex;
 
