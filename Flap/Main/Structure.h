@@ -25,6 +25,7 @@ namespace Structure
 		// Functionality
 		inline void operator=(const Vector2& _rhs) { m_x = _rhs.m_x; m_y = _rhs.m_y; }
 		inline bool operator==(const Vector2& _rhs) { return (m_x == _rhs.m_x && m_y == _rhs.m_y); }
+		inline bool operator!=(const Vector2& _rhs) { return (m_x != _rhs.m_x || m_y != _rhs.m_y); }
 	};
 	struct Generic
 	{

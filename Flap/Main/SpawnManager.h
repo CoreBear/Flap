@@ -5,6 +5,7 @@
 
 #include <random>
 
+class BufferCell;
 class ObjectManager;
 namespace Enums { enum class ObjectType; }
 class SharedGame;
@@ -26,6 +27,7 @@ public:
 
 private:
 	// Member Variables
+	BufferCell* mp_bufferCell;
 	Structure::Generic m_genericContainer;
 	int m_numberOfPlayersIndex;
 	int m_reusableIterator;
@@ -37,8 +39,8 @@ private:
 	Structure::Vector2 m_randomPosition;
 
 	// Functionality
-	void GenerateRandomPosition();
-	void SpawnFood();// Object(Enums::ObjectType _objectType);
+	void GenerateValidRandomPosition();
+	void SpawnFood();
 	void SpawnNoTouchy();
 };
 

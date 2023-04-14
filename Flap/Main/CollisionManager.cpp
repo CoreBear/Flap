@@ -31,30 +31,16 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 	{
 		switch (_bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_objectType)
 		{
-			// Do nothing, Avatars are snakes
-		//case Enums::ObjectType::Avatar:
-
 		case Enums::ObjectType::Food:
+		case Enums::ObjectType::NoTouchy:
 		{
-			switch (_bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_objectType)
-			{
-				// Do nothing, Avatars are snakes
-			//case Enums::ObjectType::Avatar:
-
-			case Enums::ObjectType::Food:
-			{
-				// Execution should not make it here
-				//throw std::exception();
-			}
-			break;
-			case Enums::ObjectType::Snake:
+			// NOTE: Only snakes can collide with Food or NoTouchy's.
+			if (_bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_objectType == Enums::ObjectType::Snake)
 			{
 				_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_char;
 				_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_color;
 
 				UpdateColliders(_bufferCell);
-			}
-			break;
 			}
 		}
 		break;
@@ -66,6 +52,7 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 			//case Enums::ObjectType::Avatar:
 
 			case Enums::ObjectType::Food:
+			case Enums::ObjectType::NoTouchy:
 			{
 				_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_char;
 				_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_color;
@@ -75,7 +62,6 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 			break;
 			case Enums::ObjectType::Snake:
 			{
-				// HACK: Create an enum: 0 - Collided with self OR head-on collision. 1 - Only object 1 survives. 2 - Only object 2 survives.
 				switch (UpdateColliders(_bufferCell))
 				{
 				case CollisionType::HeadOnOrSelf:
@@ -126,8 +112,6 @@ CollisionManager::CollisionType CollisionManager::UpdateColliders(BufferCell& _b
 {
 	mp_firstSceneObject = reinterpret_cast<SceneObject*>(_bufferCell.mp_voidSceneObject[Consts::NO_VALUE]);
 	mp_secondSceneObject = reinterpret_cast<SceneObject*>(_bufferCell.mp_voidSceneObject[Consts::OFF_BY_ONE]);
-	
-	// HACK: Create an enum: 0 - Collided with self OR head-on collision. 1 - Only object 1 survives. 2 - Only object 2 survives.
 	
 	// If object collided with self
 	if (mp_firstSceneObject == mp_secondSceneObject)

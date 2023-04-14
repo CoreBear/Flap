@@ -28,7 +28,7 @@ protected:
 		switch (m_currentButtonNumber)
 		{
 		case 1:
-			return Enums::MenuReturn::ExitToMain;
+			return Enums::MenuReturn::Main;
 		}
 
 		// NOTE: If player clicks accept on a non-button

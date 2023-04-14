@@ -1,6 +1,7 @@
 #pragma region Includes
 #include "SpawnManager.h"
 
+#include "BufferCell.h"
 #include "Consts.h";
 #include "Enums.h"
 #include "GameManager.h"
@@ -69,21 +70,30 @@ void SpawnManager::Start()
 #pragma endregion
 
 #pragma region Private Functionality
-void SpawnManager::GenerateRandomPosition()
+void SpawnManager::GenerateValidRandomPosition()
 {
-	m_randomPosition.m_x = m_random() % (mr_sharedRender.m_bufferHW.X - Consts::OFF_BY_ONE);
-	m_randomPosition.m_y = m_random() % (mr_sharedRender.m_bufferHW.Y - Consts::OFF_BY_ONE);
+	do
+	{
+		// Generate random position
+		m_randomPosition.m_x = m_random() % (mr_sharedRender.m_bufferHW.X - Consts::OFF_BY_ONE);
+		m_randomPosition.m_y = m_random() % (mr_sharedRender.m_bufferHW.Y - Consts::OFF_BY_ONE);
+		
+		// Get the corresponding buffer cell
+		mp_bufferCell = &mr_sharedRender.mp_frameBuffer[(m_randomPosition.m_y * mr_sharedRender.m_bufferHW.X) + m_randomPosition.m_x];
+
+		// If position is invalid (on top of another object). If there's an object already there
+	} while (mp_bufferCell->m_objectInCellIndex != Consts::NO_VALUE);
 }
 void SpawnManager::SpawnFood()
 {
-	GenerateRandomPosition();
+	GenerateValidRandomPosition();
 
 	m_genericContainer.m_int = (m_random() % mr_sharedGame.MAX_NUMBER_OF_NODES_TO_ADD) + Consts::OFF_BY_ONE;
 	mr_objectManager.SpawnObject(Enums::ObjectType::Food, m_randomPosition, &m_genericContainer);
 }
 void SpawnManager::SpawnNoTouchy()
 {
-	GenerateRandomPosition();
+	GenerateValidRandomPosition();
 
 	mr_objectManager.SpawnObject(Enums::ObjectType::NoTouchy, m_randomPosition);
 }

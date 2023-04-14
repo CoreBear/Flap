@@ -72,30 +72,35 @@ bool Snake::Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRen
 		Death();
 		return true;
 	}
-	// NOTE: If execution makes it beyond this point, snake is not colliding with itself
-
-	// Eating food
-	if (_collisionRenderInfo.m_objectType == Enums::ObjectType::Food)
-	{
-		m_numberOfTailSectionsToAdd = _collisionRenderInfo.m_value;
-
-		m_newTailPosition = (*m_bodyNodes.GetTail()).m_position;
-	}
-
-	// Collided with another snake
 	else
 	{
-		// If this snake's head collided
-		if (m_position == _collisionRenderInfo.m_position)
+		switch (_collisionRenderInfo.m_objectType)
 		{
-			Death();
-			return true;
+			// Eating food
+		case Enums::ObjectType::Food:
+		{
+			m_numberOfTailSectionsToAdd = _collisionRenderInfo.m_value;
+
+			m_newTailPosition = (*m_bodyNodes.GetTail()).m_position;
+		}
+		break;
+
+		// Collided with another snake
+		case Enums::ObjectType::Snake:
+		{
+			// If this snake's head didn't collide
+			if (m_position != _collisionRenderInfo.m_position)
+			{
+				// Increase this player's points, because other snake's head collided
+			}
+
+			// NOTE: If this snake's head collided, fallthrough
 		}
 
-		// If this snake's head didn't collide
-		else
-		{
-			// Increase this player's points, because other snake's head collided
+		// NOTE: Notice the fallthrough
+		case Enums::ObjectType::NoTouchy:
+			Death();
+			return true;
 		}
 	}
 
