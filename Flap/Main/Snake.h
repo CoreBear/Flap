@@ -5,7 +5,6 @@
 #include "Enums.h"
 #include "SceneObject.h"
 
-class BufferCell;
 namespace Structure { struct CollisionRenderInfo; };
 namespace Structure { struct Generic; };
 class SharedGame;
@@ -51,7 +50,6 @@ private:
 	static SharedGame* sp_sharedGame;
 
 	// Member Variables
-	BufferCell* mp_bufferCell;
 	Structure::CollisionRenderInfo m_newCollisionRenderInfo;
 	DList<Structure::CollisionRenderInfo> m_bodyNodes;
 	DList<Structure::CollisionRenderInfo>::Iterator m_headTraversingIterator;

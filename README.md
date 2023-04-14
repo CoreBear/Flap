@@ -21,3 +21,4 @@ Thoughts:
 - Yes, raw pointers
 - I really like concurrency/parallelism and system architecture
 - Sending collision notification was an issue, but it's now working fine
+- I like C#'s comfort in certain aspects, like the fact that I can pass around member function pointers, without the object itself. If I have to pass the object to use the function pointer, what's the point of the function pointer?!

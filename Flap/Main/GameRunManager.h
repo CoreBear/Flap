@@ -2,13 +2,13 @@
 #define GAME_RUN_MANAGER_H
 
 #include "Consts.h"
-#include "Structure.h"
 
 class CollisionManager;
 class ObjectManager;
 class SharedGame;
 class SharedInput;
 class SharedRender;
+class SpawnManager;
 
 class GameRunManager final
 {
@@ -35,11 +35,9 @@ public:
 private:
 	// Member Variables
 	CollisionManager* const mp_collisionManager;
-	Structure::Generic m_genericContainer;
-	int m_reusableIterator;
 	ObjectManager* const mp_objectManager;
 	SharedGame& mr_sharedGame;
-	Structure::Vector2* mp_snakeStartPositions[Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME];
+	SpawnManager* const mp_spawnManager;
 
 	// Functionality
 	void SetupGame();

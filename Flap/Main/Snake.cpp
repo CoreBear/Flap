@@ -1,7 +1,6 @@
 #pragma region Includes
 #include "Snake.h"
 
-#include "BufferCell.h"
 #include "Consts.h"
 #include "ObjectManager.h"
 #include "SharedGame.h"
@@ -163,7 +162,6 @@ void Snake::Move()
 	}
 
 	m_headTraversingIterator = m_bodyNodes.GetTail();
-
 
 	// If snake's size is greater than 1
 	if (m_headTraversingIterator != m_bodyNodes.Begin())

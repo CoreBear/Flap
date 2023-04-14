@@ -38,7 +38,6 @@ protected:
 	static ObjectManager* sp_objectManager;
 
 	// Member Variables
-	short m_color;
 	Structure::Vector2 m_position;			
 
 	// Initialization

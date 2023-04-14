@@ -12,6 +12,8 @@ class SharedGame final
 public:
 	// Member Variables
 	Enums::GameState m_gameState;
+	int m_numberOfFramesBetweenSpawn;
+	const int MAX_NUMBER_OF_NODES_TO_ADD;
 	std::mutex m_gameStateMutex;
 
 	// Initialization
@@ -22,9 +24,11 @@ public:
 	// Functionality
 	inline void DecrementNumberOfSnakesInGame() { --m_numberOfSnakesInGame; }
 	inline bool GetIsInGameSession() const { return m_isInGameSession; }
+	inline int GetNumberOfFramesBeforeGameStart() const { return m_numberOfFramesBeforeGameStart; }
 	inline int GetNumberOfSnakesInGame() const { return m_numberOfSnakesInGame; }
 	inline int& GetPlayerSnakeColorIndexRef(int _playerIndex) { return (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex : m_playerTwoSnakeColorIndex; }
 	inline int GetSnakeSpeed() const { return m_snakeCurrentSpeed; }
+	inline const Structure::Vector2& GetSnakeStartPositionRef(int _numberOfPlayersIndex, int _playerIndex) const { return mp_snakeStartPositions[_numberOfPlayersIndex][_playerIndex]; }
 	inline void IncrementNumberOfSnakesInGame() { ++m_numberOfSnakesInGame; }
 	inline void ResetSnakeSpeed() { m_snakeCurrentSpeed = m_snakeStartingSpeed; }
 	inline void SetPlayerSnakeColorIndex(int _colorIndex, int _playerIndex) { (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex = _colorIndex : m_playerTwoSnakeColorIndex = _colorIndex; }
@@ -32,13 +36,18 @@ public:
 	inline void ToggleIsInGameSession() { m_isInGameSession = !m_isInGameSession; }
 	inline void ZeroNumberOfSnakesInGame() { m_numberOfSnakesInGame = Consts::NO_VALUE; }
 
+	// Destruction
+	~SharedGame();
+
 private:
 	bool m_isInGameSession;
+	int m_numberOfFramesBeforeGameStart;
 	int m_numberOfSnakesInGame;
 	int m_playerOneSnakeColorIndex;
 	int m_playerTwoSnakeColorIndex;
 	int m_snakeCurrentSpeed;
 	int m_snakeStartingSpeed;
+	Structure::Vector2* mp_snakeStartPositions[Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME];
 };
 
 #endif SHARED_GAME_H

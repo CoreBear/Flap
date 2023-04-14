@@ -6,72 +6,17 @@
 #include "SharedGame.h"
 #include "SharedInput.h"
 #include "SharedRender.h"
+#include "SpawnManager.h"
 #pragma endregion
 
 #pragma region Initialization
 GameRunManager::GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender) :
 	mp_collisionManager(new CollisionManager(_sharedRender)),
 	mp_objectManager(new ObjectManager(_sharedGame, _sharedInput, _sharedRender)),
-	mr_sharedGame(_sharedGame)
+	mr_sharedGame(_sharedGame),
+	mp_spawnManager(new SpawnManager(*mp_objectManager, _sharedGame, _sharedRender))
 {
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; m_reusableIterator ++)
-	{
-		mp_snakeStartPositions[m_reusableIterator] = new Structure::Vector2[static_cast<int>(m_reusableIterator + Consts::OFF_BY_ONE)];
-	}
-
-	// HACK: Do this dynamically
-	{
-		// One player
-		{
-			mp_snakeStartPositions[0][0].m_x = 20;
-			mp_snakeStartPositions[0][0].m_y = 20;
-		}
-
-		// Two players
-		{
-			// Player 1
-			mp_snakeStartPositions[1][0].m_x = 10;
-			mp_snakeStartPositions[1][0].m_y = 20;
-
-			// Player 2
-			mp_snakeStartPositions[1][1].m_x = 30;
-			mp_snakeStartPositions[1][1].m_y = 20;
-		}
-
-		// Three players
-		{
-			// Player 1
-			mp_snakeStartPositions[2][0].m_x = 10;
-			mp_snakeStartPositions[2][0].m_y = 20;
-								   
-			// Player 2			   
-			mp_snakeStartPositions[2][1].m_x = 20;
-			mp_snakeStartPositions[2][1].m_y = 20;
-								   
-			// Player 3			   
-			mp_snakeStartPositions[2][2].m_x = 30;
-			mp_snakeStartPositions[2][2].m_y = 20;
-		}
-
-		// Four players
-		{
-			// Player 1
-			mp_snakeStartPositions[3][0].m_x = 10;
-			mp_snakeStartPositions[3][0].m_y = 20;
-
-			// Player 2
-			mp_snakeStartPositions[3][1].m_x = 30;
-			mp_snakeStartPositions[3][1].m_y = 20;
-
-			// Player 3
-			mp_snakeStartPositions[3][2].m_x = 10;
-			mp_snakeStartPositions[3][2].m_y = 20;
-
-			// Player 4
-			mp_snakeStartPositions[3][3].m_x = 30;
-			mp_snakeStartPositions[3][3].m_y = 20;
-		}
-	}
+	return;
 }
 #pragma endregion
 
@@ -81,6 +26,8 @@ void GameRunManager::FixedUpdate()
 	mp_objectManager->FixedUpdate();
 
 	mp_collisionManager->FixedUpdate();
+
+	mp_spawnManager->FixedUpdate();
 }
 void GameRunManager::LastUpdate()
 {
@@ -112,40 +59,16 @@ void GameRunManager::StartGame()
 	SetupGame();
 
 	mp_objectManager->Start();
+
+	mp_spawnManager->Start();
 }
 #pragma endregion
 
 #pragma region Private Functionality
 void GameRunManager::SetupGame()
 {
-	// HACK: Figure out who is an avatar and who is a snake (piloted by networked player or AI)
-	
-	// HACK: Make this all dynamic
+	// QUESTION: Is this what we want to do and here?
 	mr_sharedGame.IncrementNumberOfSnakesInGame();
-	int numberOfPlayers = mr_sharedGame.GetNumberOfSnakesInGame();
-	int numberOfPlayerIndex = numberOfPlayers - Consts::OFF_BY_ONE;
-
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < numberOfPlayers; m_reusableIterator++)
-	{
-		// Snake number
-		m_genericContainer.m_int = m_reusableIterator + Consts::OFF_BY_ONE;
-
-		if (m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM)
-		{
-			mp_objectManager->SpawnObject(Enums::ObjectType::Avatar, mp_snakeStartPositions[numberOfPlayerIndex][m_reusableIterator], &m_genericContainer);
-		}
-		else
-		{
-			mp_objectManager->SpawnObject(Enums::ObjectType::Snake, mp_snakeStartPositions[numberOfPlayerIndex][m_reusableIterator], &m_genericContainer);
-		}
-	}
-
-	// HACK: Just to add some food
-	Structure::Vector2 position;
-	position.m_x = 10;
-	position.m_y = 10;
-	m_genericContainer.m_int = 100;
-	mp_objectManager->SpawnObject(Enums::ObjectType::Food, position, &m_genericContainer);
 }
 #pragma endregion
 
@@ -154,11 +77,6 @@ GameRunManager::~GameRunManager()
 {
 	delete mp_collisionManager;
 	delete mp_objectManager;
-
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; m_reusableIterator++)
-	{
-		delete mp_snakeStartPositions[m_reusableIterator];
-	}
-
+	delete mp_spawnManager;
 }
 #pragma endregion

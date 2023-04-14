@@ -10,7 +10,7 @@ class Food final : public SceneObject
 {
 public:
 	// Initialization
-	Food();
+	inline Food() { m_collisionRenderInfo.m_objectType = Enums::ObjectType::Food; }
 	Food(const Food&) = delete;
 	Food& operator=(const Food&) = delete;
 	void Initialize(const Structure::Generic* const _genericContainer) override;
@@ -23,7 +23,6 @@ public:
 
 private:
 	// Member Variables
-	BufferCell* mp_bufferCell;
 	Structure::CollisionRenderInfo m_collisionRenderInfo;
 
 	// Functionality

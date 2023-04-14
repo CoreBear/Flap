@@ -131,6 +131,7 @@
     <ClCompile Include="Avatar.cpp" />
     <ClCompile Include="BufferCell.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="NoTouchy.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Food.cpp" />
     <ClCompile Include="ApplicationManager.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="SceneObject.cpp" />
+    <ClCompile Include="SpawnManager.cpp" />
     <ClCompile Include="TextLine.cpp" />
     <ClCompile Include="Tools.cpp" />
   </ItemGroup>
@@ -154,6 +156,7 @@
     <ClInclude Include="Avatar.h" />
     <ClInclude Include="BufferCell.h" />
     <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="NoTouchy.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="DList.h" />
     <ClInclude Include="ExitMenu.h" />
@@ -175,6 +178,7 @@
     <ClInclude Include="Snake.h" />
     <ClInclude Include="Consts.h" />
     <ClInclude Include="Enums.h" />
+    <ClInclude Include="SpawnManager.h" />
     <ClInclude Include="Structure.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="InputManager.h" />

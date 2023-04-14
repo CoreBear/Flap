@@ -6,6 +6,7 @@
 #include "Enums.h"
 #include "Food.h"
 #include "GameManager.h"
+#include "NoTouchy.h"
 #include "SceneObject.h"
 #include "SharedGame.h"
 #include "SharedRender.h"
@@ -23,7 +24,7 @@ ObjectManager::ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput,
 	SceneObject::AssignObjectManager(*this);
 
 	// NOTE: Only MAX_NUMBER_OF_PLAYERS_PER_SYSTEM number of avatars
-	NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM, 20, 20 };
+	NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE = new int[static_cast<int>(Enums::ObjectType::NumberOfTypes)] { Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM, 20, 20, 20 };
 
 	// Generate pointers for each type
 	mppp_pooledObjects = new SceneObject ** [static_cast<int>(Enums::ObjectType::NumberOfTypes)];
@@ -46,6 +47,9 @@ ObjectManager::ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput,
 				break;
 			case Enums::ObjectType::Food:
 				mppp_pooledObjects[objectTypeIndex][m_reusableIterator] = new Food();
+				break;
+			case Enums::ObjectType::NoTouchy:
+				mppp_pooledObjects[objectTypeIndex][m_reusableIterator] = new NoTouchy();
 				break;
 			case Enums::ObjectType::Snake:
 				mppp_pooledObjects[objectTypeIndex][m_reusableIterator] = new Snake();
