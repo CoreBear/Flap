@@ -19,7 +19,7 @@ public:
 	void FixedUpdate() override { WriteIntoFrameBufferCell(m_collisionRenderInfo); }
 
 	// Functionality
-	inline bool Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRenderInfo, bool _collidedWithSelf = false) { Denitialize(true); return true; }
+	inline bool Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRenderInfo, bool _collidedWithSelf = false) { Denitialize(); return true; }
 
 private:
 	// Member Variables

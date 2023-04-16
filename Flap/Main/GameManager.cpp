@@ -3,6 +3,7 @@
 
 #include "Consts.h"
 #include "Enums.h"
+#include "FileIOManager.h"
 #include "GameRunManager.h"
 #include "MenuManager.h"
 #include "SharedGame.h"
@@ -14,6 +15,7 @@
 unsigned int GameManager::s_masterFixedFrameCount = Consts::NO_VALUE;
 
 GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender) :
+	mp_fileIOManager(new FileIOManager(_sharedGame)),
 	mp_gameRunManager(new GameRunManager(_sharedGame, _sharedInput, _sharedRender)),
 	mp_menuManager(new MenuManager(_sharedGame, _sharedRender)),
 	mr_sharedGame(_sharedGame),
@@ -61,7 +63,7 @@ void GameManager::Update()
 
 		GameOver();
 
-		mp_menuManager->ExitToMain();
+		mp_menuManager->ToMain();
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
@@ -72,12 +74,36 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
 
-		GameOver();
+		if (mr_sharedGame.GetSinglePlayerBool())
+		{
+			m_newHighScore = mp_fileIOManager->CheckForNewHighScore();
 
-		mp_menuManager->ExitToResults();
+			mp_menuManager->ToResultsSingle(m_newHighScore);
+		}
+		else
+		{
+			mp_menuManager->ToResultsMulti();
+		}
+
+		GameOver();
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	case Enums::GameState::LoadGame:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_fileIOManager->LoadGame();
+
+		mr_sharedGame.GameSession(true, true);
+
+		mp_gameRunManager->StartGame(false);
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Game;
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
@@ -127,13 +153,50 @@ void GameManager::Update()
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
-	case Enums::GameState::StartGame:
+	case Enums::GameState::SaveGame:
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
 
-		mr_sharedGame.ToggleIsInGameSession();
+		mp_fileIOManager->SaveGame();
 
-		mp_gameRunManager->StartGame();
+		GameOver();
+
+		mp_menuManager->ToMain();
+	}
+	break;
+	case Enums::GameState::SaveHighScores:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_fileIOManager->SaveHighScores(m_newHighScore, "BBB");
+
+		mp_menuManager->ToMain();
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	case Enums::GameState::StartGameLocal:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mr_sharedGame.GameSession(true, false);
+
+		mp_gameRunManager->StartGame(true);
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Game;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	case Enums::GameState::StartGameSingle:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mr_sharedGame.GameSession(true, true);
+
+		mp_gameRunManager->StartGame(true);
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Game;
@@ -150,7 +213,7 @@ void GameManager::Update()
 #pragma region Private Functionality
 void GameManager::GameOver()
 {
-	mr_sharedGame.ToggleIsInGameSession();
+	mr_sharedGame.GameSession(false, false);
 
 	mr_sharedRender.ResetFrameBufferSynced();
 
@@ -161,6 +224,7 @@ void GameManager::GameOver()
 #pragma region Destruction
 GameManager::~GameManager()
 {
+	delete mp_fileIOManager;
 	delete mp_gameRunManager;
 	delete mp_menuManager;
 }

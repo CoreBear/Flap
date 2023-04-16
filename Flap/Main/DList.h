@@ -231,6 +231,7 @@ public:
 	inline Iterator End() const { return  mEnd; }
 	inline Iterator GetTail() const { return Iterator(m_tail); }
 	inline bool IsEmpty() { return (m_head == nullptr); }
+	inline const Type& Peek() const { return m_head->m_value; }
 	void PushBack(Type _value)
 	{
 		Node* const newNode = new Node(_value);

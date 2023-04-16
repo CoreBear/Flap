@@ -10,13 +10,14 @@ class SinglePlayerMenu final : public MenuBase
 {
 public:
 	// Initialization
-	SinglePlayerMenu() : MenuBase(3)	// This value must match the number of text lines below
+	SinglePlayerMenu() : MenuBase(4)	// This value must match the number of text lines below
 	{
 		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
 			new TextLine("Single Player", Consts::OFF_BY_ONE),			// Menu Title
 			new TextLine("Play", 5),
-			new TextLine("Return", 10)
+			new TextLine("Load", 10),
+			new TextLine("Return", 15)
 		};
 	}
 	SinglePlayerMenu(const SinglePlayerMenu&) = delete;
@@ -29,8 +30,10 @@ protected:
 		switch (m_currentButtonNumber)
 		{
 		case 1:
-			return Enums::MenuReturn::PlayGame;
+			return Enums::MenuReturn::PlayGameSingle;
 		case 2:
+			return Enums::MenuReturn::LoadGame;
+		case 3:
 		{
 			m_currentButtonNumber = Consts::OFF_BY_ONE;
 			return Enums::MenuReturn::Return;

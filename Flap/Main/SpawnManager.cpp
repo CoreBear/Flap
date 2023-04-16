@@ -2,7 +2,7 @@
 #include "SpawnManager.h"
 
 #include "BufferCell.h"
-#include "Consts.h";
+#include "Consts.h"
 #include "Enums.h"
 #include "GameManager.h"
 #include "ObjectManager.h"
@@ -41,28 +41,31 @@ void SpawnManager::FixedUpdate()
 #pragma endregion
 
 #pragma region Public Functionality
-void SpawnManager::Start()
+void SpawnManager::Start(bool _newGame)
 {
 	m_spawnTargetFrame = GameManager::s_masterFixedFrameCount + mr_sharedGame.GetNumberOfFramesBeforeGameStart();
 
-	// HACK: Figure out who is an avatar and who is a snake (piloted by networked player or AI)
-
-	// Spawn avatars and snakes
+	if (_newGame)
 	{
-		m_numberOfPlayersIndex = mr_sharedGame.GetNumberOfSnakesInGame() - Consts::OFF_BY_ONE;
+		// HACK: Figure out who is an avatar and who is a snake (piloted by networked player or AI)
 
-		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedGame.GetNumberOfSnakesInGame(); m_reusableIterator++)
+		// Spawn avatars and snakes
 		{
-			// Snake number
-			m_genericContainer.m_int = m_reusableIterator + Consts::OFF_BY_ONE;
+			m_numberOfPlayersIndex = mr_sharedGame.GetNumberOfSnakesInGame() - Consts::OFF_BY_ONE;
 
-			if (m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM)
+			for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedGame.GetNumberOfSnakesInGame(); m_reusableIterator++)
 			{
-				mr_objectManager.SpawnObject(Enums::ObjectType::Avatar, mr_sharedGame.GetSnakeStartPositionRef(m_numberOfPlayersIndex, m_reusableIterator), &m_genericContainer);
-			}
-			else
-			{
-				mr_objectManager.SpawnObject(Enums::ObjectType::Snake, mr_sharedGame.GetSnakeStartPositionRef(m_numberOfPlayersIndex, m_reusableIterator), &m_genericContainer);
+				// Snake number
+				m_genericContainer.m_int = m_reusableIterator + Consts::OFF_BY_ONE;
+
+				if (m_reusableIterator < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM)
+				{
+					mr_objectManager.SpawnObject(Enums::ObjectType::Avatar, mr_sharedGame.GetSnakeStartPositionRef(m_numberOfPlayersIndex, m_reusableIterator), &m_genericContainer);
+				}
+				else
+				{
+					mr_objectManager.SpawnObject(Enums::ObjectType::Snake, mr_sharedGame.GetSnakeStartPositionRef(m_numberOfPlayersIndex, m_reusableIterator), &m_genericContainer);
+				}
 			}
 		}
 	}

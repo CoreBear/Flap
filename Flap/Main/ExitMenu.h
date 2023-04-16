@@ -10,13 +10,14 @@ class ExitMenu final : public MenuBase
 {
 public:
 	// Initialization
-	ExitMenu() : MenuBase(3)	// This value must match the number of text lines below
+	ExitMenu() : MenuBase(4)	// This value must match the number of text lines below
 	{
 		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
 			new TextLine("Exit", Consts::OFF_BY_ONE),   // Menu Title
 			new TextLine("Return", 5),
-			new TextLine("Quit Game", 10)
+			new TextLine("Save Game", 10),
+			new TextLine("Quit Game", 15)
 		};
 	}
 	ExitMenu(const ExitMenu&) = delete;
@@ -31,6 +32,8 @@ protected:
 		case 1:
 			return Enums::MenuReturn::Return;
 		case 2:
+			return Enums::MenuReturn::SaveGame;
+		case 3:
 			return Enums::MenuReturn::ExitToMain;
 		}
 

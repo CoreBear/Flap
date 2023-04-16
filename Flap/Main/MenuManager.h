@@ -29,9 +29,10 @@ public:
 	void Update() { return; }
 
 	// Functionality
-	inline void ExitToMain() { ReadyNextMenu(Enums::MenuName::Main); }
-	inline void ExitToResults() { ReadyNextMenu(Enums::MenuName::Results); }
 	inline void PauseGame() { ReadyNextMenu(Enums::MenuName::Pause); }
+	inline void ToMain() { ReadyNextMenu(Enums::MenuName::Main); }
+	void ToResultsMulti();
+	void ToResultsSingle(bool _newHighScore);
 
 	// Destructor
 	~MenuManager();

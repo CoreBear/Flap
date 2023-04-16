@@ -1,16 +1,16 @@
-#ifndef RESULTS_MENU_H
-#define RESULTS_MENU_H
+#ifndef RESULTS_SINGLE_MENU_H
+#define RESULTS_SINGLE_MENU_H
 
 #include "Consts.h"
 #include "MenuBase.h"
 #include "Structure.h"
 #include "TextLine.h"
 
-class ResultsMenu final : public MenuBase
+class ResultsSingleMenu final : public MenuBase
 {
 public:
 	// Initialization
-	ResultsMenu() : MenuBase(2)	// This value must match the number of text lines below
+	ResultsSingleMenu() : MenuBase(2)	// This value must match the number of text lines below
 	{
 		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
@@ -18,8 +18,8 @@ public:
 			new TextLine("To Main", 5)
 		};
 	}
-	ResultsMenu(const ResultsMenu&) = delete;
-	ResultsMenu& operator=(const ResultsMenu&) = delete;
+	ResultsSingleMenu(const ResultsSingleMenu&) = delete;
+	ResultsSingleMenu& operator=(const ResultsSingleMenu&) = delete;
 
 protected:
 	// Functionality
@@ -28,7 +28,7 @@ protected:
 		switch (m_currentButtonNumber)
 		{
 		case 1:
-			return Enums::MenuReturn::Main;
+			return Enums::MenuReturn::SaveHighScores;
 		}
 
 		// NOTE: If player clicks accept on a non-button
@@ -36,4 +36,4 @@ protected:
 	};
 };
 
-#endif RESULTS_MENU_H
+#endif RESULTS_SINGLE_MENU_H

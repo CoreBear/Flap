@@ -6,6 +6,7 @@
 #include <chrono>
 #include <Windows.h>		// NOTE/WARNING: Has to be here or else the compiler screams about forward declaring HANDLE
 
+class FileIOManager;
 class GameRunManager;
 class MenuManager;
 class SharedGame;
@@ -31,6 +32,8 @@ public:
 
 private:
 	// Member Variables
+	bool m_newHighScore;
+	FileIOManager* const mp_fileIOManager;
 	GameRunManager* const mp_gameRunManager;
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	MenuManager* const mp_menuManager;

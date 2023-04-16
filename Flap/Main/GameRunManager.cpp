@@ -54,21 +54,22 @@ void GameRunManager::ResumeGame()
 {
 	mp_objectManager->Resume();
 }
-void GameRunManager::StartGame()
+void GameRunManager::StartGame(bool _newGame)
 {
-	SetupGame();
+	switch (mr_sharedGame.m_gameState)
+	{
+	case Enums::GameState::StartGameLocal:
+		mr_sharedGame.IncrementNumberOfSnakesInGame();
 
-	mp_objectManager->Start();
+		// NOTE: Notice the fallthrough
+	case Enums::GameState::StartGameSingle:
+		mr_sharedGame.IncrementNumberOfSnakesInGame();
+		break;
+	}
 
-	mp_spawnManager->Start();
-}
-#pragma endregion
+	mp_objectManager->Start(_newGame);
 
-#pragma region Private Functionality
-void GameRunManager::SetupGame()
-{
-	// QUESTION: Is this what we want to do and here?
-	mr_sharedGame.IncrementNumberOfSnakesInGame();
+	mp_spawnManager->Start(_newGame);
 }
 #pragma endregion
 

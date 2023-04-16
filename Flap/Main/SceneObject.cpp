@@ -43,11 +43,8 @@ void SceneObject::WriteIntoFrameBufferCell(Structure::CollisionRenderInfo& _coll
 #pragma endregion
 
 #pragma region Destruction
-void SceneObject::Denitialize(bool _removeFromSceneObjects)
+void SceneObject::Denitialize()
 {
-	if (_removeFromSceneObjects)
-	{
-		sp_objectManager->RemoveFromSceneObjects(this);
-	}
+	sp_objectManager->RemoveFromSceneObjects(this);
 }
 #pragma endregion

@@ -20,6 +20,7 @@ public:
 	TextLine** mp_textLines;
 
 	// Initialzation
+	inline virtual void Initialize() { return; }
 	MenuBase(const MenuBase&) = delete;
 	MenuBase& operator=(const MenuBase&) = delete;
 

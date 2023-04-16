@@ -29,7 +29,7 @@ protected:
 		switch (m_currentButtonNumber)
 		{
 		case 1:
-			return Enums::MenuReturn::PlayGame;
+			return Enums::MenuReturn::PlayGameLocal;
 		case 2:
 		{
 			m_currentButtonNumber = Consts::OFF_BY_ONE;

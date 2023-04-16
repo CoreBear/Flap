@@ -30,7 +30,8 @@ public:
 	inline void SetSpawnState(Enums::SpawnState _spawnState) { m_spawnState = _spawnState; }
 
 	// Destruction
-	virtual void Denitialize(bool _removeFromSceneObjects);
+	void Denitialize();
+	virtual void Destroy() { return; }
 	virtual ~SceneObject() { return; }
 
 protected:

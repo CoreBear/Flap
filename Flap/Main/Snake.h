@@ -36,7 +36,7 @@ public:
 	bool Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRenderInfo, bool _collidedWithSelf = false) override final;
 
 	// Destruction
-	void Denitialize(bool _removeFromSceneObjects) override final;
+	void Destroy() override final;
 
 protected:
 	// Functionality
@@ -56,6 +56,7 @@ private:
 	DList<Structure::CollisionRenderInfo>::Iterator m_tailTraversingIterator;
 	Enums::InputName m_currentDirection;
 	Enums::InputName m_newDirection;
+	int m_length;
 	unsigned int m_numberOfTailSectionsToAdd;
 	Structure::Vector2 m_newTailPosition;
 

@@ -8,7 +8,7 @@
 Avatar::Avatar(SharedInput& _sharedInput)
 {
 	static int playerIndex = Consts::NO_VALUE;
-	m_readIndex = playerIndex;
+	m_readIndex = playerIndex++;
 }
 #pragma endregion
 

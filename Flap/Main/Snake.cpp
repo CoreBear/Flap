@@ -6,6 +6,7 @@
 #include "SharedGame.h"
 #include "SharedRender.h"
 #include "Structure.h"
+#include "Tools.h"
 #pragma endregion
 
 #pragma region Static Initialization
@@ -25,13 +26,14 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 	m_currentDirection = Enums::InputName::NA;
 	m_newDirection = Enums::InputName::NA;
 
-	constexpr int NUMBER_TO_CHAR_OFFSET = static_cast<int>('0');
-	m_newCollisionRenderInfo.m_char = static_cast<char>(_genericContainer->m_int + NUMBER_TO_CHAR_OFFSET);
+	m_newCollisionRenderInfo.m_char = Tools::IntToChar(_genericContainer->m_int);
 	m_newCollisionRenderInfo.m_objectType = Enums::ObjectType::Snake;
 	m_newCollisionRenderInfo.m_color = Consts::BACKGROUND_COLORS[sp_sharedGame->GetPlayerSnakeColorIndexRef(_genericContainer->m_int - Consts::OFF_BY_ONE)];
 	m_newCollisionRenderInfo.m_position = m_position;
 	
 	m_bodyNodes.PushBack(m_newCollisionRenderInfo);
+
+	m_length = Consts::OFF_BY_ONE;
 
 	// Reset so the body doesn't have these numbers
 	m_newCollisionRenderInfo.m_char = Consts::EMPTY_SPACE_CHAR;
@@ -117,15 +119,21 @@ void Snake::Death()
 	// If there are more snakes
 	if (sp_sharedGame->GetNumberOfSnakesInGame() != Consts::NO_VALUE)
 	{
+		// NOTE: This does not account for ties. Lol
+		if (m_length > sp_sharedGame->m_largestSnakeLengthUponDeath)
+		{
+			sp_sharedGame->m_largestSnakeLengthUponDeath = m_length;
+			sp_sharedGame->m_largestSnakeColor = m_bodyNodes.Peek().m_color;
+		}
+
 		// Start at the second node (if it exists)
 		m_headTraversingIterator = m_bodyNodes.Begin();
 		++m_headTraversingIterator;
 
+		// Begin destorying snake
+		Denitialize();
+
 		constexpr int EVERY_OTHER_NODE = 2;
-
-		// Denitialize snake
-		Denitialize(true);
-
 		// For every other body node, spawn food
 		for (/*Initialization occurs above*/; m_headTraversingIterator != m_bodyNodes.End(); m_headTraversingIterator += EVERY_OTHER_NODE)
 		{
@@ -135,12 +143,28 @@ void Snake::Death()
 		}
 	}
 
-	// If there are no more snakes
+	// If there are no more snakes (GAME OVER)
 	else
 	{
 		sp_sharedGame->m_gameStateMutex.lock();
 		sp_sharedGame->m_gameState = Enums::GameState::ExitToResults;
 		sp_sharedGame->m_gameStateMutex.unlock();
+
+
+		if (sp_sharedGame->GetSinglePlayerBool())
+		{
+			sp_sharedGame->m_largestSnakeLengthUponDeath = m_length;
+			sp_sharedGame->m_largestSnakeColor = m_bodyNodes.Peek().m_color;
+		}
+		else
+		{
+			// NOTE: This does not account for ties. Lol
+			if (m_length > sp_sharedGame->m_largestSnakeLengthUponDeath)
+			{
+				sp_sharedGame->m_largestSnakeLengthUponDeath = m_length;
+				sp_sharedGame->m_largestSnakeColor = m_bodyNodes.Peek().m_color;
+			}
+		}
 	}
 }
 void Snake::Move()
@@ -197,6 +221,8 @@ void Snake::TryAddTail()
 
 		// Add tail
 		m_bodyNodes.PushBack(m_newCollisionRenderInfo);
+
+		++m_length;
 
 		// Account for this tail's addition
 		--m_numberOfTailSectionsToAdd;
@@ -288,10 +314,8 @@ void Snake::WriteIntoFrameBuffer()
 #pragma endregion
 
 #pragma region Destruction
-void Snake::Denitialize(bool _removeFromSceneObjects)
+void Snake::Destroy()
 {
 	m_bodyNodes.Clear();
-
-	SceneObject::Denitialize(_removeFromSceneObjects);
 }
 #pragma endregion

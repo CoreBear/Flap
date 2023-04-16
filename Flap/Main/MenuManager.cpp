@@ -10,7 +10,8 @@
 #include "NetworkMenu.h"
 #include "OptionsMenu.h"
 #include "PauseMenu.h"
-#include "ResultsMenu.h"
+#include "ResultsMultiMenu.h"
+#include "ResultsSingleMenu.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
 #include "SharedRender.h"
@@ -71,9 +72,14 @@ MenuManager::MenuManager(SharedGame& _sharedGame, SharedRender& _sharedRender) :
 			mpp_menus[m_reusableIterator] = new PauseMenu();
 		}
 			break;
-		case Enums::MenuName::Results:
+		case Enums::MenuName::ResultsMulti:
 		{
-			mpp_menus[m_reusableIterator] = new ResultsMenu();
+			mpp_menus[m_reusableIterator] = new ResultsMultiMenu();
+		}
+		break;
+		case Enums::MenuName::ResultsSingle:
+		{
+			mpp_menus[m_reusableIterator] = new ResultsSingleMenu();
 		}
 			break;
 		case Enums::MenuName::SinglePlayer:
@@ -108,6 +114,24 @@ void MenuManager::FixedUpdate()
 }
 #pragma endregion
 
+#pragma region Public Functionality
+void MenuManager::ToResultsMulti()
+{
+	ReadyNextMenu(Enums::MenuName::ResultsMulti);
+}
+void MenuManager::ToResultsSingle(bool _newHighScore)
+{
+	if (_newHighScore)
+	{
+		ReadyNextMenu(Enums::MenuName::ResultsSingle);
+	}
+	else
+	{
+		ReadyNextMenu(Enums::MenuName::ResultsSingle);
+	}
+}
+#pragma endregion
+
 #pragma region Protected Functionality
 void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 {
@@ -137,11 +161,28 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 		}
 		break;
 
-		// Display nothing and move into the game state
-		case Enums::MenuReturn::PlayGame:
+		case Enums::MenuReturn::LoadGame:
 		{
 			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::StartGame;
+			mr_sharedGame.m_gameState = Enums::GameState::LoadGame;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+		break;
+
+		// Display nothing and move into the game state
+		case Enums::MenuReturn::PlayGameLocal:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::StartGameLocal;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+		break;
+
+		// Display nothing and move into the game state
+		case Enums::MenuReturn::PlayGameSingle:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::StartGameSingle;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
 		break;
@@ -159,6 +200,22 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 		case Enums::MenuReturn::Return:
 			ReadyNextMenu(m_returnMenuStack.top(), true);
 			break;
+
+		case Enums::MenuReturn::SaveGame:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::SaveGame;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+		break;
+
+		case Enums::MenuReturn::SaveHighScores:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::SaveHighScores;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+		break;
 
 			// Networking search
 		case Enums::MenuReturn::Search:
@@ -229,6 +286,7 @@ void MenuManager::ReadyNextMenu(int _menuNameIndex, bool _isReturning)
 	}
 
 	m_currentMenuIndex = _menuNameIndex;
+	mpp_menus[_menuNameIndex]->Initialize();
 }
 void MenuManager::ResetAllMenus()
 {

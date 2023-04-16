@@ -95,18 +95,23 @@ void ObjectManager::LastUpdate()
 	while (m_removeFromSceneObjects.empty() == false)
 	{
 		mp_addRemove = m_removeFromSceneObjects.front();
-		m_sceneObjectsList.Remove(mp_addRemove);
-		mp_addRemove->SetSpawnState(Enums::SpawnState::WaitingSelection);
 		m_removeFromSceneObjects.pop();
+
+		mp_addRemove->Destroy();
+		mp_addRemove->SetSpawnState(Enums::SpawnState::WaitingSelection);
+
+		m_sceneObjectsList.Remove(mp_addRemove);
 	}
 
 	// Add all required scene objects
 	while (m_addToSceneObjects.empty() == false)
 	{
 		mp_addRemove = m_addToSceneObjects.front();
-		m_sceneObjectsList.PushBack(mp_addRemove);
-		mp_addRemove->SetSpawnState(Enums::SpawnState::Spawned);
 		m_addToSceneObjects.pop();
+
+		mp_addRemove->SetSpawnState(Enums::SpawnState::Spawned);
+		
+		m_sceneObjectsList.PushBack(mp_addRemove);
 	}
 }
 void ObjectManager::Update()
@@ -124,6 +129,7 @@ void ObjectManager::CleanScene()
 	// Remove all scene objects waiting to be removed
 	while (m_removeFromSceneObjects.empty() == false)
 	{
+		m_removeFromSceneObjects.front()->Destroy();
 		m_removeFromSceneObjects.front()->SetSpawnState(Enums::SpawnState::WaitingSelection);
 		m_removeFromSceneObjects.pop();
 	}
@@ -137,7 +143,7 @@ void ObjectManager::CleanScene()
 
 	for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
 	{
-		(*m_sceneObjectsIterator)->Denitialize(false);
+		(*m_sceneObjectsIterator)->Destroy();
 		(*m_sceneObjectsIterator)->SetSpawnState(Enums::SpawnState::WaitingSelection);
 	}
 
@@ -177,9 +183,17 @@ void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::
 		}
 	}
 }
-void ObjectManager::Start()
+void ObjectManager::Start(bool _newGame)
 {
-	mr_sharedGame.ResetSnakeSpeed();
+	if (_newGame)
+	{
+		mr_sharedGame.ResetSnakeSpeed();
+	}
+	else
+	{
+		//mr_sharedGame.SetSnakeSpeed();
+	}
+
 	Resume();
 }
 #pragma endregion

@@ -79,6 +79,14 @@ SharedGame::SharedGame() :
 }
 #pragma endregion
 
+#pragma region Public Functionality
+void SharedGame::GameSession(bool _isInGameSession, bool _isSinglePlayerGame)
+{
+	m_isInGameSession = _isInGameSession;
+	m_isSinglePlayerGame = _isSinglePlayerGame;
+}
+#pragma endregion
+
 #pragma region Destruction
 SharedGame::~SharedGame()
 {

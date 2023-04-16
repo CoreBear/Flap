@@ -73,6 +73,12 @@
     <Filter Include="Source Files\Spawn">
       <UniqueIdentifier>{aa99d34e-ef90-4c72-8233-b53cee897c9c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\File">
+      <UniqueIdentifier>{0c543654-67e1-4452-82f2-28df862b2e6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\File">
+      <UniqueIdentifier>{0f41ef0c-1bb7-4934-a741-a3bd6cc27147}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplicationManager.cpp">
@@ -144,6 +150,9 @@
     <ClCompile Include="NoTouchy.cpp">
       <Filter>Source Files\Object</Filter>
     </ClCompile>
+    <ClCompile Include="FileIOManager.cpp">
+      <Filter>Source Files\File</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputManager.h">
@@ -170,7 +179,7 @@
     <ClInclude Include="PauseMenu.h">
       <Filter>Header Files\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="ResultsMenu.h">
+    <ClInclude Include="ResultsSingleMenu.h">
       <Filter>Header Files\Menu</Filter>
     </ClInclude>
     <ClInclude Include="SinglePlayerMenu.h">
@@ -259,6 +268,12 @@
     </ClInclude>
     <ClInclude Include="NoTouchy.h">
       <Filter>Header Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="FileIOManager.h">
+      <Filter>Header Files\File</Filter>
+    </ClInclude>
+    <ClInclude Include="ResultsMultiMenu.h">
+      <Filter>Header Files\Menu</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
