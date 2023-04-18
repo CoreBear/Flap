@@ -20,7 +20,7 @@ void InputReceiver::HandleInput()
 
 		//sp_sharedInput->m_inputQueueMutex.unlock();
 
-		switch ((Enums::InputName)m_currentInput.m_inputIndex)
+		switch ((Enums::InputName)m_currentInput.m_inputIndexOrCharacter)
 		{
 		case Enums::InputName::Accept:
 			InputAccept(m_currentInput.m_inputPressState);
@@ -39,6 +39,11 @@ void InputReceiver::HandleInput()
 			break;
 		case Enums::InputName::Up:
 			InputUp(m_currentInput.m_inputPressState);
+			break;
+
+			// High Score Characters
+		default:
+			InputCharacter(m_currentInput.m_inputIndexOrCharacter);
 			break;
 		}
 

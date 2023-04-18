@@ -207,6 +207,18 @@ public:
 
 	// Functionality
 	inline Iterator Begin() const { return Iterator(m_head); }
+	bool Contains(const Type& _value)
+	{
+		for (Iterator it = Begin(); it != End(); ++it)
+		{
+			if (_value == *it)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 	void Clear()
 	{
 		// If not an empty list
@@ -251,7 +263,7 @@ public:
 
 		m_tail = newNode;
 	}
-	bool Remove(Type _value)
+	bool Remove(const Type& _value)
 	{
 		Node* temp = m_head;
 

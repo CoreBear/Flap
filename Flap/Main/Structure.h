@@ -58,7 +58,7 @@ namespace Structure
 	public:
 		// Member Variables
 		Enums::InputPressState m_inputPressState;
-		int m_inputIndex;
+		int m_inputIndexOrCharacter;
 
 		// Initialization
 		Input() = default;

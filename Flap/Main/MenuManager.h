@@ -5,11 +5,11 @@
 #include "DList.h"
 #include "Enums.h"
 #include "InputReceiver.h"
+#include "MenuBase.h"
 
 #include <stack>
 
 class BufferCell;
-class MenuBase;
 class SharedGame;
 class SharedInput;
 class SharedRender;
@@ -30,9 +30,10 @@ public:
 
 	// Functionality
 	inline void PauseGame() { ReadyNextMenu(Enums::MenuName::Pause); }
+	inline void ToHighScore() { ReadyNextMenu(Enums::MenuName::HighScore); }
 	inline void ToMain() { ReadyNextMenu(Enums::MenuName::Main); }
-	void ToResultsMulti();
-	void ToResultsSingle(bool _newHighScore);
+	inline void ToNewHighScore() { ReadyNextMenu(Enums::MenuName::NewHighScore); }
+	inline void ToResultsMulti() { ReadyNextMenu(Enums::MenuName::ResultsMulti); }
 
 	// Destructor
 	~MenuManager();
@@ -40,14 +41,15 @@ public:
 protected:
 	// Functionality
 	void InputAccept(Enums::InputPressState _inputPressState) override;
-	void InputDown(Enums::InputPressState _inputPressState);
-	void InputLeft(Enums::InputPressState _inputPressState);
-	void InputRight(Enums::InputPressState _inputPressState);
-	void InputUp(Enums::InputPressState _inputPressState);
+	inline void InputCharacter(int _inputIndexOrKeyCode) override { mpp_menus[m_currentMenuIndex]->InputCharacter(_inputIndexOrKeyCode); }
+	void InputDown(Enums::InputPressState _inputPressState) override;
+	void InputLeft(Enums::InputPressState _inputPressState) override;
+	void InputRight(Enums::InputPressState _inputPressState) override;
+	void InputUp(Enums::InputPressState _inputPressState) override;
 
 private:
 	// Member Variables
-	const bool m_menuCanBeReturnedTo[static_cast<int>(Enums::MenuName::NumberOfMenus)] { false, true, true, true, true, false, true, false, true, false };
+	const bool m_menuCanBeReturnedTo[static_cast<int>(Enums::MenuName::NumberOfMenus)]{ false, false, true, true, true, true, false, false, true, false, true, false };
 	BufferCell* mp_bufferCell;
 	const char* mp_walker;
 	int m_currentMenuIndex;
@@ -62,8 +64,8 @@ private:
 	unsigned short m_lineColor;
 
 	// Functionality
+	void ClearReturnMenuStack();
 	void ReadyNextMenu(int _menuNameIndex, bool _isReturning = false);
-	void ResetAllMenus();
 	void WriteMenuIntoFrameBuffer();
 	void WriteTextLineIntoBuffer(bool _highlightLine, const TextLine& _textLine);
 };

@@ -10,15 +10,16 @@ class MainMenu final : public MenuBase
 {
 public:
 	// Initialization
-	MainMenu() : MenuBase(5)	// This value must match the number of text lines below
+	MainMenu() : MenuBase(6)	// This value must match the number of text lines below
 	{
 		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
 			new TextLine("Main", Consts::OFF_BY_ONE),   // Menu Title
 			new TextLine("Solo", 5),
 			new TextLine("Multiplayer", 10),
-			new TextLine("Options", 15),
-			new TextLine("Exit", 20)
+			new TextLine("High Scores (Single Player)", 15),
+			new TextLine("Options", 20),
+			new TextLine("Exit", 25)
 		};
 	}
 	MainMenu(const MainMenu&) = delete;
@@ -35,8 +36,10 @@ protected:
 		case 2:
 			return Enums::MenuReturn::Multiplayer;
 		case 3:
-			return Enums::MenuReturn::Options;
+			return Enums::MenuReturn::ShowHighScores;
 		case 4:
+			return Enums::MenuReturn::Options;
+		case 5:
 			return Enums::MenuReturn::ExitApp;
 		}
 

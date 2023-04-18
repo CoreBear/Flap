@@ -10,7 +10,14 @@
 class SharedGame final
 {
 public:
+	// Static Variables
+	static constexpr int MAX_NUMBER_OF_INITIALS = 3;
+	static constexpr int MAX_HS_STRING_LENGTH = 50;			// NOTE: Arbitrary value
+
+
 	// Member Variables
+	char m_initials[MAX_NUMBER_OF_INITIALS]{ 'C','L','M' };
+	char** mpp_highScoreLines;
 	Enums::GameState m_gameState;
 	int m_largestSnakeLengthUponDeath;
 	int m_numberOfFramesBetweenSpawn;

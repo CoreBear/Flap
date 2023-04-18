@@ -3,46 +3,54 @@
 
 #include "BufferCell.h"
 #include "Consts.h"
-#include "DList.h"
-#include "MenuBase.h"
+#include "DynamicTextMenu.h"
 #include "Structure.h"
 #include "TextLine.h"
 #include "Tools.h"
 
-class ResultsMultiMenu final : public MenuBase
+class ResultsMultiMenu final : public DynamicTextMenu
 {
 public:
 	// Initialization
 	void Initialize() override
 	{
-		m_cells.Clear();
-		delete[] mp_largestSnakeLenghtString;
+		ClearCells();
 
-		mp_largestSnakeLenghtString = Tools::IntToString(sp_sharedGame->m_largestSnakeLengthUponDeath);
+		mp_largestSnakeLenghtString = new char[sp_sharedGame->MAX_HS_STRING_LENGTH];
+		strcpy(mp_largestSnakeLenghtString, "Largest Snake: ");
+
+		const char* intString = Tools::IntToString(sp_sharedGame->m_largestSnakeLengthUponDeath);
+		strcat(mp_largestSnakeLenghtString, intString);
+		delete[] intString;
 		
 		mp_walker = mp_largestSnakeLenghtString;
-		m_columnPositionOffset = STARTING_OFFSET;
+
+		m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_largestSnakeLenghtString);
 
 		while (*mp_walker != '\0')
 		{
+			constexpr int ROW = 5;
+			
 			mp_newBufferCell = new BufferCell;
 			mp_newBufferCell->m_character = *mp_walker;
 			mp_newBufferCell->m_colorBFGround = sp_sharedGame->m_largestSnakeColor | Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::Black)];
-			mp_newBufferCell->m_position.m_x = mp_textLines[1]->m_textLineEndColum + m_columnPositionOffset++;
-			mp_newBufferCell->m_position.m_y = mp_textLines[1]->m_position.m_y;
+			mp_newBufferCell->m_position.m_x = m_columnPositionOffset++;
+			mp_newBufferCell->m_position.m_y = ROW;
 			m_cells.PushBack(mp_newBufferCell);
 
 			++mp_walker;
 		}
+
+		delete[] mp_largestSnakeLenghtString;
 	}
 	ResultsMultiMenu() : 
-		MenuBase(3),	// This value must match the number of text lines below
+		DynamicTextMenu(2),	// This value must match the number of text lines below
 		mp_largestSnakeLenghtString(nullptr)
 	{
 		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
 			new TextLine("Results", Consts::OFF_BY_ONE),   // Menu Title
-			new TextLine("Largest Snake:", 5),
+			//new TextLine("Largest Snake:", 5),
 			new TextLine("To Main", 10)
 		};
 	}
@@ -50,15 +58,7 @@ public:
 	ResultsMultiMenu& operator=(const ResultsMultiMenu&) = delete;
 
 	// Destruction
-	~ResultsMultiMenu() 
-	{
-		for (DList<BufferCell*>::Iterator it = m_cells.Begin(); it != m_cells.End(); ++it)
-		{
-			delete (*it);
-		}
-
-		delete[] mp_largestSnakeLenghtString;
-	}
+	inline ~ResultsMultiMenu() { ClearCells(); }
 
 protected:
 	// Functionality
@@ -66,7 +66,7 @@ protected:
 	{
 		switch (m_currentButtonNumber)
 		{
-		case 2:
+		case 1:
 			return Enums::MenuReturn::Main;
 		}
 
@@ -75,12 +75,9 @@ protected:
 	};
 
 private:
-	// Static Variables
-	static constexpr int STARTING_OFFSET = 2;	// Arbitrary 2
-
 	// Member Variables
 	BufferCell* mp_newBufferCell;
-	const char* mp_largestSnakeLenghtString;
+	char* mp_largestSnakeLenghtString;
 	const char* mp_walker;
 	int m_columnPositionOffset;
 };

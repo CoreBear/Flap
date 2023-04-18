@@ -27,6 +27,7 @@ public:
 	// Functionality
 	inline int GetCurrentButtonNumber() const { return m_currentButtonNumber; }
 	inline int InputAccept() { return InputAcceptHandling(); }
+	inline virtual void InputCharacter(int _inputIndexOrKeyCode) { return; }
 	void InputDown();
 	void InputLeft();
 	void InputRight();

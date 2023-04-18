@@ -179,7 +179,7 @@
     <ClInclude Include="PauseMenu.h">
       <Filter>Header Files\Menu</Filter>
     </ClInclude>
-    <ClInclude Include="ResultsSingleMenu.h">
+    <ClInclude Include="HighScoreMenu.h">
       <Filter>Header Files\Menu</Filter>
     </ClInclude>
     <ClInclude Include="SinglePlayerMenu.h">
@@ -273,6 +273,12 @@
       <Filter>Header Files\File</Filter>
     </ClInclude>
     <ClInclude Include="ResultsMultiMenu.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="NewHighScoreMenu.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicTextMenu.h">
       <Filter>Header Files\Menu</Filter>
     </ClInclude>
   </ItemGroup>

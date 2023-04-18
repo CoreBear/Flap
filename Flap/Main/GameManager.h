@@ -38,6 +38,7 @@ private:
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	MenuManager* const mp_menuManager;
 	SharedGame& mr_sharedGame;
+	SharedInput& mr_sharedInput;
 	SharedRender& mr_sharedRender;
 
 	// Functionality

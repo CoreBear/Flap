@@ -5,7 +5,7 @@
 #pragma endregion
 
 #pragma region Initialization
-SharedInput::SharedInput()
+SharedInput::SharedInput() : m_inputType(Enums::InputType::Normal)
 {
 	InputReceiver::AssignSharedInput(*this); 
 }

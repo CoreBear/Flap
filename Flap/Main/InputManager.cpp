@@ -46,27 +46,93 @@ void InputManager::Update()
 	// NOTE: This call blocks, which is fine, since input is on its own thread
 	ReadConsoleInput(INPUT_WINDOW_HANDLE, m_inputRecords, BUFFER_LENGTH, reinterpret_cast<LPDWORD>(&m_numberOfEventsRead));
 
-	// For each record
-	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < m_numberOfEventsRead; m_reusableIterator_1++)
-	{
-		//https://learn.microsoft.com/en-us/windows/console/input-record-str
-		// NOTE: Records can be focus, key, menu, mouse, window buffer
-		// Only handle key input
-		if (m_inputRecords[m_reusableIterator_1].EventType == KEY_EVENT)
-		{
-			// For each player
-			for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_2++)
-			{
-				// For each player's inputs being watched
-				for (m_reusableIterator_3 = Consts::NO_VALUE; m_reusableIterator_3 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_3++)
-				{
-					// If input that caused event is an input being watched
-					if (m_inputRecords[m_reusableIterator_1].Event.KeyEvent.wVirtualKeyCode == Consts::INPUTS[m_reusableIterator_2][m_reusableIterator_3])
-					{
-						ReadAndEnqueueInput(m_inputRecords[m_reusableIterator_1].Event.KeyEvent);
+	mr_sharedInput.m_inputTypeMutex.lock();
 
-						// Stop looking for input
-						return;
+	if (mr_sharedInput.m_inputType == Enums::InputType::Normal)
+	{
+		mr_sharedInput.m_inputTypeMutex.unlock();
+
+		// For each record
+		for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < m_numberOfEventsRead; m_reusableIterator_1++)
+		{
+			//https://learn.microsoft.com/en-us/windows/console/input-record-str
+			// NOTE: Records can be focus, key, menu, mouse, window buffer
+			// Only handle key input
+			if (m_inputRecords[m_reusableIterator_1].EventType == KEY_EVENT)
+			{
+				// For each player
+				for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_2++)
+				{
+					// For each player's inputs being watched
+					for (m_reusableIterator_3 = Consts::NO_VALUE; m_reusableIterator_3 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_3++)
+					{
+						// If input that caused event is an input being watched
+						if (m_inputRecords[m_reusableIterator_1].Event.KeyEvent.wVirtualKeyCode == Consts::INPUTS[m_reusableIterator_2][m_reusableIterator_3])
+						{
+							ReadAndEnqueueInput(m_inputRecords[m_reusableIterator_1].Event.KeyEvent);
+
+							// Stop looking for input
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		mr_sharedInput.m_inputTypeMutex.unlock();
+
+		// For each record
+		for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < m_numberOfEventsRead; m_reusableIterator_1++)
+		{
+			if (m_inputRecords[m_reusableIterator_1].EventType == KEY_EVENT)
+			{
+				// If input is pressed down
+				if (m_inputRecords[m_reusableIterator_1].Event.KeyEvent.bKeyDown)
+				{
+					m_virtualKeyCode = m_inputRecords[m_reusableIterator_1].Event.KeyEvent.wVirtualKeyCode;
+
+					if (m_lettersBeingPressedDuringHighScoreInput.Contains(m_virtualKeyCode) == false)
+					{
+						m_lettersBeingPressedDuringHighScoreInput.PushBack(m_virtualKeyCode);
+
+						switch (m_inputRecords[m_reusableIterator_1].Event.KeyEvent.wVirtualKeyCode)
+						{
+						case VK_RETURN:
+						{
+							ClearQueuesAndUpdateGameState(Enums::GameState::Menu);
+
+							m_newInput.m_inputIndexOrCharacter = static_cast<int>(Enums::InputName::Accept);
+						}
+						break;
+						case VK_DOWN:
+							m_newInput.m_inputIndexOrCharacter = static_cast<int>(Enums::InputName::Down);
+							break;
+						case VK_LEFT:
+							m_newInput.m_inputIndexOrCharacter = static_cast<int>(Enums::InputName::Left);
+							break;
+						case VK_RIGHT:
+							m_newInput.m_inputIndexOrCharacter = static_cast<int>(Enums::InputName::Right);
+							break;
+						case VK_UP:
+							m_newInput.m_inputIndexOrCharacter = static_cast<int>(Enums::InputName::Up);
+							break;
+						default:
+							m_newInput.m_inputIndexOrCharacter = static_cast<int>(m_inputRecords[m_reusableIterator_1].Event.KeyEvent.uChar.UnicodeChar);
+							break;
+						}
+
+						m_newInput.m_inputPressState = Enums::InputPressState::PressedThisFrame;
+
+						// Add input to queue
+						mr_sharedInput.m_inputQueueMutex.lock();
+						mr_sharedInput.m_inputQueue[Consts::NO_VALUE].push(m_newInput);
+						mr_sharedInput.m_inputQueueMutex.unlock();
+					}
+					else
+					{
+						m_lettersBeingPressedDuringHighScoreInput.Remove(m_virtualKeyCode);
 					}
 				}
 			}
@@ -76,6 +142,24 @@ void InputManager::Update()
 #pragma endregion
 
 #pragma region Private Functionality
+void InputManager::ClearQueuesAndUpdateGameState(Enums::GameState _gameState)
+{
+	mr_sharedInput.m_inputQueueMutex.lock();
+
+	// Clear each queue
+	for (m_reusableIterator_4 = Consts::NO_VALUE; m_reusableIterator_4 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_4++)
+	{
+		while (mr_sharedInput.m_inputQueue[m_reusableIterator_4].empty() == false)
+		{
+			mr_sharedInput.m_inputQueue[m_reusableIterator_4].pop();
+		}
+	}
+
+	mr_sharedGame.m_gameStateMutex.lock();
+	mr_sharedGame.m_gameState = _gameState;
+	mr_sharedGame.m_gameStateMutex.unlock();
+	mr_sharedInput.m_inputQueueMutex.unlock();
+}
 void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 {
 	// If input is pressed down
@@ -155,7 +239,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		case Enums::GameState::Menu:
 		{
 			// Add values to container
-			m_newInput.m_inputIndex = m_reusableIterator_3;
+			m_newInput.m_inputIndexOrCharacter = m_reusableIterator_3;
 			m_newInput.m_inputPressState = mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3];
 
 			// Add input to queue
@@ -171,21 +255,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	// If a player is trying to pause the game
 	else
 	{
-		mr_sharedInput.m_inputQueueMutex.lock();
-
-		// Clear each queue
-		for (m_reusableIterator_4 = Consts::NO_VALUE; m_reusableIterator_4 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_4++)
-		{
-			while (mr_sharedInput.m_inputQueue[m_reusableIterator_4].empty() == false)
-			{
-				mr_sharedInput.m_inputQueue[m_reusableIterator_4].pop();
-			}
-		}
-
-		mr_sharedGame.m_gameStateMutex.lock();
-		mr_sharedGame.m_gameState = Enums::GameState::PauseGame;
-		mr_sharedGame.m_gameStateMutex.unlock();
-		mr_sharedInput.m_inputQueueMutex.unlock();
+		ClearQueuesAndUpdateGameState(Enums::GameState::PauseGame);
 	}
 }
 #pragma endregion

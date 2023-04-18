@@ -19,6 +19,7 @@ GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedG
 	mp_gameRunManager(new GameRunManager(_sharedGame, _sharedInput, _sharedRender)),
 	mp_menuManager(new MenuManager(_sharedGame, _sharedRender)),
 	mr_sharedGame(_sharedGame),
+	mr_sharedInput(_sharedInput),
 	mr_sharedRender(_sharedRender)
 {
 	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
@@ -78,7 +79,18 @@ void GameManager::Update()
 		{
 			m_newHighScore = mp_fileIOManager->CheckForNewHighScore();
 
-			mp_menuManager->ToResultsSingle(m_newHighScore);
+			if (m_newHighScore)
+			{
+				mr_sharedInput.m_inputTypeMutex.lock();
+				mr_sharedInput.m_inputType = Enums::InputType::HighScore;
+				mr_sharedInput.m_inputTypeMutex.unlock();
+
+				mp_menuManager->ToNewHighScore();
+			}
+			else
+			{
+				mp_menuManager->ToHighScore();
+			}
 		}
 		else
 		{
@@ -168,9 +180,28 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
 
-		mp_fileIOManager->SaveHighScores(m_newHighScore, "BBB");
+		mr_sharedInput.m_inputTypeMutex.lock();
+		mr_sharedInput.m_inputType = Enums::InputType::Normal;
+		mr_sharedInput.m_inputTypeMutex.unlock();
 
-		mp_menuManager->ToMain();
+		mp_fileIOManager->SaveHighScores(m_newHighScore, mr_sharedGame.m_initials);
+
+		mp_menuManager->ToHighScore();
+
+		mp_fileIOManager->ClearHighScores();
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	case Enums::GameState::ShowHighScores:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_fileIOManager->LoadHighScores();
+
+		mp_menuManager->ToHighScore();
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;

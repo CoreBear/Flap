@@ -7,6 +7,7 @@
 
 #pragma region Initialization
 SharedGame::SharedGame() :
+	mpp_highScoreLines(nullptr),
 	m_isInGameSession(false),
 	m_gameState(Enums::GameState::Menu),
 	MAX_NUMBER_OF_NODES_TO_ADD(9),				// NOTE: Arbitrary value
@@ -90,6 +91,20 @@ void SharedGame::GameSession(bool _isInGameSession, bool _isSinglePlayerGame)
 #pragma region Destruction
 SharedGame::~SharedGame()
 {
+	if (mpp_highScoreLines != nullptr)
+	{
+		for (int lineIndex = Consts::NO_VALUE; lineIndex < MAX_NUMBER_OF_HIGH_SCORES; lineIndex++)
+		{
+			if (mpp_highScoreLines[lineIndex] != nullptr)
+			{
+				delete[] mpp_highScoreLines[lineIndex];
+				mpp_highScoreLines[lineIndex] = nullptr;
+			}
+		}
+		delete[] mpp_highScoreLines;
+		mpp_highScoreLines = nullptr;
+	}
+
 	for (int positionIndex = Consts::NO_VALUE; positionIndex < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; positionIndex++)
 	{
 		delete mp_snakeStartPositions[positionIndex];

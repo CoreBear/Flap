@@ -33,6 +33,7 @@ protected:
 	// Functionality
 	void HandleInput();
 	inline virtual void InputAccept(Enums::InputPressState _inputPressState) { return; }
+	inline virtual void InputCharacter(int _inputIndexOrKeyCode) { return; }
 	inline virtual void InputDown(Enums::InputPressState _inputPressState) { return; }
 	inline virtual void InputLeft(Enums::InputPressState _inputPressState) { return; }
 	inline virtual void InputPause(Enums::InputPressState _inputPressState) { return; }
