@@ -1,14 +1,18 @@
 #pragma region Includes
 #include "Avatar.h"
-
-#include "SharedInput.h"
 #pragma endregion
 
 #pragma region Initialization
-Avatar::Avatar(SharedInput& _sharedInput)
+Avatar::Avatar()
 {
 	static int playerIndex = Consts::NO_VALUE;
 	m_readIndex = playerIndex++;
+}
+void Avatar::Initialize(const Structure::Generic* const _genericContainer)
+{
+	m_newCollisionRenderInfo.m_char = Tools::IntToChar(_genericContainer->m_int);
+
+	Snake::Initialize(_genericContainer);
 }
 #pragma endregion
 

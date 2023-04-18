@@ -24,7 +24,7 @@ public:
 	static void AssignSharedGame(SharedGame& _sharedGame) { sp_sharedGame = &_sharedGame; }
 
 	// Initialization
-	void Initialize(const Structure::Generic* const _genericContainer) override final;
+	virtual void Initialize(const Structure::Generic* const _genericContainer) override;
 	Snake();
 	Snake(const Snake&) = delete;
 	Snake& operator=(const Snake&) = delete;
@@ -39,6 +39,9 @@ public:
 	void Destroy() override final;
 
 protected:
+	// Member Variables
+	Structure::CollisionRenderInfo m_newCollisionRenderInfo;
+
 	// Functionality
 	inline void InputDown() { m_newDirection = Enums::InputName::Down; }
 	inline void InputLeft() { m_newDirection = Enums::InputName::Left; }
@@ -47,10 +50,10 @@ protected:
 
 private:
 	// Static Variables
+	static constexpr char INVALID_PLAYER = '?';
 	static SharedGame* sp_sharedGame;
 
 	// Member Variables
-	Structure::CollisionRenderInfo m_newCollisionRenderInfo;
 	DList<Structure::CollisionRenderInfo> m_bodyNodes;
 	DList<Structure::CollisionRenderInfo>::Iterator m_headTraversingIterator;
 	DList<Structure::CollisionRenderInfo>::Iterator m_tailTraversingIterator;

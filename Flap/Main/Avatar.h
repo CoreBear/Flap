@@ -4,15 +4,14 @@
 #include "InputReceiver.h"
 #include "Snake.h"
 
-class SharedInput;
-
 class Avatar final : public InputReceiver, public Snake
 {
 public:
 	// Initialization
-	Avatar(SharedInput& _sharedInput);
+	Avatar();
 	Avatar(const Avatar&) = delete;
 	Avatar& operator=(const Avatar&) = delete;
+	void Initialize(const Structure::Generic* const _genericContainer) override;
 
 	// Updates
 	void FixedUpdate() override;

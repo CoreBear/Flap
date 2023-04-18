@@ -26,7 +26,11 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 	m_currentDirection = Enums::InputName::NA;
 	m_newDirection = Enums::InputName::NA;
 
-	m_newCollisionRenderInfo.m_char = Tools::IntToChar(_genericContainer->m_int);
+	if (m_newCollisionRenderInfo.m_char == INVALID_PLAYER)
+	{
+		m_newCollisionRenderInfo.m_char = Consts::EMPTY_SPACE_CHAR;
+	}
+
 	m_newCollisionRenderInfo.m_objectType = Enums::ObjectType::Snake;
 	m_newCollisionRenderInfo.m_color = Consts::BACKGROUND_COLORS[sp_sharedGame->GetPlayerSnakeColorIndexRef(_genericContainer->m_int - Consts::OFF_BY_ONE)];
 	m_newCollisionRenderInfo.m_position = m_position;
@@ -35,9 +39,6 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 
 	m_length = Consts::OFF_BY_ONE;
 
-	// Reset so the body doesn't have these numbers
-	m_newCollisionRenderInfo.m_char = Consts::EMPTY_SPACE_CHAR;
-
 	m_numberOfTailSectionsToAdd = Consts::NO_VALUE;
 }
 Snake::Snake() : 
@@ -45,7 +46,7 @@ Snake::Snake() :
 	m_newDirection(Enums::InputName::NA), 
 	m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
 {
-	return;
+	m_newCollisionRenderInfo.m_char = INVALID_PLAYER;
 }
 #pragma endregion
 
@@ -317,5 +318,7 @@ void Snake::WriteIntoFrameBuffer()
 void Snake::Destroy()
 {
 	m_bodyNodes.Clear();
+
+	m_newCollisionRenderInfo.m_char = INVALID_PLAYER;
 }
 #pragma endregion

@@ -43,7 +43,7 @@ ObjectManager::ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput,
 			switch ((Enums::ObjectType)objectTypeIndex)
 			{
 			case Enums::ObjectType::Avatar:
-				mppp_pooledObjects[objectTypeIndex][m_reusableIterator] = new Avatar(_sharedInput);
+				mppp_pooledObjects[objectTypeIndex][m_reusableIterator] = new Avatar();
 				break;
 			case Enums::ObjectType::Food:
 				mppp_pooledObjects[objectTypeIndex][m_reusableIterator] = new Food();
