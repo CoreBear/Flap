@@ -80,7 +80,7 @@ protected:
 		switch (m_currentButtonNumber)
 		{
 		case 1:
-			return Enums::MenuReturn::Main;
+			return Enums::MenuReturn::HighScoreToMain;
 		}
 
 		// NOTE: If player clicks accept on a non-button

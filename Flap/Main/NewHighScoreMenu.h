@@ -30,7 +30,7 @@ public:
 
 		m_initialIndex = Consts::NO_VALUE;
 		
-		memset(sp_sharedGame->m_initials, ' ', sp_sharedGame->MAX_NUMBER_OF_INITIALS);
+		memset(sp_sharedGame->m_initials, Consts::EMPTY_SPACE_CHAR, sp_sharedGame->MAX_NUMBER_OF_INITIALS);
 		
 		// Generate instruction line
 		{

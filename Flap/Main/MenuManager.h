@@ -30,6 +30,8 @@ public:
 
 	// Functionality
 	inline void PauseGame() { ReadyNextMenu(Enums::MenuName::Pause); }
+	bool PreviousMenuIs(int _menuIndexBeingChecked);
+	inline void ReturnToPreviousMenu() { ReadyNextMenu(m_returnMenuStack.top(), true); }
 	inline void ToHighScore() { ReadyNextMenu(Enums::MenuName::HighScore); }
 	inline void ToMain() { ReadyNextMenu(Enums::MenuName::Main); }
 	inline void ToNewHighScore() { ReadyNextMenu(Enums::MenuName::NewHighScore); }

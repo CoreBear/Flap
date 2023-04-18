@@ -1,7 +1,6 @@
 #ifndef INPUT_MANAGER_H
 #define INPUT_MANAGER_H
 
-#include "DList.h"
 #include "Enums.h"
 #include "GameThreadBase.h"
 #include "Structure.h"
@@ -32,7 +31,6 @@ private:
 	static constexpr unsigned int NUMBER_OF_DEAD_FRAMES = 15;		// Arbitrary value, represents click-to-hold number of frames
 	
 	// Member Variables
-	DList<WORD> m_lettersBeingPressedDuringHighScoreInput;
 	const DWORD BUFFER_LENGTH;
 	const HANDLE INPUT_WINDOW_HANDLE;
 	Structure::Input m_newInput;
@@ -46,7 +44,6 @@ private:
 	SharedGame& mr_sharedGame;
 	SharedInput& mr_sharedInput;
 	unsigned int** mpp_deadFramesTargetFrames;
-	WORD m_virtualKeyCode;
 
 	// Functionality
 	void ClearQueuesAndUpdateGameState(Enums::GameState _gameState);

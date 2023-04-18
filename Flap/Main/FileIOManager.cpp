@@ -20,14 +20,17 @@ bool FileIOManager::CheckForNewHighScore()
 }
 void FileIOManager::ClearHighScores()
 {
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedGame.MAX_NUMBER_OF_HIGH_SCORES; m_reusableIterator++)
+	if (mr_sharedGame.mpp_highScoreLines != nullptr)
 	{
-		delete[] mr_sharedGame.mpp_highScoreLines[m_reusableIterator];
-		mr_sharedGame.mpp_highScoreLines[m_reusableIterator] = nullptr;
-	}
+		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedGame.MAX_NUMBER_OF_HIGH_SCORES; m_reusableIterator++)
+		{
+			delete[] mr_sharedGame.mpp_highScoreLines[m_reusableIterator];
+			mr_sharedGame.mpp_highScoreLines[m_reusableIterator] = nullptr;
+		}
 
-	delete[] mr_sharedGame.mpp_highScoreLines;
-	mr_sharedGame.mpp_highScoreLines = nullptr;
+		delete[] mr_sharedGame.mpp_highScoreLines;
+		mr_sharedGame.mpp_highScoreLines = nullptr;
+	}
 }
 void FileIOManager::LoadGame()
 {
@@ -83,7 +86,7 @@ int FileIOManager::GetScore(int _scoreIndex)
 {
 	mp_walker = mr_sharedGame.mpp_highScoreLines[_scoreIndex];
 
-	constexpr char DELIM = '.';
+	constexpr char DELIM = Consts::EMPTY_SPACE_CHAR;
 	while (*mp_walker != DELIM)
 	{
 		++mp_walker;

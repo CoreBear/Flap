@@ -104,6 +104,26 @@ void GameManager::Update()
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
+	case Enums::GameState::HighScoreToMain:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_fileIOManager->ClearHighScores();
+
+		if (mp_menuManager->PreviousMenuIs(Enums::MenuName::Main))
+		{
+			mp_menuManager->ReturnToPreviousMenu();
+		}
+		else
+		{
+			mp_menuManager->ToMain();
+		}
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
 	case Enums::GameState::LoadGame:
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();

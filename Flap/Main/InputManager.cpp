@@ -91,12 +91,8 @@ void InputManager::Update()
 				// If input is pressed down
 				if (m_inputRecords[m_reusableIterator_1].Event.KeyEvent.bKeyDown)
 				{
-					m_virtualKeyCode = m_inputRecords[m_reusableIterator_1].Event.KeyEvent.wVirtualKeyCode;
-
-					if (m_lettersBeingPressedDuringHighScoreInput.Contains(m_virtualKeyCode) == false)
+					if (m_inputRecords[m_reusableIterator_1].Event.KeyEvent.wRepeatCount == 1)
 					{
-						m_lettersBeingPressedDuringHighScoreInput.PushBack(m_virtualKeyCode);
-
 						switch (m_inputRecords[m_reusableIterator_1].Event.KeyEvent.wVirtualKeyCode)
 						{
 						case VK_RETURN:
@@ -129,10 +125,6 @@ void InputManager::Update()
 						mr_sharedInput.m_inputQueueMutex.lock();
 						mr_sharedInput.m_inputQueue[Consts::NO_VALUE].push(m_newInput);
 						mr_sharedInput.m_inputQueueMutex.unlock();
-					}
-					else
-					{
-						m_lettersBeingPressedDuringHighScoreInput.Remove(m_virtualKeyCode);
 					}
 				}
 			}
@@ -255,7 +247,16 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	// If a player is trying to pause the game
 	else
 	{
-		ClearQueuesAndUpdateGameState(Enums::GameState::PauseGame);
+		mr_sharedGame.m_gameStateMutex.lock();
+		if (mr_sharedGame.m_gameState == Enums::GameState::Game)
+		{
+			mr_sharedGame.m_gameStateMutex.unlock();
+			ClearQueuesAndUpdateGameState(Enums::GameState::PauseGame);
+		}
+		else
+		{
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
 	}
 }
 #pragma endregion

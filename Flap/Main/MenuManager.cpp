@@ -119,6 +119,20 @@ void MenuManager::FixedUpdate()
 }
 #pragma endregion
 
+#pragma region Public Functionality
+bool MenuManager::PreviousMenuIs(int _menuIndexBeingChecked)
+{
+	if (m_returnMenuStack.empty())
+	{
+		return false;
+	}
+	else
+	{
+		return (m_returnMenuStack.top() == _menuIndexBeingChecked) ? true : false;
+	}
+}
+#pragma endregion
+
 #pragma region Protected Functionality
 void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 {
@@ -146,6 +160,14 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 
 			mr_sharedGame.m_gameStateMutex.lock();
 			mr_sharedGame.m_gameState = Enums::GameState::ExitToMain;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+		break;
+
+		case Enums::MenuReturn::HighScoreToMain:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::HighScoreToMain;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
 		break;
@@ -200,7 +222,7 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 
 		// Return to previous menu
 		case Enums::MenuReturn::Return:
-			ReadyNextMenu(m_returnMenuStack.top(), true);
+			ReturnToPreviousMenu();
 			break;
 
 		case Enums::MenuReturn::SaveGame:
