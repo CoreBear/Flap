@@ -6,6 +6,7 @@
 #include "FileIOManager.h"
 #include "GameRunManager.h"
 #include "MenuManager.h"
+#include "NetworkManager.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
 #include "SharedRender.h"
@@ -64,7 +65,7 @@ void GameManager::Update()
 
 		GameOver();
 
-		mp_menuManager->ToMain();
+		mp_menuManager->DisplayMenu(Enums::MenuName::Main);
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
@@ -85,16 +86,16 @@ void GameManager::Update()
 				mr_sharedInput.m_inputType = Enums::InputType::HighScore;
 				mr_sharedInput.m_inputTypeMutex.unlock();
 
-				mp_menuManager->ToNewHighScore();
+				mp_menuManager->DisplayMenu(Enums::MenuName::NewHighScore);
 			}
 			else
 			{
-				mp_menuManager->ToHighScore();
+				mp_menuManager->DisplayMenu(Enums::MenuName::HighScore);
 			}
 		}
 		else
 		{
-			mp_menuManager->ToResultsMulti();
+			mp_menuManager->DisplayMenu(Enums::MenuName::ResultsMulti);
 		}
 
 		GameOver();
@@ -116,7 +117,7 @@ void GameManager::Update()
 		}
 		else
 		{
-			mp_menuManager->ToMain();
+			mp_menuManager->DisplayMenu(Enums::MenuName::Main);
 		}
 
 		mr_sharedGame.m_gameStateMutex.lock();
@@ -167,7 +168,7 @@ void GameManager::Update()
 		mr_sharedGame.m_gameStateMutex.unlock();
 
 		mp_gameRunManager->PauseGame();
-		mp_menuManager->PauseGame();
+		mp_menuManager->DisplayMenu(Enums::MenuName::Pause);
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
@@ -185,6 +186,28 @@ void GameManager::Update()
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;
+	case Enums::GameState::RunAsClient:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_networkManager->InitHost(false);
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	case Enums::GameState::RunAsServer:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_networkManager->InitHost(true);
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
 	case Enums::GameState::SaveGame:
 	{
 		mr_sharedGame.m_gameStateMutex.unlock();
@@ -193,7 +216,7 @@ void GameManager::Update()
 
 		GameOver();
 
-		mp_menuManager->ToMain();
+		mp_menuManager->DisplayMenu(Enums::MenuName::Main);
 	}
 	break;
 	case Enums::GameState::SaveHighScores:
@@ -206,7 +229,7 @@ void GameManager::Update()
 
 		mp_fileIOManager->SaveHighScores(m_newHighScore, mr_sharedGame.m_initials);
 
-		mp_menuManager->ToHighScore();
+		mp_menuManager->DisplayMenu(Enums::MenuName::HighScore);
 
 		mp_fileIOManager->ClearHighScores();
 
@@ -221,7 +244,7 @@ void GameManager::Update()
 
 		mp_fileIOManager->LoadHighScores();
 
-		mp_menuManager->ToHighScore();
+		mp_menuManager->DisplayMenu(Enums::MenuName::HighScore);
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Menu;
@@ -251,6 +274,35 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameStateMutex.lock();
 		mr_sharedGame.m_gameState = Enums::GameState::Game;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	case Enums::GameState::StartNetworking:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_networkManager = new NetworkManager(mr_sharedGame);
+		m_networkingThread = std::thread(&NetworkManager::NetworkThreadEntry_Loop, &(*mp_networkManager));
+
+		mp_menuManager->DisplayMenu(Enums::MenuName::Network);
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Menu;
+		mr_sharedGame.m_gameStateMutex.unlock();
+	}
+	break;
+	case Enums::GameState::StopNetworking:
+	{
+		mr_sharedGame.m_gameStateMutex.unlock();
+
+		mp_networkManager->StopNetworking();
+		m_networkingThread.join();
+		delete mp_networkManager;
+
+		mp_menuManager->ReturnToPreviousMenu();
+
+		mr_sharedGame.m_gameStateMutex.lock();
+		mr_sharedGame.m_gameState = Enums::GameState::Menu;
 		mr_sharedGame.m_gameStateMutex.unlock();
 	}
 	break;

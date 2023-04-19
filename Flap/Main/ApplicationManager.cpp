@@ -32,7 +32,7 @@
 
 #pragma region Prototypes
 void SetupConsole(COORD& _windowDimensions, HANDLE& _outputWindowHandle);
-void ThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame);
+void ThreadEntry_Loop(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame);
 #pragma endregion
 
 int main()
@@ -72,7 +72,7 @@ int main()
 		// Start threads
 		for (int threadIndex = Consts::NO_VALUE; threadIndex < static_cast<int>(ThreadType::NumberOfTypes); threadIndex++)
 		{
-			threads[threadIndex] = std::thread(ThreadEntry, gameThreadBases, threadIndex, &sharedGame);
+			threads[threadIndex] = std::thread(ThreadEntry_Loop, gameThreadBases, threadIndex, &sharedGame);
 		}
 
 		// Wait for threads
@@ -136,7 +136,7 @@ void SetupConsole(COORD& _windowDimensions, HANDLE& _outputWindowHandle)
 		SetConsoleCursorInfo(_outputWindowHandle, &cci);
 	}
 }
-void ThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame)
+void ThreadEntry_Loop(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame)
 {
 	_sharedGame->m_gameStateMutex.lock();
 	while (_sharedGame->m_gameState != Enums::GameState::ExitApp)

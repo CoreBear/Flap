@@ -34,12 +34,12 @@ public:
 		
 		// Generate instruction line
 		{
-			mp_string = new char[UCHAR_MAX];
-			strcpy(mp_string, "Press left arrow and right arrow, to choose a cell. Type the character you'd like to enter. Press enter to containue.");
+			mp_newString = new char[UCHAR_MAX];
+			strcpy(mp_newString, "Press left arrow and right arrow, to choose a cell. Type the character you'd like to enter. Press enter to containue.");
 
-			mp_walker = mp_string;
+			mp_walker = mp_newString;
 
-			m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_string);
+			m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_newString);
 
 			while (*mp_walker != '\0')
 			{
@@ -53,21 +53,21 @@ public:
 				++mp_walker;
 			}
 
-			delete[] mp_string;
+			delete[] mp_newString;
 		}
 
 		// Generate initial/score line
 		{
-			mp_string = new char[sp_sharedGame->MAX_HS_STRING_LENGTH];
-			strcpy(mp_string, "Please enter your initials: ___ ");
+			mp_newString = new char[sp_sharedGame->MAX_HS_STRING_LENGTH];
+			strcpy(mp_newString, "Please enter your initials: ___ ");
 
 			const char* intString = Tools::IntToString(sp_sharedGame->m_largestSnakeLengthUponDeath);
-			strcat(mp_string, intString);
+			strcat(mp_newString, intString);
 			delete[] intString;
 
-			mp_walker = mp_string;
+			mp_walker = mp_newString;
 
-			m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_string);
+			m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_newString);
 
 			while (*mp_walker != '\0')
 			{
@@ -90,12 +90,9 @@ public:
 				}
 			}
 
-			delete[] mp_string;
+			delete[] mp_newString;
 		}
 	}
-
-	// Destruction
-	inline ~NewHighScoreMenu() { ClearCells(); }
 
 protected:
 	// Functionality
@@ -142,10 +139,6 @@ protected:
 
 private:
 	// Member Variables
-	BufferCell* mp_newBufferCell;
-	char* mp_string;
-	const char* mp_walker;
-	int m_columnPositionOffset;
 	int m_initialIndex;
 	DList<BufferCell*>::Iterator m_updateCellIterator;
 };

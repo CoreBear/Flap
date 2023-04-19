@@ -5,7 +5,6 @@
 #include "SharedGame.h"
 
 #include <fstream>
-#define _CRT_SECURE_NO_WARNINGS 1
 #pragma endregion
 
 #pragma region Public Functionality

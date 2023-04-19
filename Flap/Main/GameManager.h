@@ -4,11 +4,13 @@
 #include "GameThreadBase.h"
 
 #include <chrono>
+#include <thread>
 #include <Windows.h>		// NOTE/WARNING: Has to be here or else the compiler screams about forward declaring HANDLE
 
 class FileIOManager;
 class GameRunManager;
 class MenuManager;
+class NetworkManager;
 class SharedGame;
 class SharedInput;
 class SharedRender;
@@ -37,9 +39,11 @@ private:
 	GameRunManager* const mp_gameRunManager;
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	MenuManager* const mp_menuManager;
+	NetworkManager* mp_networkManager;		// NOTE: Allocated and destroyed at specific times so winsock isn't always initialized
 	SharedGame& mr_sharedGame;
 	SharedInput& mr_sharedInput;
 	SharedRender& mr_sharedRender;
+	std::thread m_networkingThread;
 
 	// Functionality
 	void GameOver();

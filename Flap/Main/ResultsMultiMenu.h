@@ -16,16 +16,16 @@ public:
 	{
 		ClearCells();
 
-		mp_largestSnakeLenghtString = new char[sp_sharedGame->MAX_HS_STRING_LENGTH];
-		strcpy(mp_largestSnakeLenghtString, "Largest Snake: ");
+		mp_newString = new char[sp_sharedGame->MAX_HS_STRING_LENGTH];
+		strcpy(mp_newString, "Largest Snake: ");
 
 		const char* intString = Tools::IntToString(sp_sharedGame->m_largestSnakeLengthUponDeath);
-		strcat(mp_largestSnakeLenghtString, intString);
+		strcat(mp_newString, intString);
 		delete[] intString;
 		
-		mp_walker = mp_largestSnakeLenghtString;
+		mp_walker = mp_newString;
 
-		m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_largestSnakeLenghtString);
+		m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_newString);
 
 		while (*mp_walker != '\0')
 		{
@@ -41,11 +41,10 @@ public:
 			++mp_walker;
 		}
 
-		delete[] mp_largestSnakeLenghtString;
+		delete[] mp_newString;
 	}
 	ResultsMultiMenu() : 
-		DynamicTextMenu(2),	// This value must match the number of text lines below
-		mp_largestSnakeLenghtString(nullptr)
+		DynamicTextMenu(2)	// This value must match the number of text lines below
 	{
 		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
@@ -56,9 +55,6 @@ public:
 	}
 	ResultsMultiMenu(const ResultsMultiMenu&) = delete;
 	ResultsMultiMenu& operator=(const ResultsMultiMenu&) = delete;
-
-	// Destruction
-	inline ~ResultsMultiMenu() { ClearCells(); }
 
 protected:
 	// Functionality
@@ -73,13 +69,6 @@ protected:
 		// NOTE: If player clicks accept on a non-button
 		return Enums::MenuReturn::NA;
 	};
-
-private:
-	// Member Variables
-	BufferCell* mp_newBufferCell;
-	char* mp_largestSnakeLenghtString;
-	const char* mp_walker;
-	int m_columnPositionOffset;
 };
 
 #endif RESULTS_MULTI_MENU_H

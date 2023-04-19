@@ -32,12 +32,9 @@ protected:
 		case 1:
 			return Enums::MenuReturn::LocalMultiplayer;
 		case 2:
-			return Enums::MenuReturn::Network;
+			return Enums::MenuReturn::StartNetworking;
 		case 3:
-		{
-			m_currentButtonNumber = Consts::OFF_BY_ONE;
 			return Enums::MenuReturn::Return;
-		}
 		}
 
 		// NOTE: If player clicks accept on a non-button

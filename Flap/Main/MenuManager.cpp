@@ -106,7 +106,7 @@ MenuManager::MenuManager(SharedGame& _sharedGame, SharedRender& _sharedRender) :
 		}
 	}
 
-	ReadyNextMenu(Enums::MenuName::Welcome);
+	DisplayMenu(Enums::MenuName::Welcome);
 }
 #pragma endregion
 
@@ -120,6 +120,30 @@ void MenuManager::FixedUpdate()
 #pragma endregion
 
 #pragma region Public Functionality
+void MenuManager::DisplayMenu(int _menuNameIndex, bool _isReturning)
+{
+	// If returning to a previous menu
+	if (_isReturning)
+	{
+		m_returnMenuStack.pop();
+	}
+
+	// If not returning to a previous menu
+	else
+	{
+		// If menu can be returned to
+		if (m_menuCanBeReturnedTo[m_currentMenuIndex])
+		{
+			m_returnMenuStack.push(m_currentMenuIndex);
+		}
+
+		// Reset next menu's button number
+		mpp_menus[_menuNameIndex]->ResetButtonNumber();
+	}
+
+	m_currentMenuIndex = _menuNameIndex;
+	mpp_menus[_menuNameIndex]->Initialize();
+}
 bool MenuManager::PreviousMenuIs(int _menuIndexBeingChecked)
 {
 	if (m_returnMenuStack.empty())
@@ -183,7 +207,8 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 		case Enums::MenuReturn::Main:
 		{
 			ClearReturnMenuStack();
-			ReadyNextMenu(m_potentialNextMenuIndex);
+
+			DisplayMenu(m_potentialNextMenuIndex);
 		}
 		break;
 
@@ -225,6 +250,22 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 			ReturnToPreviousMenu();
 			break;
 
+		case Enums::MenuReturn::RunAsClient:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::RunAsClient;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+		break;
+
+		case Enums::MenuReturn::RunAsServer:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::RunAsServer;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+		break;
+
 		case Enums::MenuReturn::SaveGame:
 		{
 			mr_sharedGame.m_gameStateMutex.lock();
@@ -249,18 +290,25 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 		}
 		break;
 
-		// Networking search
-		case Enums::MenuReturn::Search:
+		case Enums::MenuReturn::StartNetworking:
 		{
 			mr_sharedGame.m_gameStateMutex.lock();
-			//mr_sharedGame.m_gameState = Enums::GameState::net;
+			mr_sharedGame.m_gameState = Enums::GameState::StartNetworking;
+			mr_sharedGame.m_gameStateMutex.unlock();
+		}
+		break;
+
+		case Enums::MenuReturn::StopNetworking:
+		{
+			mr_sharedGame.m_gameStateMutex.lock();
+			mr_sharedGame.m_gameState = Enums::GameState::StopNetworking;
 			mr_sharedGame.m_gameStateMutex.unlock();
 		}
 		break;
 
 		// Display the next menu (if not mentioned above)
 		default:
-			ReadyNextMenu(m_potentialNextMenuIndex);
+			DisplayMenu(m_potentialNextMenuIndex);
 			break;
 		}
 	}
@@ -302,30 +350,6 @@ void MenuManager::ClearReturnMenuStack()
 	{
 		m_returnMenuStack.pop();
 	}
-}
-void MenuManager::ReadyNextMenu(int _menuNameIndex, bool _isReturning)
-{
-	// If returning to a previous menu
-	if (_isReturning)
-	{
-		m_returnMenuStack.pop();
-	}
-
-	// If not returning to a previous menu
-	else
-	{
-		// If menu can be returned to
-		if (m_menuCanBeReturnedTo[m_currentMenuIndex])
-		{
-			m_returnMenuStack.push(m_currentMenuIndex);
-		}
-
-		// Reset next menu's button number
-		mpp_menus[_menuNameIndex]->ResetButtonNumber();
-	}
-
-	m_currentMenuIndex = _menuNameIndex;
-	mpp_menus[_menuNameIndex]->Initialize();
 }
 void MenuManager::WriteMenuIntoFrameBuffer()
 {

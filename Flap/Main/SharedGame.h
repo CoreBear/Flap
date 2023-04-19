@@ -19,6 +19,7 @@ public:
 
 	// Member Variables
 	char m_initials[MAX_NUMBER_OF_INITIALS]{ 'C','L','M' };
+	char* mp_ipAddress;
 	char** mpp_highScoreLines;
 	Enums::GameState m_gameState;
 	int m_largestSnakeLengthUponDeath;

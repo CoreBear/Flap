@@ -29,13 +29,9 @@ public:
 	void Update() { return; }
 
 	// Functionality
-	inline void PauseGame() { ReadyNextMenu(Enums::MenuName::Pause); }
+	void DisplayMenu(int _menuNameIndex, bool _isReturning = false);
 	bool PreviousMenuIs(int _menuIndexBeingChecked);
-	inline void ReturnToPreviousMenu() { ReadyNextMenu(m_returnMenuStack.top(), true); }
-	inline void ToHighScore() { ReadyNextMenu(Enums::MenuName::HighScore); }
-	inline void ToMain() { ReadyNextMenu(Enums::MenuName::Main); }
-	inline void ToNewHighScore() { ReadyNextMenu(Enums::MenuName::NewHighScore); }
-	inline void ToResultsMulti() { ReadyNextMenu(Enums::MenuName::ResultsMulti); }
+	inline void ReturnToPreviousMenu() { DisplayMenu(m_returnMenuStack.top(), true); }
 
 	// Destructor
 	~MenuManager();
@@ -51,7 +47,7 @@ protected:
 
 private:
 	// Member Variables
-	const bool m_menuCanBeReturnedTo[static_cast<int>(Enums::MenuName::NumberOfMenus)]{ false, false, true, true, true, true, false, false, true, false, true, false };
+	const bool m_menuCanBeReturnedTo[static_cast<int>(Enums::MenuName::NumberOfMenus)]{ false, false, false, true, true, false, false, false, true, false, false, false };
 	BufferCell* mp_bufferCell;
 	const char* mp_walker;
 	int m_currentMenuIndex;
@@ -67,7 +63,6 @@ private:
 
 	// Functionality
 	void ClearReturnMenuStack();
-	void ReadyNextMenu(int _menuNameIndex, bool _isReturning = false);
 	void WriteMenuIntoFrameBuffer();
 	void WriteTextLineIntoBuffer(bool _highlightLine, const TextLine& _textLine);
 };

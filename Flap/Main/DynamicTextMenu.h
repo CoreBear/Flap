@@ -4,11 +4,24 @@
 #include "DList.h"
 #include "MenuBase.h"
 
+class BufferCell;
+
 class DynamicTextMenu : public MenuBase
 {
 protected:
+	// Member Variables
+	BufferCell* mp_newBufferCell;
+	char* mp_newString;
+	const char* mp_walker;
+	int m_columnPositionOffset;
+
 	// Initialization
-	inline DynamicTextMenu(int _numberOfTextLines) : MenuBase(_numberOfTextLines) { return; }
+	inline DynamicTextMenu(int _numberOfTextLines) : 
+		MenuBase(_numberOfTextLines),
+		mp_newString(nullptr)
+	{
+		return; 
+	}
 	DynamicTextMenu(const DynamicTextMenu&) = delete;
 	DynamicTextMenu& operator=(const DynamicTextMenu&) = delete;
 
@@ -22,6 +35,9 @@ protected:
 
 		m_cells.Clear();
 	}
+
+	// Destruction
+	inline virtual ~DynamicTextMenu() { ClearCells(); }
 
 private:
 	// Member Variables

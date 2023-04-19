@@ -70,9 +70,6 @@ public:
 	HighScoreMenu(const HighScoreMenu&) = delete;
 	HighScoreMenu& operator=(const HighScoreMenu&) = delete;
 
-	// Destruction
-	inline ~HighScoreMenu() { ClearCells(); }
-
 protected:
 	// Functionality
 	virtual int InputAcceptHandling() override
@@ -89,9 +86,6 @@ protected:
 
 private:
 	// Member Variables
-	BufferCell* mp_newBufferCell;
-	const char* mp_walker;
-	int m_columnPositionOffset;
 	int m_reusableIterator;
 	int m_row;
 };

@@ -19,8 +19,10 @@ Notes:
 
 Thoughts:
 - No work-tickets, since I'm working alone. I'm bouncing around, because I've been creating a backlong on Notepad++ and handling them as I build out the structure of the game.
-- Yes, raw pointers
-- I really like concurrency/parallelism and system architecture
-- Sending collision notification was an issue, but it's now working fine
+- Yes, raw pointers.
+- I really like concurrency/parallelism and system architecture.
+- Sending collision notification was an issue, but it's now working fine.
 - I like C#'s comfort in certain aspects, like the fact that I can pass around member function pointers, without the object itself. If I have to pass the object to use the function pointer, what's the point of the function pointer?!
-- Yes, I know about and how to use the cstdlib and string functions like itoa and to_string, I just like writing my own sometimes, to make sure I know what's going on underneath. 
+- Yes, I know about and how to use the cstdlib and string functions like itoa and to_string, I just like writing my own sometimes, to make sure I know what's going on underneath.
+- Created DList and Queue. I could make the other containers, but I do want to display my knowledge and ability to use stl containers as well.
+- Because it was simpler, I implemented this Windows platform specific. Maybe one day I'll make this portable.
