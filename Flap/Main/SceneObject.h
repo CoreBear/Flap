@@ -29,12 +29,14 @@ public:
 	// Functionality
 	virtual bool Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRenderInfo, bool _collidedWithSelf = false) = 0;
 	inline Enums::SpawnState GetSpawenState() const { return m_spawnState; }
+	inline virtual void Pause() { return; }
+	inline virtual void Resume() { return; }
 	void SetPosition(const Structure::Vector2& _position);
 	inline void SetSpawnState(Enums::SpawnState _spawnState) { m_spawnState = _spawnState; }
 
 	// Destruction
 	void Denitialize();
-	virtual void Destroy();
+	virtual void Destroy(bool _cleanScene);
 	virtual ~SceneObject() { return; }
 
 protected:

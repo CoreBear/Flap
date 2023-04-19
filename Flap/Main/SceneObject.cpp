@@ -49,8 +49,11 @@ void SceneObject::Denitialize()
 {
 	sp_objectManager->RemoveFromSceneObjects(this);
 }
-void SceneObject::Destroy() 
+void SceneObject::Destroy(bool _cleanScene)
 {
-	sp_sharedGame->AddAvailableSpawnIndex(m_position.m_x, m_position.m_y); 
+	if (_cleanScene == false)
+	{
+		sp_sharedGame->AddAvailableSpawnIndex(m_position.m_x, m_position.m_y);
+	}
 }
 #pragma endregion

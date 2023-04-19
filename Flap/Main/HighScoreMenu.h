@@ -29,7 +29,7 @@ public:
 			{
 				mp_newBufferCell = new BufferCell;
 
-				if (*mp_walker != '.')
+				if (*mp_walker != '|')
 				{
 					mp_newBufferCell->m_character = *mp_walker;
 					mp_newBufferCell->m_colorBFGround = Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::White)];

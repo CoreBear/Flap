@@ -2,6 +2,7 @@
 #include "Snake.h"
 
 #include "Consts.h"
+#include "GameManager.h"
 #include "ObjectManager.h"
 #include "SharedGame.h"
 #include "SharedRender.h"
@@ -10,11 +11,8 @@
 #pragma endregion
 
 #pragma region Static Initialization
-bool Snake::s_moveThisFrame = false;
 Structure::Generic Snake::s_genericContainer;
-unsigned int Snake::s_numberOfFramesBetweenMoves;
-unsigned int Snake::s_numberOfFramesLeftBeforePause;
-unsigned int Snake::s_snakeMoveTargetFrame;
+int Snake::s_snakeStartingSpeed = 10;			// HACK: Hardcoded
 #pragma endregion
 
 #pragma region Initialization
@@ -38,7 +36,11 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 
 	m_length = Consts::OFF_BY_ONE;
 
+	m_currentSpeed = s_snakeStartingSpeed;
+
 	m_numberOfTailSectionsToAdd = Consts::NO_VALUE;
+
+	Resume();
 }
 Snake::Snake() : 
 	m_currentDirection(Enums::InputName::NA), 
@@ -52,9 +54,10 @@ Snake::Snake() :
 #pragma region Updates
 void Snake::FixedUpdate()
 {
-	// If movement frame
-	if (s_moveThisFrame)
+	if (GameManager::s_masterFixedFrameCount == m_moveTargetFrame)
 	{
+		m_moveTargetFrame = GameManager::s_masterFixedFrameCount + m_numberOfFramesBetweenMoves;
+
 		TryAddTail();
 
 		TryTurn();
@@ -84,6 +87,9 @@ bool Snake::Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRen
 			m_numberOfTailSectionsToAdd = _collisionRenderInfo.m_value;
 
 			m_newTailPosition = (*m_bodyNodes.GetTail()).m_position;
+
+			++m_currentSpeed;
+			m_numberOfFramesBetweenMoves = static_cast<unsigned int>(Consts::FPS_TARGET / m_currentSpeed);
 		}
 		break;
 
@@ -107,6 +113,20 @@ bool Snake::Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRen
 	}
 
 	return false;
+}
+void Snake::Pause()
+{
+	m_numberOfFramesLeftBeforePause = m_moveTargetFrame - GameManager::s_masterFixedFrameCount;
+
+	if (m_numberOfFramesLeftBeforePause < 3)
+	{
+		m_numberOfFramesLeftBeforePause;
+	}
+}
+void Snake::Resume()
+{
+	m_numberOfFramesBetweenMoves = static_cast<unsigned int>(Consts::FPS_TARGET / m_currentSpeed);
+	m_moveTargetFrame = GameManager::s_masterFixedFrameCount + m_numberOfFramesBetweenMoves;
 }
 #pragma endregion
 
@@ -328,11 +348,14 @@ void Snake::WriteIntoFrameBuffer()
 #pragma endregion
 
 #pragma region Destruction
-void Snake::Destroy()
+void Snake::Destroy(bool _cleanScene)
 {
-	for (m_headTraversingIterator = m_bodyNodes.Begin(); m_headTraversingIterator != m_bodyNodes.End(); ++m_headTraversingIterator)
+	if (_cleanScene == false)
 	{
-		sp_sharedGame->AddAvailableSpawnIndex((*m_headTraversingIterator).m_position.m_x, (*m_headTraversingIterator).m_position.m_y);
+		for (m_headTraversingIterator = m_bodyNodes.Begin(); m_headTraversingIterator != m_bodyNodes.End(); ++m_headTraversingIterator)
+		{
+			sp_sharedGame->AddAvailableSpawnIndex((*m_headTraversingIterator).m_position.m_x, (*m_headTraversingIterator).m_position.m_y);
+		}
 	}
 
 	m_bodyNodes.Clear();

@@ -14,11 +14,8 @@ class Snake : public SceneObject
 {
 public:
 	// Static Variables
-	static bool s_moveThisFrame;
 	static Structure::Generic s_genericContainer;
-	static unsigned int s_numberOfFramesBetweenMoves;
-	static unsigned int s_numberOfFramesLeftBeforePause;
-	static unsigned int s_snakeMoveTargetFrame;
+
 	// Initialization
 	virtual void Initialize(const Structure::Generic* const _genericContainer) override;
 	Snake();
@@ -30,9 +27,11 @@ public:
 
 	// Functionality
 	bool Collision_IsDead(const Structure::CollisionRenderInfo& _collisionRenderInfo, bool _collidedWithSelf = false) override final;
+	void Pause();
+	void Resume();
 
 	// Destruction
-	void Destroy() override final;
+	void Destroy(bool _cleanScene) override final;
 
 protected:
 	// Member Variables
@@ -47,6 +46,7 @@ protected:
 private:
 	// Static Variables
 	static constexpr char INVALID_PLAYER = '?';
+	static int s_snakeStartingSpeed;
 
 	// Member Variables
 	DList<Structure::CollisionRenderInfo> m_bodyNodes;
@@ -54,7 +54,11 @@ private:
 	DList<Structure::CollisionRenderInfo>::Iterator m_tailTraversingIterator;
 	Enums::InputName m_currentDirection;
 	Enums::InputName m_newDirection;
+	int m_currentSpeed;
 	int m_length;
+	unsigned int m_moveTargetFrame;
+	unsigned int m_numberOfFramesBetweenMoves;
+	unsigned int m_numberOfFramesLeftBeforePause;
 	unsigned int m_numberOfTailSectionsToAdd;
 	Structure::Vector2 m_newTailPosition;
 

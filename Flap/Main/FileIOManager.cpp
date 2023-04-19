@@ -86,7 +86,7 @@ int FileIOManager::GetScore(int _scoreIndex)
 {
 	mp_walker = mr_sharedGame.mpp_highScoreLines[_scoreIndex];
 
-	constexpr char DELIM = Consts::EMPTY_SPACE_CHAR;
+	constexpr char DELIM = '|';
 	while (*mp_walker != DELIM)
 	{
 		++mp_walker;
@@ -111,7 +111,7 @@ void FileIOManager::UpdateHighScores(const char* _initials)
 
 			char* newHighScoreString = new char[mr_sharedGame.MAX_HS_STRING_LENGTH];
 			strcpy(newHighScoreString, _initials);
-			strcat(newHighScoreString, ".");
+			strcat(newHighScoreString, "|");
 
 			const char* intString = Tools::IntToString(mr_sharedGame.m_largestSnakeLengthUponDeath);
 			strcat(newHighScoreString, intString);

@@ -14,7 +14,6 @@ SharedGame::SharedGame(const Structure::Vector2& _maxWindowSizeDimensions) :
 	m_numberOfSnakesInGame(Consts::NO_VALUE),
 	m_numberOfFramesBeforeGameStart(60),		// NOTE: Arbitrary value
 	m_numberOfFramesBetweenSpawn(60),			// NOTE: Arbitrary value
-	m_snakeStartingSpeed(10),					// NOTE: Arbitrary value
 	mp_availableSpawnPositions(nullptr),
 	mp_arrayOfColumnIndices(nullptr),
 	m_currentPlayAreaSizeDimensions(_maxWindowSizeDimensions),

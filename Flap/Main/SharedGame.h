@@ -47,15 +47,12 @@ public:
 	inline int& GetPlayerSnakeColorIndexRef(int _playerIndex) { return (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex : m_playerTwoSnakeColorIndex; }
 	const Structure::Vector2& GetRandomSpawnPositionRef();
 	inline bool GetSinglePlayerBool() const { return m_isSinglePlayerGame; }
-	inline int GetSnakeSpeed() const { return m_snakeCurrentSpeed; }
 	const Structure::Vector2& GetSnakeStartPositionRef(int _numberOfPlayersIndex, int _playerIndex);
 	inline void IncrementNumberOfSnakesInGame() { ++m_numberOfSnakesInGame; }
 	void RemoveAvailableSpawnIndex(int _x, int _y);
 	void ResetAvailableSpawnIndices();
-	inline void ResetSnakeSpeed() { m_snakeCurrentSpeed = m_snakeStartingSpeed; }
 	inline void SetSinglePlayerBool(bool _isSinglePlayerGame) { m_isSinglePlayerGame = _isSinglePlayerGame; }
 	inline void SetPlayerSnakeColorIndex(int _colorIndex, int _playerIndex) { (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex = _colorIndex : m_playerTwoSnakeColorIndex = _colorIndex; }
-	inline void SetSnakeSpeed(int _snakeSpeed) { m_snakeCurrentSpeed = _snakeSpeed; }
 	inline void ZeroNumberOfSnakesInGame() { m_numberOfSnakesInGame = Consts::NO_VALUE; }
 
 	// Destruction
@@ -72,8 +69,6 @@ private:
 	int m_randomRow;
 	int m_reusableIterator_1;
 	int m_reusableIterator_2;
-	int m_snakeCurrentSpeed;
-	int m_snakeStartingSpeed;
 	int* mp_arrayOfColumnIndices;
 	Structure::Vector2 m_randomPosition;
 	Structure::Vector2* mp_snakeStartPositions[Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME];

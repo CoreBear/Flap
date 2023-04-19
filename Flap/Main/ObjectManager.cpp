@@ -5,7 +5,6 @@
 #include "Consts.h"
 #include "Enums.h"
 #include "Food.h"
-#include "GameManager.h"
 #include "NoTouchy.h"
 #include "SceneObject.h"
 #include "SharedGame.h"
@@ -64,27 +63,10 @@ ObjectManager::ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput,
 void ObjectManager::FixedUpdate()
 {
 	mr_sharedRender.m_frameBufferMutex.lock();
-	
-	if (GameManager::s_masterFixedFrameCount == Snake::s_snakeMoveTargetFrame)
+
+	for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
 	{
-		Snake::s_snakeMoveTargetFrame = GameManager::s_masterFixedFrameCount + Snake::s_numberOfFramesBetweenMoves;
-
-		Snake::s_moveThisFrame = true;
-
-		for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
-		{
-			(*m_sceneObjectsIterator)->FixedUpdate();
-		}
-
-		Snake::s_moveThisFrame = false;
-	}
-
-	else
-	{
-		for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
-		{
-			(*m_sceneObjectsIterator)->FixedUpdate();
-		}
+		(*m_sceneObjectsIterator)->FixedUpdate();
 	}
 
 	mr_sharedRender.m_frameBufferMutex.unlock();
@@ -97,7 +79,7 @@ void ObjectManager::LastUpdate()
 		mp_addRemove = m_removeFromSceneObjects.front();
 		m_removeFromSceneObjects.pop();
 
-		mp_addRemove->Destroy();
+		mp_addRemove->Destroy(false);
 		mp_addRemove->SetSpawnState(Enums::SpawnState::WaitingSelection);
 
 		m_sceneObjectsList.Remove(mp_addRemove);
@@ -129,7 +111,7 @@ void ObjectManager::CleanScene()
 	// Remove all scene objects waiting to be removed
 	while (m_removeFromSceneObjects.empty() == false)
 	{
-		m_removeFromSceneObjects.front()->Destroy();
+		m_removeFromSceneObjects.front()->Destroy(true);
 		m_removeFromSceneObjects.front()->SetSpawnState(Enums::SpawnState::WaitingSelection);
 		m_removeFromSceneObjects.pop();
 	}
@@ -143,7 +125,7 @@ void ObjectManager::CleanScene()
 
 	for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
 	{
-		(*m_sceneObjectsIterator)->Destroy();
+		(*m_sceneObjectsIterator)->Destroy(true);
 		(*m_sceneObjectsIterator)->SetSpawnState(Enums::SpawnState::WaitingSelection);
 	}
 
@@ -151,17 +133,17 @@ void ObjectManager::CleanScene()
 }
 void ObjectManager::Pause()
 {
-	Snake::s_numberOfFramesLeftBeforePause = Snake::s_snakeMoveTargetFrame - GameManager::s_masterFixedFrameCount;
-
-	if (Snake::s_numberOfFramesLeftBeforePause < 3)
+	for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
 	{
-		++Snake::s_numberOfFramesLeftBeforePause;
+		(*m_sceneObjectsIterator)->Pause();
 	}
 }
 void ObjectManager::Resume()
 {
-	Snake::s_numberOfFramesBetweenMoves = static_cast<unsigned int>(Consts::FPS_TARGET / mr_sharedGame.GetSnakeSpeed());
-	Snake::s_snakeMoveTargetFrame = GameManager::s_masterFixedFrameCount + Snake::s_numberOfFramesBetweenMoves;
+	for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
+	{
+		(*m_sceneObjectsIterator)->Resume();
+	}
 }
 void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic* const _genericContainer)
 {
@@ -187,14 +169,12 @@ void ObjectManager::Start(bool _newGame)
 {
 	if (_newGame)
 	{
-		mr_sharedGame.ResetSnakeSpeed();
+
 	}
 	else
 	{
-		//mr_sharedGame.SetSnakeSpeed();
-	}
 
-	Resume();
+	}
 }
 #pragma endregion
 
