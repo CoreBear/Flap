@@ -9,8 +9,8 @@ class Tools final
 public:
 	// Functionality
 	inline static void AssignSharedRender(SharedRender& _sharedRender) { sp_sharedRender = &_sharedRender; }
-	inline static int CenterText_ReturnStartColumn(const char* _textLine) { return static_cast<int>((sp_sharedRender->m_bufferHW.X / 2) - strlen(_textLine) / 2); }
-	inline static int CenterText_ReturnStartColumn(int _textLineLength) { return (sp_sharedRender->m_bufferHW.X / 2) - _textLineLength / 2; }
+	inline static int CenterText_ReturnStartColumn(const char* _textLine) { return static_cast<int>((sp_sharedRender->m_frameBufferDimensions.X / 2) - strlen(_textLine) / 2); }
+	inline static int CenterText_ReturnStartColumn(int _textLineLength) { return (sp_sharedRender->m_frameBufferDimensions.X / 2) - _textLineLength / 2; }
 	inline static int CharToInt(char _char) { return static_cast<int>(static_cast<int>(_char) - CHAR_OFFSETTER); }
 	static char IntToChar(int _number);				// NOTE: Negative numbers are converted to positive numbers. Use IntToString for this functionality.
 	static const char* IntToString(int _number);

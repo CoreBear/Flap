@@ -14,11 +14,11 @@ public:
 	int m_bufferSize;	// Has to be up here to initialize before other things
 	BufferCell* const mp_frameBuffer;
 	std::condition_variable m_frameBufferConVar;
-	const COORD m_bufferHW;
+	const COORD m_frameBufferDimensions;
 	std::mutex m_frameBufferMutex;
 
 	// Initialization
-	SharedRender(const COORD& _bufferSize);
+	SharedRender(const COORD& _windowDimensions);
 	SharedRender(const SharedRender&) = delete;
 	SharedRender& operator=(const SharedRender&) = delete;
 

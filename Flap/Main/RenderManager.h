@@ -25,7 +25,7 @@ public:
 
 private:
 	CHAR_INFO* const mp_renderBuffer;
-	COORD m_topLeftCellCR;
+	COORD m_topLeftCellDimensions;
 	const HANDLE& OUTPUT_WINDOW_HANDLE;
 	int m_reusableIterator;						
 	SharedRender& mr_sharedRender;

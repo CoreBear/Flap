@@ -161,6 +161,7 @@
     <ClInclude Include="FileIOManager.h" />
     <ClInclude Include="NewHighScoreMenu.h" />
     <ClInclude Include="NoTouchy.h" />
+    <ClInclude Include="Queue.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="DList.h" />
     <ClInclude Include="ExitMenu.h" />

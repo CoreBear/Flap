@@ -19,10 +19,6 @@ public:
 	static unsigned int s_numberOfFramesBetweenMoves;
 	static unsigned int s_numberOfFramesLeftBeforePause;
 	static unsigned int s_snakeMoveTargetFrame;
-
-	// Static Initialization
-	static void AssignSharedGame(SharedGame& _sharedGame) { sp_sharedGame = &_sharedGame; }
-
 	// Initialization
 	virtual void Initialize(const Structure::Generic* const _genericContainer) override;
 	Snake();
@@ -51,7 +47,6 @@ protected:
 private:
 	// Static Variables
 	static constexpr char INVALID_PLAYER = '?';
-	static SharedGame* sp_sharedGame;
 
 	// Member Variables
 	DList<Structure::CollisionRenderInfo> m_bodyNodes;

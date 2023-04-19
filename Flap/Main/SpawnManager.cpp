@@ -7,14 +7,12 @@
 #include "GameManager.h"
 #include "ObjectManager.h"
 #include "SharedGame.h"
-#include "SharedRender.h"
 #pragma endregion
 
 #pragma region Initialization
-SpawnManager::SpawnManager(ObjectManager& _objectManager, SharedGame& _sharedGame, SharedRender& _sharedRender) :
+SpawnManager::SpawnManager(ObjectManager& _objectManager, SharedGame& _sharedGame) :
 	mr_objectManager(_objectManager),
-	mr_sharedGame(_sharedGame),
-	mr_sharedRender(_sharedRender)
+	mr_sharedGame(_sharedGame)
 {
 	return;
 }
@@ -27,14 +25,15 @@ void SpawnManager::FixedUpdate()
 	{
 		m_spawnTargetFrame = GameManager::s_masterFixedFrameCount + mr_sharedGame.m_numberOfFramesBetweenSpawn;
 		
-		constexpr int BOOL_CONVERTER = 2;
-		if (m_random() % BOOL_CONVERTER)
+		// NOTE: The higher this number, the higher chance no touchy's spawn
+		constexpr int BOOL_CONVERTER = 3;
+		if (mr_sharedGame.m_random() % BOOL_CONVERTER)
 		{
-			SpawnFood();
+			SpawnNoTouchy();
 		}
 		else
 		{
-			SpawnNoTouchy();
+			SpawnFood();
 		}
 	}
 }
@@ -73,30 +72,16 @@ void SpawnManager::Start(bool _newGame)
 #pragma endregion
 
 #pragma region Private Functionality
-void SpawnManager::GenerateValidRandomPosition()
-{
-	do
-	{
-		// Generate random position
-		m_randomPosition.m_x = m_random() % (mr_sharedRender.m_bufferHW.X - Consts::OFF_BY_ONE);
-		m_randomPosition.m_y = m_random() % (mr_sharedRender.m_bufferHW.Y - Consts::OFF_BY_ONE);
-		
-		// Get the corresponding buffer cell
-		mp_bufferCell = &mr_sharedRender.mp_frameBuffer[(m_randomPosition.m_y * mr_sharedRender.m_bufferHW.X) + m_randomPosition.m_x];
-
-		// If position is invalid (on top of another object). If there's an object already there
-	} while (mp_bufferCell->m_objectInCellIndex != Consts::NO_VALUE);
-}
 void SpawnManager::SpawnFood()
 {
-	GenerateValidRandomPosition();
+	m_randomPosition = mr_sharedGame.GetRandomSpawnPositionRef();
 
-	m_genericContainer.m_int = (m_random() % mr_sharedGame.MAX_NUMBER_OF_NODES_TO_ADD) + Consts::OFF_BY_ONE;
+	m_genericContainer.m_int = (mr_sharedGame.m_random() % mr_sharedGame.MAX_NUMBER_OF_NODES_TO_ADD) + Consts::OFF_BY_ONE;
 	mr_objectManager.SpawnObject(Enums::ObjectType::Food, m_randomPosition, &m_genericContainer);
 }
 void SpawnManager::SpawnNoTouchy()
 {
-	GenerateValidRandomPosition();
+	m_randomPosition = mr_sharedGame.GetRandomSpawnPositionRef();
 
 	mr_objectManager.SpawnObject(Enums::ObjectType::NoTouchy, m_randomPosition);
 }

@@ -9,10 +9,10 @@
 #pragma endregion
 
 #pragma region Initialization
-SharedRender::SharedRender(const COORD& _bufferSize) :
-	m_bufferSize(_bufferSize.X * _bufferSize.Y),
+SharedRender::SharedRender(const COORD& _windowDimensions) :
+	m_bufferSize(_windowDimensions.X * _windowDimensions.Y),
 	mp_frameBuffer(new BufferCell[m_bufferSize]),
-	m_bufferHW(_bufferSize)
+	m_frameBufferDimensions(_windowDimensions)
 {
 	Snake::AssignSharedRender(*this);
 	Tools::AssignSharedRender(*this);

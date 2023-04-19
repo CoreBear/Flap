@@ -12,7 +12,6 @@
 #pragma region Static Initialization
 bool Snake::s_moveThisFrame = false;
 Structure::Generic Snake::s_genericContainer;
-SharedGame* Snake::sp_sharedGame = nullptr;
 unsigned int Snake::s_numberOfFramesBetweenMoves;
 unsigned int Snake::s_numberOfFramesLeftBeforePause;
 unsigned int Snake::s_snakeMoveTargetFrame;
@@ -174,24 +173,36 @@ void Snake::Move()
 	switch (m_currentDirection)
 	{
 	case Enums::InputName::Down:
+	{
 		++m_position.m_y;
-		break;
+	}
+	break;
 	case Enums::InputName::Left:
+	{
 		--m_position.m_x;
-		break;
+	}
+	break;
 	case Enums::InputName::Right:
+	{
 		++m_position.m_x;
-		break;
+	}
+	break;
 	case Enums::InputName::Up:
+	{
 		--m_position.m_y;
-		break;
+	}
+	break;
 
-		// NOTE: Notice the snake will not move due to the return
+	// NOTE: Notice the snake will not move due to the return
 	default:
 		return;
 	}
 
+	sp_sharedGame->RemoveAvailableSpawnIndex(m_position.m_x, m_position.m_y);
+
 	m_headTraversingIterator = m_bodyNodes.GetTail();
+
+	sp_sharedGame->AddAvailableSpawnIndex((*m_headTraversingIterator).m_position.m_x, (*m_headTraversingIterator).m_position.m_y);
 
 	// If snake's size is greater than 1
 	if (m_headTraversingIterator != m_bodyNodes.Begin())
@@ -219,6 +230,8 @@ void Snake::TryAddTail()
 	if (m_numberOfTailSectionsToAdd > Consts::NO_VALUE)
 	{
 		m_newCollisionRenderInfo.m_position = m_newTailPosition;
+
+		sp_sharedGame->RemoveAvailableSpawnIndex(m_newTailPosition.m_x, m_newTailPosition.m_y);
 
 		// Add tail
 		m_bodyNodes.PushBack(m_newCollisionRenderInfo);
@@ -317,6 +330,11 @@ void Snake::WriteIntoFrameBuffer()
 #pragma region Destruction
 void Snake::Destroy()
 {
+	for (m_headTraversingIterator = m_bodyNodes.Begin(); m_headTraversingIterator != m_bodyNodes.End(); ++m_headTraversingIterator)
+	{
+		sp_sharedGame->AddAvailableSpawnIndex((*m_headTraversingIterator).m_position.m_x, (*m_headTraversingIterator).m_position.m_y);
+	}
+
 	m_bodyNodes.Clear();
 
 	m_newCollisionRenderInfo.m_char = INVALID_PLAYER;

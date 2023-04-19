@@ -112,8 +112,8 @@ protected:
 	};
 	void InputCharacter(int _inputIndexOrKeyCode) override 
 	{
-		(*m_updateCellIterator)->m_character = static_cast<wchar_t>(_inputIndexOrKeyCode);
-		sp_sharedGame->m_initials[m_initialIndex] = static_cast<wchar_t>(_inputIndexOrKeyCode);
+		(*m_updateCellIterator)->m_character = static_cast<char>(_inputIndexOrKeyCode);
+		sp_sharedGame->m_initials[m_initialIndex] = static_cast<char>(_inputIndexOrKeyCode);
 	}
 	void NextOption() override
 	{

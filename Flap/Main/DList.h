@@ -4,7 +4,7 @@
 #include "Consts.h"
 
 template<typename Type>
-class DList final
+class DList
 {
 public:
 	// Container
@@ -17,7 +17,7 @@ public:
 		Type m_value;
 
 		// Initialization
-		Node(Type _value, Node* const _next = nullptr, Node* const _previous = nullptr) : m_next(_next), m_previous(_previous), m_value(_value) { return; }
+		inline Node(Type _value, Node* const _next = nullptr, Node* const _previous = nullptr) : m_next(_next), m_previous(_previous), m_value(_value) { return; }
 	};
 	class Iterator
 	{
@@ -325,12 +325,15 @@ public:
 	}
 
 	// Destruction
-	~DList() { Clear(); }
+	inline virtual ~DList() { Clear(); }
+
+protected:
+	// Member Variabels
+	Node* m_head;
 
 private:
 	// Member Variables
 	Iterator mEnd;
-	Node* m_head;
 	Node* m_tail;
 };
 

@@ -14,7 +14,7 @@ GameRunManager::GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInpu
 	mp_collisionManager(new CollisionManager(_sharedRender)),
 	mp_objectManager(new ObjectManager(_sharedGame, _sharedInput, _sharedRender)),
 	mr_sharedGame(_sharedGame),
-	mp_spawnManager(new SpawnManager(*mp_objectManager, _sharedGame, _sharedRender))
+	mp_spawnManager(new SpawnManager(*mp_objectManager, _sharedGame))
 {
 	return;
 }
@@ -68,6 +68,8 @@ void GameRunManager::StartGame(bool _newGame)
 	}
 
 	mp_objectManager->Start(_newGame);
+
+	mr_sharedGame.ResetAvailableSpawnIndices();
 
 	mp_spawnManager->Start(_newGame);
 }

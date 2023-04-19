@@ -1,12 +1,12 @@
 #pragma region Includes
 #include "SharedGame.h"
 
+#include "SceneObject.h"
 #include "MenuBase.h"
-#include "Snake.h"
 #pragma endregion
 
 #pragma region Initialization
-SharedGame::SharedGame() :
+SharedGame::SharedGame(const Structure::Vector2& _maxWindowSizeDimensions) :
 	mpp_highScoreLines(nullptr),
 	m_isInGameSession(false),
 	m_gameState(Enums::GameState::Menu),
@@ -14,10 +14,14 @@ SharedGame::SharedGame() :
 	m_numberOfSnakesInGame(Consts::NO_VALUE),
 	m_numberOfFramesBeforeGameStart(60),		// NOTE: Arbitrary value
 	m_numberOfFramesBetweenSpawn(60),			// NOTE: Arbitrary value
-	m_snakeStartingSpeed(10)					// NOTE: Arbitrary value
+	m_snakeStartingSpeed(10),					// NOTE: Arbitrary value
+	mp_availableSpawnPositions(nullptr),
+	mp_arrayOfColumnIndices(nullptr),
+	m_currentPlayAreaSizeDimensions(_maxWindowSizeDimensions),
+	MAX_WINDOW_SIZE_Dimensions(_maxWindowSizeDimensions)
 {
 	MenuBase::AssignSharedGame(*this);
-	Snake::AssignSharedGame(*this);
+	SceneObject::AssignSharedGame(*this);
 
 	for (int positionIndex = Consts::NO_VALUE; positionIndex < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; positionIndex++)
 	{
@@ -81,10 +85,74 @@ SharedGame::SharedGame() :
 #pragma endregion
 
 #pragma region Public Functionality
+void SharedGame::AddAvailableSpawnIndex(int _x, int _y)
+{
+	mp_availableSpawnPositions[_x].PushBack(_y);
+}
 void SharedGame::GameSession(bool _isInGameSession, bool _isSinglePlayerGame)
 {
 	m_isInGameSession = _isInGameSession;
 	m_isSinglePlayerGame = _isSinglePlayerGame;
+}
+const Structure::Vector2& SharedGame::GetRandomSpawnPositionRef()
+{
+	// Select a row with available columns
+	do
+	{
+		m_randomPosition.m_y = m_random() % m_currentPlayAreaSizeDimensions.m_y;
+	} while (mp_availableSpawnPositions[m_randomPosition.m_y].IsEmpty());
+
+	// Store, remove, and return first randomized column index
+	m_randomPosition.m_x = mp_availableSpawnPositions[m_randomPosition.m_y].Peek();
+	mp_availableSpawnPositions[m_randomPosition.m_y].PopFront();
+	return m_randomPosition;
+}
+const Structure::Vector2& SharedGame::GetSnakeStartPositionRef(int _numberOfPlayersIndex, int _playerIndex)
+{ 
+	RemoveAvailableSpawnIndex(mp_snakeStartPositions[_numberOfPlayersIndex][_playerIndex].m_x, mp_snakeStartPositions[_numberOfPlayersIndex][_playerIndex].m_y);
+
+	return mp_snakeStartPositions[_numberOfPlayersIndex][_playerIndex]; 
+}
+void SharedGame::RemoveAvailableSpawnIndex(int _x, int _y)
+{
+	mp_availableSpawnPositions[_x].Remove(_y);
+}
+void SharedGame::ResetAvailableSpawnIndices()
+{
+	delete[] mp_arrayOfColumnIndices;
+	delete[] mp_availableSpawnPositions;
+
+	mp_arrayOfColumnIndices = new int[m_currentPlayAreaSizeDimensions.m_x];
+	mp_availableSpawnPositions = new Queue<int>[m_currentPlayAreaSizeDimensions.m_x];
+
+	// For each row
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < m_currentPlayAreaSizeDimensions.m_y; m_reusableIterator_1++)
+	{
+		// Reset column indices
+		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < m_currentPlayAreaSizeDimensions.m_x; m_reusableIterator_2++)
+		{
+			mp_arrayOfColumnIndices[m_reusableIterator_2] = m_reusableIterator_2;
+		}
+
+		// Clear current column indices
+		mp_availableSpawnPositions[m_reusableIterator_1].Clear();
+
+		// Randomize column indices
+		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < m_currentPlayAreaSizeDimensions.m_x; m_reusableIterator_2++)
+		{
+			m_randomColumn = m_random() % m_currentPlayAreaSizeDimensions.m_x;
+
+			mp_arrayOfColumnIndices[m_reusableIterator_2] += mp_arrayOfColumnIndices[m_randomColumn];
+			mp_arrayOfColumnIndices[m_randomColumn] = mp_arrayOfColumnIndices[m_reusableIterator_2] - mp_arrayOfColumnIndices[m_randomColumn];
+			mp_arrayOfColumnIndices[m_reusableIterator_2] -= mp_arrayOfColumnIndices[m_randomColumn];
+		}
+
+		// Add randomized indices into row list
+		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < m_currentPlayAreaSizeDimensions.m_x; m_reusableIterator_2++)
+		{
+			mp_availableSpawnPositions[m_reusableIterator_1].PushBack(mp_arrayOfColumnIndices[m_reusableIterator_2]);
+		}
+	}
 }
 #pragma endregion
 
@@ -104,6 +172,9 @@ SharedGame::~SharedGame()
 		delete[] mpp_highScoreLines;
 		mpp_highScoreLines = nullptr;
 	}
+
+	delete[] mp_arrayOfColumnIndices;
+	delete[] mp_availableSpawnPositions;
 
 	for (int positionIndex = Consts::NO_VALUE; positionIndex < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; positionIndex++)
 	{

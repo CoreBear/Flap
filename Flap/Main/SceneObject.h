@@ -6,12 +6,15 @@
 
 class BufferCell;
 class ObjectManager;
+class SharedGame;
 class SharedRender;
 
 class SceneObject
 {
 public:
+	// Static Initialization
 	static void AssignObjectManager(ObjectManager& _objectManager) { sp_objectManager = &_objectManager; }
+	static void AssignSharedGame(SharedGame& _sharedGame) { sp_sharedGame = &_sharedGame; }
 	static void AssignSharedRender(SharedRender& _sharedRender) { sp_sharedRender = &_sharedRender; }
 
 	// Initialization
@@ -31,12 +34,13 @@ public:
 
 	// Destruction
 	void Denitialize();
-	virtual void Destroy() { return; }
+	virtual void Destroy();
 	virtual ~SceneObject() { return; }
 
 protected:
 	// Static Variables
 	static ObjectManager* sp_objectManager;
+	static SharedGame* sp_sharedGame;
 
 	// Member Variables
 	Structure::Vector2 m_position;			

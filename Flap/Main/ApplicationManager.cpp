@@ -9,6 +9,7 @@
 #include "SharedGame.h"
 #include "SharedInput.h"
 #include "SharedRender.h"
+#include "Structure.h"
 
 #include <mutex>
 #include <thread>
@@ -30,7 +31,7 @@
 #endif	// LEAK_DECTION
 
 #pragma region Prototypes
-void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle);
+void SetupConsole(COORD& _windowDimensions, HANDLE& _outputWindowHandle);
 void ThreadEntry(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame);
 #pragma endregion
 
@@ -46,14 +47,15 @@ int main()
 
 	// Scope required so std containers go out of scope and clean up their memory
 	{
-		COORD bufferSizeCR;
+		COORD windowDimensions;
 		HANDLE outputWindowHandle;
 
-		SetupConsole(bufferSizeCR, outputWindowHandle);
+		SetupConsole(windowDimensions, outputWindowHandle);
 
-		SharedGame sharedGame;
+		Structure::Vector2 maxWindowSizeDimensions(static_cast<int>(windowDimensions.X), static_cast<int>(windowDimensions.Y));
+		SharedGame sharedGame(maxWindowSizeDimensions);
 		SharedInput sharedInput;
-		SharedRender sharedRender(bufferSizeCR);
+		SharedRender sharedRender(windowDimensions);
 
 		enum class ThreadType { Game, Input, Render, NumberOfTypes };
 
@@ -95,7 +97,7 @@ int main()
 
 	return 0;
 }
-void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle)
+void SetupConsole(COORD& _windowDimensions, HANDLE& _outputWindowHandle)
 {
 	// https://learn.microsoft.com/en-us/windows/console/console-functions
 
@@ -105,17 +107,17 @@ void SetupConsole(COORD& _bufferSizeCR, HANDLE& _outputWindowHandle)
 
 	// NOTE/WARNING: THE ORDER OF THESE TWO ARE IMPORTANT!
 	_outputWindowHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-	_bufferSizeCR = GetLargestConsoleWindowSize(_outputWindowHandle);
+	_windowDimensions = GetLargestConsoleWindowSize(_outputWindowHandle);
 
 	// Generate max buffer and screen size
 	SMALL_RECT windowRect
 	{
 		static_cast<SHORT>(Consts::NO_VALUE),
 		static_cast<SHORT>(Consts::NO_VALUE),
-		static_cast<SHORT>(_bufferSizeCR.X - Consts::OFF_BY_ONE),
-		static_cast<SHORT>(_bufferSizeCR.Y - Consts::OFF_BY_ONE)
+		static_cast<SHORT>(_windowDimensions.X - Consts::OFF_BY_ONE),
+		static_cast<SHORT>(_windowDimensions.Y - Consts::OFF_BY_ONE)
 	};
-	SetConsoleScreenBufferSize(_outputWindowHandle, _bufferSizeCR);
+	SetConsoleScreenBufferSize(_outputWindowHandle, _windowDimensions);
 	SetConsoleWindowInfo(_outputWindowHandle, true, &windowRect);
 
 	// Removes the minimize & maximize options

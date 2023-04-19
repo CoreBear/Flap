@@ -281,5 +281,8 @@
     <ClInclude Include="DynamicTextMenu.h">
       <Filter>Header Files\Menu</Filter>
     </ClInclude>
+    <ClInclude Include="Queue.h">
+      <Filter>Header Files\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

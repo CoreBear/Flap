@@ -23,12 +23,12 @@ RenderManager::RenderManager(const HANDLE& _outputWindowHandle, SharedRender& _s
 		mp_renderBuffer[m_reusableIterator].Char.UnicodeChar = Consts::EMPTY_SPACE_CHAR;
 	}
 
-	m_topLeftCellCR.X = static_cast<SHORT>(Consts::NO_VALUE);
-	m_topLeftCellCR.Y = static_cast<SHORT>(Consts::NO_VALUE);
+	m_topLeftCellDimensions.X = static_cast<SHORT>(Consts::NO_VALUE);
+	m_topLeftCellDimensions.Y = static_cast<SHORT>(Consts::NO_VALUE);
 	
-	m_writeRegionRect.Bottom = static_cast<SHORT>(_sharedRender.m_bufferHW.Y - Consts::OFF_BY_ONE);
+	m_writeRegionRect.Bottom = static_cast<SHORT>(_sharedRender.m_frameBufferDimensions.Y - Consts::OFF_BY_ONE);
 	m_writeRegionRect.Left = static_cast<SHORT>(Consts::NO_VALUE);
-	m_writeRegionRect.Right = static_cast<SHORT>(_sharedRender.m_bufferHW.X - Consts::OFF_BY_ONE);
+	m_writeRegionRect.Right = static_cast<SHORT>(_sharedRender.m_frameBufferDimensions.X - Consts::OFF_BY_ONE);
 	m_writeRegionRect.Top = static_cast<SHORT>(Consts::NO_VALUE);
 }
 #pragma endregion
@@ -47,7 +47,7 @@ void RenderManager::Update()
 	}
 
 	// Render from buffer
-	WriteConsoleOutput(OUTPUT_WINDOW_HANDLE, mp_renderBuffer, mr_sharedRender.m_bufferHW, m_topLeftCellCR, &m_writeRegionRect);
+	WriteConsoleOutput(OUTPUT_WINDOW_HANDLE, mp_renderBuffer, mr_sharedRender.m_frameBufferDimensions, m_topLeftCellDimensions, &m_writeRegionRect);
 
 	mr_sharedRender.ResetFrameBuffer();
 
