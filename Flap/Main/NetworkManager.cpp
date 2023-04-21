@@ -1,22 +1,25 @@
 #pragma region Includes
 #include "NetworkManager.h"
 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS         // Turns off deprecated warnings for winsock
-
-#include <string>
 #include <winsock2.h>
 #include <ws2tcpip.h>  
 #pragma comment(lib,"Ws2_32.lib")
 
-// NOTE/WARNING: Naming collision occurs when this is above winsock.
+// NOTE/WARNING: Naming collision occurs when this stuff is above winsock.
 // I believe it's coming from <windows.h>, but they're both integral to the system.
-#include "SharedGame.h"
+
+#include "Client.h"
+#include "Host.h"
+#include "Server.h"
+#include "SharedNetwork.h"
+
+#include <string>
 #pragma endregion
 
 #pragma region Initialization
-NetworkManager::NetworkManager(SharedGame& _sharedGame) :
-	m_run(true),
-	mr_sharedGame(_sharedGame)
+NetworkManager::NetworkManager(SharedNetwork& _sharedNetwork) :
+	m_runHostUpdate(true),
+	mr_sharedNetwork(_sharedNetwork)
 {
 	// Initiates use of WS2_32.DLL by a processand must be called before any network functions!
 	WSADATA wsadata;
@@ -30,16 +33,71 @@ NetworkManager::NetworkManager(SharedGame& _sharedGame) :
 #pragma endregion
 
 #pragma region Public Functionality
-void NetworkManager::NetworkThreadEntry_Loop()
+void NetworkManager::Join()
 {
-	while (m_run)
+	if (mp_host->Join_StartRecvThread())
 	{
+		// Start a daemon thread for receiving
+		std::thread(&Host::RecvCommMessLoop, mp_host).detach();
+	}
+}
+void NetworkManager::RunHost(bool _isClient)
+{
+	m_hostMainThread = std::thread(&NetworkManager::HostMain, this, _isClient);
+}
+void NetworkManager::StopHost()
+{
+	// If host made it through initialization and is running
+	if (m_runHostUpdate)
+	{
+		m_runHostUpdate = false;
 
+		m_hostMainThread.join();
+
+		delete mp_host;
+	} 
+
+	// If client did not make it through initialization
+	else
+	{
+		m_hostMainThread.detach();
 	}
 }
 #pragma endregion
 
 #pragma region Private Functionality
+void NetworkManager::HostMain(bool _isClient)
+{
+	// Init host
+	if (_isClient)
+	{
+		mp_host = new Client(mr_sharedNetwork);
+
+		// If client doesn't make it through initialization
+		if (mr_sharedNetwork.mp_serverIPAddress == nullptr)
+		{
+			delete mp_host;
+
+			return;
+		}
+	}
+	else
+	{
+		mp_host = new Server(mr_sharedNetwork);
+
+		// Start a daemon thread for broadcasting
+		std::thread(&Host::SendBroadMessLoop, mp_host).detach();
+
+		// Start a daemon thread for receiving
+		std::thread(&Host::RecvCommMessLoop, mp_host).detach();
+	}
+
+	// This will loop until host is required to shutdown
+	while (m_runHostUpdate)
+	{
+		mp_host->Update();
+	}
+}
 void NetworkManager::GenerateIPAddress()
 {
 	char hostName[100];
@@ -70,12 +128,12 @@ void NetworkManager::GenerateIPAddress()
 	octet = static_cast<int>(addr.S_un.S_un_b.s_b4);
 	string += std::to_string(octet);
 
-	mr_sharedGame.mp_ipAddress = new char[string.size() + 1];
-	mr_sharedGame.mp_ipAddress[string.size()] = '\0';
+	mr_sharedNetwork.mp_myIPAddress = new char[string.size() + 1];
+	mr_sharedNetwork.mp_myIPAddress[string.size()] = '\0';
 
 	for (int i = 0; i < string.size(); i++)
 	{
-		mr_sharedGame.mp_ipAddress[i] = string[i];
+		mr_sharedNetwork.mp_myIPAddress[i] = string[i];
 	}
 
 	//addrinfo hints;
@@ -102,7 +160,7 @@ void NetworkManager::GenerateIPAddress()
 #pragma region Destruction
 NetworkManager::~NetworkManager()
 {
-	delete mr_sharedGame.mp_ipAddress;
+	delete mr_sharedNetwork.mp_myIPAddress;
 
 	// Terminates use of the WS2_32.DLL
 	WSACleanup();

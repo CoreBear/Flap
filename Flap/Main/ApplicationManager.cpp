@@ -138,12 +138,12 @@ void SetupConsole(COORD& _windowDimensions, HANDLE& _outputWindowHandle)
 }
 void ThreadEntry_Loop(GameThreadBase** const _gameThreadBase, int _threadIndex, SharedGame* _sharedGame)
 {
-	_sharedGame->m_gameStateMutex.lock();
-	while (_sharedGame->m_gameState != Enums::GameState::ExitApp)
+	_sharedGame->m_gameActivityIndexMutex.lock();
+	while (_sharedGame->m_gameActivityIndex != Enums::GameActivity::ExitApp)
 	{
-		_sharedGame->m_gameStateMutex.unlock();
+		_sharedGame->m_gameActivityIndexMutex.unlock();
 		_gameThreadBase[_threadIndex]->Update();
-		_sharedGame->m_gameStateMutex.lock();
+		_sharedGame->m_gameActivityIndexMutex.lock();
 	}
-	_sharedGame->m_gameStateMutex.unlock();
+	_sharedGame->m_gameActivityIndexMutex.unlock();
 }

@@ -16,13 +16,16 @@ public:
 
 	// Member Variables
 	DList<BufferCell*> m_cells;
-	const int m_numberOfTextLines;
+	int m_numberOfTextLines;
 	TextLine** mp_textLines;
 
 	// Initialzation
 	inline virtual void Initialize() { return; }
 	MenuBase(const MenuBase&) = delete;
 	MenuBase& operator=(const MenuBase&) = delete;
+
+	// Updates
+	inline virtual void FixedUpdate() { return; }
 
 	// Functionality
 	inline int GetCurrentButtonNumber() const { return m_currentButtonNumber; }
@@ -50,8 +53,9 @@ protected:
 	// Functionality
 	// NOTE: This function should never actually be called
 	inline virtual int InputAcceptHandling() { return -1; };
-	virtual void NextOption() { return; }
-	virtual void PreviousOption() { return; }
+	inline virtual void NextOption() { return; }
+	inline virtual void PreviousOption() { return; }
+	inline void UpdateNumberOfTextLines(int _numberOfTextLines) { m_numberOfTextLines = _numberOfTextLines; }
 };
 
 #endif MENU_BASE_H

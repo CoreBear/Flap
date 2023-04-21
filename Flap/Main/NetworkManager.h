@@ -1,31 +1,37 @@
 #ifndef NETWORK_MANAGER_H
 #define NETWORK_MANAGER_H
 
-class SharedGame;
+#include <thread>
+
+class Host;
+class SharedNetwork;
 
 class NetworkManager final
 {
 public:
 	// Initialization
-	NetworkManager(SharedGame& _sharedGame);
+	NetworkManager(SharedNetwork& _sharedNetwork);
 	NetworkManager(const NetworkManager&) = delete;
 	NetworkManager& operator=(const NetworkManager&) = delete;
 
 	// Functionality
-	void InitHost(bool _isServer);
-	void NetworkThreadEntry_Loop();
-	inline void StopNetworking() { m_run = false; }
+	void Join();
+	void RunHost(bool _isClient);
+	void StopHost();
 
 	// Destruction
 	~NetworkManager();
 
 private:
 	// Member Variables
-	bool m_run;
-	SharedGame& mr_sharedGame;
+	bool m_runHostUpdate;
+	Host* mp_host;
+	SharedNetwork& mr_sharedNetwork;
+	std::thread m_hostMainThread;
 
 	// Functionality
 	void GenerateIPAddress();
+	void HostMain(bool _isClient);
 };
 
 #endif NETWORK_MANAGER_H

@@ -19,14 +19,13 @@ public:
 
 	// Member Variables
 	char m_initials[MAX_NUMBER_OF_INITIALS]{ 'C','L','M' };
-	char* mp_ipAddress;
 	char** mpp_highScoreLines;
-	Enums::GameState m_gameState;
+	int m_gameActivityIndex;
 	int m_largestSnakeLengthUponDeath;
 	int m_numberOfFramesBetweenSpawn;
 	const int MAX_NUMBER_OF_NODES_TO_ADD;
 	static constexpr int MAX_NUMBER_OF_HIGH_SCORES = 10;	// NOTE: Arbitrary value
-	std::mutex m_gameStateMutex;
+	std::mutex m_gameActivityIndexMutex;
 	Queue<int>* mp_availableSpawnPositions;
 	std::random_device m_random;
 	unsigned short m_largestSnakeColor;

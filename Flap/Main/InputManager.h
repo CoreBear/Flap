@@ -46,7 +46,7 @@ private:
 	unsigned int** mpp_deadFramesTargetFrames;
 
 	// Functionality
-	void ClearQueuesAndUpdateGameState(Enums::GameState _gameState);
+	void ClearQueuesAndUpdateGameActivity(int _gameActivityIndex);
 	void ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo);
 };
 

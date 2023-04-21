@@ -2,6 +2,7 @@
 #include "MenuManager.h"
 
 #include "BufferCell.h"
+#include "ClientSearchMenu.h"
 #include "ExitMenu.h"
 #include "HighScoreMenu.h"
 #include "LocalMultiplayerMenu.h"
@@ -12,8 +13,10 @@
 #include "OptionsMenu.h"
 #include "PauseMenu.h"
 #include "ResultsMultiMenu.h"
+#include "ServerSearchMenu.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
+#include "SharedNetwork.h"
 #include "SharedRender.h"
 #include "SinglePlayerMenu.h"
 #include "Structure.h"
@@ -24,24 +27,29 @@
 #pragma endregion
 
 #pragma region Initialization
-MenuManager::MenuManager(SharedGame& _sharedGame, SharedRender& _sharedRender) :
+MenuManager::MenuManager(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork, SharedRender& _sharedRender) :
 	mr_sharedGame(_sharedGame),
 	mr_sharedRender(_sharedRender)
 {
 	m_readIndex = Consts::NO_VALUE;
 
-	mpp_menus = new MenuBase*[static_cast<int>(Enums::MenuName::NumberOfMenus)];
+	mpp_menus = new MenuBase * [static_cast<int>(Enums::MenuName::NumberOfMenus)];
 
 	// For each menu
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < static_cast<int>(Enums::MenuName::NumberOfMenus); m_reusableIterator++)
 	{
 		switch (m_reusableIterator)
 		{
+		case Enums::MenuName::ClientSearch:
+		{
+			mpp_menus[m_reusableIterator] = new ClientSearchMenu(_sharedNetwork);
+		}
+		break;
 		case Enums::MenuName::Exit:
 		{
 			mpp_menus[m_reusableIterator] = new ExitMenu();
 		}
-			break;
+		break;
 		case Enums::MenuName::HighScore:
 		{
 			mpp_menus[m_reusableIterator] = new HighScoreMenu();
@@ -51,22 +59,22 @@ MenuManager::MenuManager(SharedGame& _sharedGame, SharedRender& _sharedRender) :
 		{
 			mpp_menus[m_reusableIterator] = new LocalMultiplayerMenu();
 		}
-			break;
+		break;
 		case Enums::MenuName::Main:
 		{
 			mpp_menus[m_reusableIterator] = new MainMenu();
 		}
-			break;
+		break;
 		case Enums::MenuName::Multiplayer:
 		{
 			mpp_menus[m_reusableIterator] = new MultiplayerMenu();
 		}
-			break;
+		break;
 		case Enums::MenuName::Network:
 		{
-			mpp_menus[m_reusableIterator] = new NetworkMenu();
+			mpp_menus[m_reusableIterator] = new NetworkMenu(_sharedNetwork);
 		}
-			break;
+		break;
 		case Enums::MenuName::NewHighScore:
 		{
 			mpp_menus[m_reusableIterator] = new NewHighScoreMenu();
@@ -76,33 +84,38 @@ MenuManager::MenuManager(SharedGame& _sharedGame, SharedRender& _sharedRender) :
 		{
 			mpp_menus[m_reusableIterator] = new OptionsMenu();
 		}
-			break;
+		break;
 		case Enums::MenuName::Pause:
 		{
 			mpp_menus[m_reusableIterator] = new PauseMenu();
 		}
-			break;
+		break;
 		case Enums::MenuName::ResultsMulti:
 		{
 			mpp_menus[m_reusableIterator] = new ResultsMultiMenu();
+		}
+		break;
+		case Enums::MenuName::ServerSearch:
+		{
+			mpp_menus[m_reusableIterator] = new ServerSearchMenu(_sharedNetwork);
 		}
 		break;
 		case Enums::MenuName::SinglePlayer:
 		{
 			mpp_menus[m_reusableIterator] = new SinglePlayerMenu();
 		}
-			break;
+		break;
 		case Enums::MenuName::Welcome:
 		{
 			mpp_menus[m_reusableIterator] = new WelcomeMenu();
 		}
-			break;
+		break;
 		default:
 		{
 			// NOTE/WARNING: Execution shouldn't make it here
 			throw std::exception();
 		}
-			break;
+		break;
 		}
 	}
 
@@ -114,6 +127,8 @@ MenuManager::MenuManager(SharedGame& _sharedGame, SharedRender& _sharedRender) :
 void MenuManager::FixedUpdate()
 {
 	InputReceiver::HandleInput();
+
+	mpp_menus[m_currentMenuIndex]->FixedUpdate();
 
 	WriteMenuIntoFrameBuffer();
 }
@@ -169,38 +184,30 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 			// Do nothing, because a non-button was clicked
 		case Enums::MenuReturn::NA:
 			break;
-			// Completely exit the application
-		case Enums::MenuReturn::ExitApp:
-		{
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::ExitApp;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
 
 		case Enums::MenuReturn::ExitToMain:
-		{
+		case Enums::MenuReturn::PlayGameLocal:
+		case Enums::MenuReturn::PlayGameSingle:
+		case Enums::MenuReturn::ResumeGame:
 			ClearReturnMenuStack();
 
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::ExitToMain;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
+			// NOTE: Notice the fallthrough!
+		case Enums::MenuReturn::ExitApp:
 		case Enums::MenuReturn::HighScoreToMain:
-		{
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::HighScoreToMain;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
+		case Enums::MenuReturn::JoinServer:
 		case Enums::MenuReturn::LoadGame:
+		case Enums::MenuReturn::RunAsClient:
+		case Enums::MenuReturn::RunAsServer:
+		case Enums::MenuReturn::SaveGame:
+		case Enums::MenuReturn::SaveHighScores:
+		case Enums::MenuReturn::ShowHighScores:
+		case Enums::MenuReturn::StartNetworking:
+		case Enums::MenuReturn::StopHost:
+		case Enums::MenuReturn::StopNetworking:
 		{
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::LoadGame;
-			mr_sharedGame.m_gameStateMutex.unlock();
+			mr_sharedGame.m_gameActivityIndexMutex.lock();
+			mr_sharedGame.m_gameActivityIndex = m_potentialNextMenuIndex;
+			mr_sharedGame.m_gameActivityIndexMutex.unlock();
 		}
 		break;
 
@@ -212,101 +219,12 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 		}
 		break;
 
-		// Display nothing and move into the game state
-		case Enums::MenuReturn::PlayGameLocal:
-		{
-			ClearReturnMenuStack();
-
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::StartGameLocal;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
-		// Display nothing and move into the game state
-		case Enums::MenuReturn::PlayGameSingle:
-		{
-			ClearReturnMenuStack();
-
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::StartGameSingle;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
-		// Display nothing and move back into the game state
-		case Enums::MenuReturn::Resume:
-		{
-			ClearReturnMenuStack();
-
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::ResumeGame;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
 		// Return to previous menu
 		case Enums::MenuReturn::Return:
 			ReturnToPreviousMenu();
 			break;
 
-		case Enums::MenuReturn::RunAsClient:
-		{
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::RunAsClient;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
-		case Enums::MenuReturn::RunAsServer:
-		{
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::RunAsServer;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
-		case Enums::MenuReturn::SaveGame:
-		{
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::SaveGame;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
-		case Enums::MenuReturn::SaveHighScores:
-		{
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::SaveHighScores;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
-		case Enums::MenuReturn::ShowHighScores:
-		{
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::ShowHighScores;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
-		case Enums::MenuReturn::StartNetworking:
-		{
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::StartNetworking;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
-		case Enums::MenuReturn::StopNetworking:
-		{
-			mr_sharedGame.m_gameStateMutex.lock();
-			mr_sharedGame.m_gameState = Enums::GameState::StopNetworking;
-			mr_sharedGame.m_gameStateMutex.unlock();
-		}
-		break;
-
-		// Display the next menu (if not mentioned above)
+			// Display the next menu (if not mentioned above)
 		default:
 			DisplayMenu(m_potentialNextMenuIndex);
 			break;

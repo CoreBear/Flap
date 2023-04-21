@@ -97,7 +97,7 @@ void InputManager::Update()
 						{
 						case VK_RETURN:
 						{
-							ClearQueuesAndUpdateGameState(Enums::GameState::Menu);
+							ClearQueuesAndUpdateGameActivity(Enums::GameActivity::Menu);
 
 							m_newInput.m_inputIndexOrCharacter = static_cast<int>(Enums::InputName::Accept);
 						}
@@ -134,7 +134,7 @@ void InputManager::Update()
 #pragma endregion
 
 #pragma region Private Functionality
-void InputManager::ClearQueuesAndUpdateGameState(Enums::GameState _gameState)
+void InputManager::ClearQueuesAndUpdateGameActivity(int _gameActivityIndex)
 {
 	mr_sharedInput.m_inputQueueMutex.lock();
 
@@ -147,9 +147,9 @@ void InputManager::ClearQueuesAndUpdateGameState(Enums::GameState _gameState)
 		}
 	}
 
-	mr_sharedGame.m_gameStateMutex.lock();
-	mr_sharedGame.m_gameState = _gameState;
-	mr_sharedGame.m_gameStateMutex.unlock();
+	mr_sharedGame.m_gameActivityIndexMutex.lock();
+	mr_sharedGame.m_gameActivityIndex = _gameActivityIndex;
+	mr_sharedGame.m_gameActivityIndexMutex.unlock();
 	mr_sharedInput.m_inputQueueMutex.unlock();
 }
 void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
@@ -215,20 +215,20 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	// If neither player is trying to pause the game
 	if (m_reusableIterator_3 != PAUSE_INDEX)
 	{
-		mr_sharedGame.m_gameStateMutex.lock();
-		switch (mr_sharedGame.m_gameState)
+		mr_sharedGame.m_gameActivityIndexMutex.lock();
+		switch (mr_sharedGame.m_gameActivityIndex)
 		{
 			// Do nothing
-		//case Enums::GameState::ExitApp:
-		//case Enums::GameState::ExitToMain:
-		//case Enums::GameState::ExitToResults:
-		//case Enums::GameState::PauseGame:
-		//case Enums::GameState::ResumeGame:
-		//case Enums::GameState::StartGame:
+		//case Enums::GameActivity::ExitApp:
+		//case Enums::GameActivity::ExitToMain:
+		//case Enums::GameActivity::ExitToResults:
+		//case Enums::GameActivity::PauseGame:
+		//case Enums::GameActivity::ResumeGame:
+		//case Enums::GameActivity::StartGame:
 
 			// If not transitioning, add input
-		case Enums::GameState::Game:
-		case Enums::GameState::Menu:
+		case Enums::GameActivity::Game:
+		case Enums::GameActivity::Menu:
 		{
 			// Add values to container
 			m_newInput.m_inputIndexOrCharacter = m_reusableIterator_3;
@@ -241,21 +241,21 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		}
 		break;
 		}
-		mr_sharedGame.m_gameStateMutex.unlock();
+		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 	}
 
 	// If a player is trying to pause the game
 	else
 	{
-		mr_sharedGame.m_gameStateMutex.lock();
-		if (mr_sharedGame.m_gameState == Enums::GameState::Game)
+		mr_sharedGame.m_gameActivityIndexMutex.lock();
+		if (mr_sharedGame.m_gameActivityIndex == Enums::GameActivity::Game)
 		{
-			mr_sharedGame.m_gameStateMutex.unlock();
-			ClearQueuesAndUpdateGameState(Enums::GameState::PauseGame);
+			mr_sharedGame.m_gameActivityIndexMutex.unlock();
+			ClearQueuesAndUpdateGameActivity(Enums::GameActivity::PauseGame);
 		}
 		else
 		{
-			mr_sharedGame.m_gameStateMutex.unlock();
+			mr_sharedGame.m_gameActivityIndexMutex.unlock();
 		}
 	}
 }

@@ -102,7 +102,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -130,8 +130,10 @@
   <ItemGroup>
     <ClCompile Include="Avatar.cpp" />
     <ClCompile Include="BufferCell.cpp" />
+    <ClCompile Include="Client.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="FileIOManager.cpp" />
+    <ClCompile Include="Host.cpp" />
     <ClCompile Include="NoTouchy.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Food.cpp" />
@@ -139,6 +141,8 @@
     <ClCompile Include="GameRunManager.cpp" />
     <ClCompile Include="InputReceiver.cpp" />
     <ClCompile Include="MenuBase.cpp" />
+    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="SharedNetwork.cpp" />
     <ClCompile Include="SharedRender.cpp" />
     <ClCompile Include="SharedGame.cpp" />
     <ClCompile Include="SharedInput.cpp" />
@@ -156,9 +160,12 @@
   <ItemGroup>
     <ClInclude Include="Avatar.h" />
     <ClInclude Include="BufferCell.h" />
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="ClientSearchMenu.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="DynamicTextMenu.h" />
     <ClInclude Include="FileIOManager.h" />
+    <ClInclude Include="Host.h" />
     <ClInclude Include="NewHighScoreMenu.h" />
     <ClInclude Include="NoTouchy.h" />
     <ClInclude Include="Queue.h" />
@@ -177,6 +184,9 @@
     <ClInclude Include="PauseMenu.h" />
     <ClInclude Include="ResultsMultiMenu.h" />
     <ClInclude Include="HighScoreMenu.h" />
+    <ClInclude Include="Server.h" />
+    <ClInclude Include="ServerSearchMenu.h" />
+    <ClInclude Include="SharedNetwork.h" />
     <ClInclude Include="SharedRender.h" />
     <ClInclude Include="SharedGame.h" />
     <ClInclude Include="SharedInput.h" />
@@ -196,6 +206,7 @@
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="TextLine.h" />
     <ClInclude Include="Tools.h" />
+    <ClInclude Include="NetworkSearchMenu.h" />
     <ClInclude Include="WelcomeMenu.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

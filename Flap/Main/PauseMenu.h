@@ -30,7 +30,7 @@ protected:
 		switch (m_currentButtonNumber)
 		{
 		case 1:
-			return Enums::MenuReturn::Resume;
+			return Enums::MenuReturn::ResumeGame;
 		case 2:
 			return Enums::MenuReturn::Options;
 		case 3:

@@ -9,7 +9,7 @@
 SharedGame::SharedGame(const Structure::Vector2& _maxWindowSizeDimensions) :
 	mpp_highScoreLines(nullptr),
 	m_isInGameSession(false),
-	m_gameState(Enums::GameState::Menu),
+	m_gameActivityIndex(Enums::GameActivity::Menu),
 	MAX_NUMBER_OF_NODES_TO_ADD(9),				// NOTE: Arbitrary value
 	m_numberOfSnakesInGame(Consts::NO_VALUE),
 	m_numberOfFramesBeforeGameStart(60),		// NOTE: Arbitrary value

@@ -3,6 +3,7 @@
 
 #include "Consts.h"
 #include "DynamicTextMenu.h"
+#include "SharedNetwork.h"
 #include "Structure.h"
 #include "TextLine.h"
 
@@ -16,7 +17,7 @@ public:
 
 		mp_newString = new char[sp_sharedGame->MAX_HS_STRING_LENGTH];
 		strcpy(mp_newString, "IP Address: ");
-		strcat(mp_newString, sp_sharedGame->mp_ipAddress);
+		strcat(mp_newString, mr_sharedNetwork.mp_myIPAddress);
 
 		mp_walker = mp_newString;
 
@@ -38,7 +39,9 @@ public:
 
 		delete[] mp_newString;
 	}
-	NetworkMenu() : DynamicTextMenu(4)	// This value must match the number of text lines below
+	NetworkMenu(SharedNetwork& _sharedNetwork) :
+		DynamicTextMenu(4),	// This value must match the number of text lines below
+		mr_sharedNetwork(_sharedNetwork)
 	{
 		mp_textLines = new TextLine * [m_numberOfTextLines]
 		{
@@ -67,6 +70,10 @@ protected:
 		// NOTE: If player clicks accept on a non-button
 		return Enums::MenuReturn::NA;
 	}
+
+private:
+	// Member Variables
+	SharedNetwork& mr_sharedNetwork;
 };
 
 #endif NETWORK_MENU_H

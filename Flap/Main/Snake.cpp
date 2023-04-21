@@ -166,9 +166,9 @@ void Snake::Death()
 	// If there are no more snakes (GAME OVER)
 	else
 	{
-		sp_sharedGame->m_gameStateMutex.lock();
-		sp_sharedGame->m_gameState = Enums::GameState::ExitToResults;
-		sp_sharedGame->m_gameStateMutex.unlock();
+		sp_sharedGame->m_gameActivityIndexMutex.lock();
+		sp_sharedGame->m_gameActivityIndex = Enums::GameActivity::ExitToResults;
+		sp_sharedGame->m_gameActivityIndexMutex.unlock();
 
 
 		if (sp_sharedGame->GetSinglePlayerBool())

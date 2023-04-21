@@ -12,6 +12,7 @@
 class BufferCell;
 class SharedGame;
 class SharedInput;
+class SharedNetwork;
 class SharedRender;
 class TextLine;
 namespace Structure { struct Vector2; }
@@ -20,7 +21,7 @@ class MenuManager final : public InputReceiver
 {
 public:
 	// Initialzation
-	MenuManager(SharedGame& _sharedGame, SharedRender& _sharedRender);
+	MenuManager(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork, SharedRender& _sharedRender);
 	MenuManager(const MenuManager&) = delete;
 	MenuManager& operator=(const MenuManager&) = delete;
 
@@ -47,7 +48,23 @@ protected:
 
 private:
 	// Member Variables
-	const bool m_menuCanBeReturnedTo[static_cast<int>(Enums::MenuName::NumberOfMenus)]{ false, false, false, true, true, false, false, false, true, false, false, false };
+	const bool m_menuCanBeReturnedTo[static_cast<int>(Enums::MenuName::NumberOfMenus)]
+	{
+		false,
+		true,
+		false,
+		false,
+		true,
+		true,
+		false,
+		true,
+		false,
+		true,
+		false,
+		false,
+		false,
+		false
+	};
 	BufferCell* mp_bufferCell;
 	const char* mp_walker;
 	int m_currentMenuIndex;
