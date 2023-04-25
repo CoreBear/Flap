@@ -1,7 +1,6 @@
 #ifndef NETWORK_MANAGER_H
 #define NETWORK_MANAGER_H
 
-#include <condition_variable>
 #include <thread>
 
 class Host;
@@ -27,7 +26,6 @@ public:
 private:
 	// Member Variables
 	bool m_killClient;
-	std::condition_variable m_killClientConVar;
 	Host* mp_host;
 	SharedNetwork& mr_sharedNetwork;
 	std::thread m_hostUpdateThread;
