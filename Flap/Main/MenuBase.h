@@ -16,7 +16,8 @@ public:
 
 	// Member Variables
 	DList<BufferCell*> m_cells;
-	int m_numberOfTextLines;
+	int m_currNumOfTextLines;
+	int m_totNumOfTextLines;
 	TextLine** mp_textLines;
 
 	// Initialzation
@@ -48,14 +49,20 @@ protected:
 	int m_currentButtonNumber;	// NOTE/WARNING: Using number, not index, because the title is accessible text
 
 	// Initialization
-	MenuBase(int _numberOfTextLines) : m_numberOfTextLines(_numberOfTextLines), m_currentButtonNumber(Consts::OFF_BY_ONE) { return; }
+	MenuBase(int _numberOfTextLines) :
+		m_currNumOfTextLines(_numberOfTextLines),
+		m_totNumOfTextLines(_numberOfTextLines),
+		m_currentButtonNumber(Consts::OFF_BY_ONE) 
+	{
+		return;
+	}
 
 	// Functionality
 	// NOTE: This function should never actually be called
 	inline virtual int InputAcceptHandling() { return -1; };
 	inline virtual void NextOption() { return; }
 	inline virtual void PreviousOption() { return; }
-	inline void UpdateNumberOfTextLines(int _numberOfTextLines) { m_numberOfTextLines = _numberOfTextLines; }
+	inline void UpdateNumberOfTextLines(int _numberOfTextLines) { m_currNumOfTextLines = _numberOfTextLines; }
 };
 
 #endif MENU_BASE_H

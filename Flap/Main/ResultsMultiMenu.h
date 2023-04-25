@@ -46,7 +46,7 @@ public:
 	ResultsMultiMenu() : 
 		DynamicTextMenu(2)	// This value must match the number of text lines below
 	{
-		mp_textLines = new TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_totNumOfTextLines]
 		{
 			new TextLine("Results", Consts::OFF_BY_ONE),   // Menu Title
 			//new TextLine("Largest Snake:", 5),

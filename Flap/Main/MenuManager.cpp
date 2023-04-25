@@ -113,7 +113,7 @@ MenuManager::MenuManager(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork,
 		default:
 		{
 			// NOTE/WARNING: Execution shouldn't make it here
-			throw std::exception();
+			throw std::exception("user generated");
 		}
 		break;
 		}
@@ -177,9 +177,9 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 {
 	if (_inputPressState == Enums::InputPressState::PressedThisFrame)
 	{
-		m_potentialNextMenuIndex = mpp_menus[m_currentMenuIndex]->InputAccept();
+		m_nextActivityOrMenuIndex = mpp_menus[m_currentMenuIndex]->InputAccept();
 
-		switch (m_potentialNextMenuIndex)
+		switch (m_nextActivityOrMenuIndex)
 		{
 			// Do nothing, because a non-button was clicked
 		case Enums::MenuReturn::NA:
@@ -194,7 +194,7 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 			// NOTE: Notice the fallthrough!
 		case Enums::MenuReturn::ExitApp:
 		case Enums::MenuReturn::HighScoreToMain:
-		case Enums::MenuReturn::JoinServer:
+		case Enums::MenuReturn::Join:
 		case Enums::MenuReturn::LoadGame:
 		case Enums::MenuReturn::RunAsClient:
 		case Enums::MenuReturn::RunAsServer:
@@ -206,7 +206,7 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 		case Enums::MenuReturn::StopNetworking:
 		{
 			mr_sharedGame.m_gameActivityIndexMutex.lock();
-			mr_sharedGame.m_gameActivityIndex = m_potentialNextMenuIndex;
+			mr_sharedGame.m_gameActivityIndex = m_nextActivityOrMenuIndex;
 			mr_sharedGame.m_gameActivityIndexMutex.unlock();
 		}
 		break;
@@ -215,7 +215,7 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 		{
 			ClearReturnMenuStack();
 
-			DisplayMenu(m_potentialNextMenuIndex);
+			DisplayMenu(m_nextActivityOrMenuIndex);
 		}
 		break;
 
@@ -226,7 +226,7 @@ void MenuManager::InputAccept(Enums::InputPressState _inputPressState)
 
 			// Display the next menu (if not mentioned above)
 		default:
-			DisplayMenu(m_potentialNextMenuIndex);
+			DisplayMenu(m_nextActivityOrMenuIndex);
 			break;
 		}
 	}
@@ -273,7 +273,7 @@ void MenuManager::WriteMenuIntoFrameBuffer()
 {
 	mr_sharedRender.m_frameBufferMutex.lock();
 
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mpp_menus[m_currentMenuIndex]->m_numberOfTextLines; m_reusableIterator++)
+	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mpp_menus[m_currentMenuIndex]->m_currNumOfTextLines; m_reusableIterator++)
 	{
 		WriteTextLineIntoBuffer(mpp_menus[m_currentMenuIndex]->GetCurrentButtonNumber() == m_reusableIterator, *mpp_menus[m_currentMenuIndex]->mp_textLines[m_reusableIterator]);
 	}

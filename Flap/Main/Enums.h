@@ -37,7 +37,7 @@ namespace Enums
 		ExitApp = 15, 
 		ExitToMain = 16, 
 		HighScoreToMain = 17,
-		JoinServer = 18,
+		Join = 18,
 		LoadGame = 19, 
 		PlayGameLocal = 20, 
 		PlayGameSingle = 21, 
@@ -59,9 +59,7 @@ namespace Enums
 			ExitToResults = 32,
 			Game = 33,
 			Menu = 34,
-			PauseGame = 35,
-			StartGameLocal = 36,
-			StartGameSingle = 37;
+			PauseGame = 35;
 	};
 	enum class ObjectType { Avatar, Food, NoTouchy, Snake, NumberOfTypes, NA };
 	enum class SpawnState { Selected, Spawned, WaitingSelection };

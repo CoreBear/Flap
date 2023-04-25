@@ -12,7 +12,7 @@ public:
 	// Initialization
 	SinglePlayerMenu() : MenuBase(4)	// This value must match the number of text lines below
 	{
-		mp_textLines = new TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_totNumOfTextLines]
 		{
 			new TextLine("Single Player", Consts::OFF_BY_ONE),			// Menu Title
 			new TextLine("Play", 5),

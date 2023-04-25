@@ -19,7 +19,7 @@ public:
 		mp_playerOneSnakeColorBufferCell(new BufferCell),
 		mp_playerTwoSnakeColorBufferCell(new BufferCell)
 	{
-		mp_textLines = new TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_totNumOfTextLines]
 		{
 			new TextLine("Options", Consts::OFF_BY_ONE),   // Menu Title
 			new TextLine("Snake 1 Color:", 5),

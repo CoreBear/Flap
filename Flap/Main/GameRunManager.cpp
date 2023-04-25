@@ -58,11 +58,11 @@ void GameRunManager::StartGame(bool _newGame)
 {
 	switch (mr_sharedGame.m_gameActivityIndex)
 	{
-	case Enums::GameActivity::StartGameLocal:
+	case Enums::GameActivity::PlayGameLocal:
 		mr_sharedGame.IncrementNumberOfSnakesInGame();
 
 		// NOTE: Notice the fallthrough
-	case Enums::GameActivity::StartGameSingle:
+	case Enums::GameActivity::PlayGameSingle:
 		mr_sharedGame.IncrementNumberOfSnakesInGame();
 		break;
 	}

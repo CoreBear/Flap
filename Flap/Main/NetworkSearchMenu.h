@@ -130,9 +130,9 @@ protected:
 
 			// Number Of Connected Users
 			{
-				mr_sharedNetwork.m_numOfConnClientsOnServMutext.lock();
+				mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
 				mp_connectedUsersBufferCell->m_character = mr_sharedNetwork.m_numOfConnClientsOnServ;
-				mr_sharedNetwork.m_numOfConnClientsOnServMutext.unlock();
+				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
 			}
 
 			// Let system know dots were updated

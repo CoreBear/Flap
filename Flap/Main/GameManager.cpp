@@ -42,18 +42,53 @@ void GameManager::Update()
 
 		m_currentTime = std::chrono::high_resolution_clock::now();
 
-		// Fixed Update
-		if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
+		// If not networking
+		if (mp_networkManager == nullptr)
 		{
-			// Update for next iteration
-			m_lastTime = m_currentTime;
+			// Fixed Update
+			if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
+			{
+				// Update for next iteration
+				m_lastTime = m_currentTime;
 
-			// Update counter
-			++s_masterFixedFrameCount;
+				// Update counter
+				++s_masterFixedFrameCount;
 
-			mp_gameRunManager->FixedUpdate();
+				mp_gameRunManager->FixedUpdate();
 
-			//mp_collisionRenderReadOutOfBuffer->FixedUpdate();
+				//mp_collisionRenderReadOutOfBuffer->FixedUpdate();
+			}
+		}
+
+		// If networking
+		else
+		{
+			// Fixed Update
+			if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
+			{
+				// Update for next iteration
+				m_lastTime = m_currentTime;
+
+				// Update counter
+				++s_masterFixedFrameCount;
+
+				mp_sharedNetwork->m_serverDisconnectedMutex.lock();
+				if (mp_sharedNetwork->m_serverDisconnected == true)
+				{
+					mp_sharedNetwork->m_serverDisconnected = false;
+					mp_sharedNetwork->m_serverDisconnectedMutex.unlock();
+
+					mr_sharedGame.m_gameActivityIndexMutex.lock();
+					mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::StopHost;
+					mr_sharedGame.m_gameActivityIndexMutex.unlock();
+				}
+				else
+				{
+					mp_sharedNetwork->m_serverDisconnectedMutex.unlock();
+				}
+
+				mp_gameRunManager->FixedUpdate();
+			}
 		}
 
 		mp_gameRunManager->Update();
@@ -127,7 +162,7 @@ void GameManager::Update()
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 	}
 	break;
-	case Enums::MenuReturn::JoinServer:
+	case Enums::MenuReturn::Join:
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
@@ -159,18 +194,51 @@ void GameManager::Update()
 
 		m_currentTime = std::chrono::high_resolution_clock::now();
 
-		// Fixed Update
-		if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
+		// If not networking
+		if (mp_networkManager == nullptr)
 		{
-			// Update for next iteration
-			m_lastTime = m_currentTime;
+			// Fixed Update
+			if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
+			{
+				// Update for next iteration
+				m_lastTime = m_currentTime;
 
-			// Update counter
-			++s_masterFixedFrameCount;
+				// Update counter
+				++s_masterFixedFrameCount;
 
-			mp_menuManager->FixedUpdate();
+				mp_menuManager->FixedUpdate();
+			}
+		}
 
-			//mp_collisionRenderReadOutOfBuffer->FixedUpdate();
+		// If networking
+		else
+		{
+			// Fixed Update
+			if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
+			{
+				// Update for next iteration
+				m_lastTime = m_currentTime;
+
+				// Update counter
+				++s_masterFixedFrameCount;
+
+				mp_sharedNetwork->m_serverDisconnectedMutex.lock();
+				if (mp_sharedNetwork->m_serverDisconnected == true)
+				{
+					mp_sharedNetwork->m_serverDisconnected = false;
+					mp_sharedNetwork->m_serverDisconnectedMutex.unlock();
+
+					mr_sharedGame.m_gameActivityIndexMutex.lock();
+					mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::StopHost;
+					mr_sharedGame.m_gameActivityIndexMutex.unlock();
+				}
+				else
+				{
+					mp_sharedNetwork->m_serverDisconnectedMutex.unlock();
+				}
+
+				mp_menuManager->FixedUpdate();
+			}
 		}
 
 		mp_menuManager->Update();
@@ -185,6 +253,32 @@ void GameManager::Update()
 
 		mr_sharedGame.m_gameActivityIndexMutex.lock();
 		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
+		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+	}
+	break;
+	case Enums::GameActivity::PlayGameLocal:
+	{
+		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+
+		mr_sharedGame.GameSession(true, false);
+
+		mp_gameRunManager->StartGame(true);
+
+		mr_sharedGame.m_gameActivityIndexMutex.lock();
+		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Game;
+		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+	}
+	break;
+	case Enums::GameActivity::PlayGameSingle:
+	{
+		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+
+		mr_sharedGame.GameSession(true, true);
+
+		mp_gameRunManager->StartGame(true);
+
+		mr_sharedGame.m_gameActivityIndexMutex.lock();
+		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Game;
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 	}
 	break;
@@ -268,32 +362,6 @@ void GameManager::Update()
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 	}
 	break;
-	case Enums::GameActivity::StartGameLocal:
-	{
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
-
-		mr_sharedGame.GameSession(true, false);
-
-		mp_gameRunManager->StartGame(true);
-
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Game;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
-	}
-	break;
-	case Enums::GameActivity::StartGameSingle:
-	{
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
-
-		mr_sharedGame.GameSession(true, true);
-
-		mp_gameRunManager->StartGame(true);
-
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Game;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
-	}
-	break;
 	case Enums::GameActivity::StartNetworking:
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
@@ -325,6 +393,7 @@ void GameManager::Update()
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
 		delete mp_networkManager;
+		mp_networkManager = nullptr;
 
 		mp_menuManager->ReturnToPreviousMenu();
 

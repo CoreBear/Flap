@@ -68,7 +68,7 @@ private:
 	BufferCell* mp_bufferCell;
 	const char* mp_walker;
 	int m_currentMenuIndex;
-	int m_potentialNextMenuIndex;
+	int m_nextActivityOrMenuIndex;
 	int m_reusableIterator;
 	int m_textLetterColumnPosition;
 	DList<BufferCell*>::Iterator m_menuCellsIterator;

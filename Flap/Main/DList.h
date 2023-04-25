@@ -330,11 +330,11 @@ public:
 protected:
 	// Member Variabels
 	Node* m_head;
+	Node* m_tail;
 
 private:
 	// Member Variables
 	Iterator mEnd;
-	Node* m_tail;
 };
 
 #endif DLIST_H

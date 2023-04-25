@@ -11,17 +11,20 @@ class ClientSearchMenu final : public NetworkSearchMenu
 public:
 	// Initialization
 	ClientSearchMenu(SharedNetwork& _sharedNetwork) :
-		NetworkSearchMenu(2, _sharedNetwork),			// Usually, this value must match the number of text lines below, but the last option will be revealed when at least one client connects
+		NetworkSearchMenu(3, _sharedNetwork),			// This value must match the number of text lines below
 		m_lobbyWasEmptyLastFrame(true)
 	{
-		mp_textLines = new TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_totNumOfTextLines]
 		{
-			new TextLine("Searching For Players", Consts::OFF_BY_ONE),	// Menu Title
+			new TextLine("Waiting For Players", Consts::OFF_BY_ONE),	// Menu Title
 			//new TextLine("...", 2),
 			//new TextLine("Number Of Connected Users: 0/4", 10),
 			new TextLine("Return to network menu", 15),
 			new TextLine("Start Game", 20)
 		};
+
+		// HACK: Do this dynamically. This is so the system only displays the first 2 options at first
+		m_currNumOfTextLines = 2;
 	}
 	ClientSearchMenu(const ClientSearchMenu&) = delete;
 	ClientSearchMenu& operator=(const ClientSearchMenu&) = delete;
@@ -32,10 +35,10 @@ public:
 		if (NetworkSearchMenu::UpdateDotsAndConnectedUsers())
 		{
 			// If lobby is empty
-			mr_sharedNetwork.m_numOfConnClientsOnServMutext.lock();
+			mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
 			if (mr_sharedNetwork.m_numOfConnClientsOnServ == '0')
 			{
-				mr_sharedNetwork.m_numOfConnClientsOnServMutext.unlock();
+				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
 
 				if (m_lobbyWasEmptyLastFrame == false)
 				{
@@ -49,7 +52,7 @@ public:
 			// If lobby is not empty
 			else
 			{
-				mr_sharedNetwork.m_numOfConnClientsOnServMutext.unlock();
+				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
 
 				if (m_lobbyWasEmptyLastFrame)
 				{
@@ -71,7 +74,7 @@ protected:
 		case 1:
 			return Enums::MenuReturn::StopHost;
 		case 2:
-			return Enums::MenuReturn::StopHost;
+			return Enums::MenuReturn::Join;
 		}
 
 		// NOTE: If player clicks accept on a non-button

@@ -43,7 +43,7 @@ public:
 		DynamicTextMenu(4),	// This value must match the number of text lines below
 		mr_sharedNetwork(_sharedNetwork)
 	{
-		mp_textLines = new TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_totNumOfTextLines]
 		{
 			new TextLine("Network", Consts::OFF_BY_ONE),  // Menu Title
 			//new TextLine("IP Address: ", 2),

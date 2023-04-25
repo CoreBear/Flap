@@ -47,13 +47,19 @@ public:
 			}
 		}
 
+		// HACK: Hardcoded
+		UpdateNumberOfTextLines(2);
+		m_clientConnectedToServer = false;
+		m_couldSeeServerLastUpdate = false;
+
 		delete[] mp_newString;
 	}
 	ServerSearchMenu(SharedNetwork& _sharedNetwork) :
-		NetworkSearchMenu(2, _sharedNetwork),			// Usually, this value must match the number of text lines below, but the last option will be revealed when server is located
+		NetworkSearchMenu(3, _sharedNetwork),			// This value must match the number of text lines below
+		m_clientConnectedToServer(false),
 		m_couldSeeServerLastUpdate(false)
 	{
-		mp_textLines = new TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_totNumOfTextLines]
 		{
 			new TextLine("Searching For Server", Consts::OFF_BY_ONE),	// Menu Title
 				//new TextLine("...", 2),
@@ -62,6 +68,9 @@ public:
 				new TextLine("Return to network menu", 15),
 				new TextLine("Connect to server", 20)
 		};
+
+		// HACK: Do this dynamically. This is so the system only displays the first 2 options at first
+		m_currNumOfTextLines = 2;
 	}
 	ServerSearchMenu(const ServerSearchMenu&) = delete;
 	ServerSearchMenu& operator=(const ServerSearchMenu&) = delete;
@@ -87,6 +96,26 @@ public:
 
 					// HACK: Hardcoded
 					UpdateNumberOfTextLines(3);
+				}
+
+				// If client could see server last frame
+				else
+				{
+					// If this menu doesn't know the client has connected
+					if (m_clientConnectedToServer == false)
+					{
+						// If client connected to server
+						mr_sharedNetwork.m_joinedServerMutex.lock();
+						if (mr_sharedNetwork.m_joinedServer == true)
+						{
+							m_clientConnectedToServer = true;
+
+							UpdateNumberOfTextLines(2);
+
+							ResetButtonNumber();
+						}
+						mr_sharedNetwork.m_joinedServerMutex.unlock();
+					}
 				}
 
 				m_ipWalker = mr_sharedNetwork.mp_serverIPAddress;
@@ -140,7 +169,7 @@ protected:
 		case 1:
 			return Enums::MenuReturn::StopHost;
 		case 2:
-			return Enums::MenuReturn::JoinServer;
+			return Enums::MenuReturn::Join;
 		}
 
 		// NOTE: If player clicks accept on a non-button
@@ -149,6 +178,7 @@ protected:
 
 private:
 	// Member Variables
+	bool m_clientConnectedToServer;
 	bool m_couldSeeServerLastUpdate;
 	const char* m_ipWalker;
 	DList<BufferCell*>::Const_Iterator m_ipStartIter;

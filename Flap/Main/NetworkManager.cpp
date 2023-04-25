@@ -18,7 +18,6 @@
 
 #pragma region Initialization
 NetworkManager::NetworkManager(SharedNetwork& _sharedNetwork) :
-	m_runHostUpdate(true),
 	mr_sharedNetwork(_sharedNetwork)
 {
 	// Initiates use of WS2_32.DLL by a processand must be called before any network functions!
@@ -33,71 +32,60 @@ NetworkManager::NetworkManager(SharedNetwork& _sharedNetwork) :
 #pragma endregion
 
 #pragma region Public Functionality
+void NetworkManager::HostUpdate(bool _isClient)
+{
+	if (_isClient)
+	{
+		m_killClient = false;
+
+		mp_host = new Client(mr_sharedNetwork);
+	}
+	else
+	{
+		m_killClient = true;
+
+		mp_host = new Server(mr_sharedNetwork);
+	}
+
+	if (mp_host->Init_Succeeded(m_killClient))
+	{
+		std::thread(&Host::RecvCommMessLoop, mp_host).detach();
+
+		m_updateLoopThread = std::thread(&Host::UpdateLoop, mp_host);
+	}
+}
 void NetworkManager::Join()
 {
-	if (mp_host->Join_StartRecvThread())
-	{
-		// Start a daemon thread for receiving
-		std::thread(&Host::RecvCommMessLoop, mp_host).detach();
-	}
+	mp_host->Join();
 }
 void NetworkManager::RunHost(bool _isClient)
 {
-	m_hostMainThread = std::thread(&NetworkManager::HostMain, this, _isClient);
+	m_hostUpdateThread = std::thread(&NetworkManager::HostUpdate, this, _isClient);
 }
 void NetworkManager::StopHost()
 {
-	// If host made it through initialization and is running
-	if (m_runHostUpdate)
+	mp_host->Stop();
+
+	if (m_updateLoopThread.joinable())
 	{
-		m_runHostUpdate = false;
+		m_updateLoopThread.join();
+	}
 
-		m_hostMainThread.join();
-
-		delete mp_host;
-	} 
-
-	// If client did not make it through initialization
+	if (m_killClient)
+	{
+		m_hostUpdateThread.join();
+	}
 	else
 	{
-		m_hostMainThread.detach();
+		m_hostUpdateThread.detach();
 	}
+
+	delete mp_host;
+	mp_host = nullptr;
 }
 #pragma endregion
 
 #pragma region Private Functionality
-void NetworkManager::HostMain(bool _isClient)
-{
-	// Init host
-	if (_isClient)
-	{
-		mp_host = new Client(mr_sharedNetwork);
-
-		// If client doesn't make it through initialization
-		if (mr_sharedNetwork.mp_serverIPAddress == nullptr)
-		{
-			delete mp_host;
-
-			return;
-		}
-	}
-	else
-	{
-		mp_host = new Server(mr_sharedNetwork);
-
-		// Start a daemon thread for broadcasting
-		std::thread(&Host::SendBroadMessLoop, mp_host).detach();
-
-		// Start a daemon thread for receiving
-		std::thread(&Host::RecvCommMessLoop, mp_host).detach();
-	}
-
-	// This will loop until host is required to shutdown
-	while (m_runHostUpdate)
-	{
-		mp_host->Update();
-	}
-}
 void NetworkManager::GenerateIPAddress()
 {
 	char hostName[100];

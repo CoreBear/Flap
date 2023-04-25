@@ -14,7 +14,7 @@ public:
 	// Initialization
 	NewHighScoreMenu() : DynamicTextMenu(2)	// This value must match the number of text lines below
 	{
-		mp_textLines = new TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_totNumOfTextLines]
 		{
 			new TextLine("New High Score", Consts::OFF_BY_ONE),
 			//new TextLine("Press left (arrow/A) and right (arrow/D), while on the initial/score line, to choose initial cell. Type the character you'd like to enter.", 9),

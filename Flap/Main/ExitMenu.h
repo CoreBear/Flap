@@ -12,7 +12,7 @@ public:
 	// Initialization
 	ExitMenu() : MenuBase(4)	// This value must match the number of text lines below
 	{
-		mp_textLines = new TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_totNumOfTextLines]
 		{
 			new TextLine("Exit", Consts::OFF_BY_ONE),   // Menu Title
 			new TextLine("Return", 5),

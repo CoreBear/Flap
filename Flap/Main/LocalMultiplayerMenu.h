@@ -12,7 +12,7 @@ public:
 	// Initialization
 	LocalMultiplayerMenu() : MenuBase(3)	// This value must match the number of text lines below
 	{
-		mp_textLines = new TextLine * [m_numberOfTextLines]
+		mp_textLines = new TextLine * [m_totNumOfTextLines]
 		{
 			new TextLine("Local Multiplayer", Consts::OFF_BY_ONE),   // Menu Title
 			new TextLine("Play Game", 5),

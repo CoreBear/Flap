@@ -37,7 +37,7 @@ protected:
 	}
 
 	// Destruction
-	inline virtual ~DynamicTextMenu() { ClearCells(); }
+	inline ~DynamicTextMenu() override { ClearCells(); }
 
 private:
 	// Member Variables

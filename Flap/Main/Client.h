@@ -9,29 +9,41 @@ class Client final : public Host
 {
 public:
 	// Initialization
-	Client(SharedNetwork& _sharedNetwork);
+	inline Client(SharedNetwork& _sharedNetwork) :
+		Host(1, _sharedNetwork),						// HACK: Hardcoding
+		m_attemptingOrConnectedToServer(false)
+	{
+		return;
+	}
 	Client(const Client&) = delete;
 	Client& operator=(const Client&) = delete;
+	bool Init_Succeeded(bool& _killMe) override;
 
 	// Updates
-	void Update();
+	void UpdateLoop() override;
 
 	// Functionality
-	bool Join_StartRecvThread() override;
+	void Join();
 	void RecvCommMessLoop() override;
+	void Stop() override;
 
 	// Destruction
-	inline ~Client() override { delete[] mr_sharedNetwork.mp_serverIPAddress; }
+	~Client() override;
+
+protected:
+	// Functionality
+	void SendCommMess() override;
 
 private:
 	// Member Variables
+	bool m_attemptingOrConnectedToServer;
 	char* mp_walker_1;
 	const char* mp_walker_2;
-	static constexpr int CLIENT_COMMUNICATION_PORT = 8998;
 
 	// Functionality
 	bool CheckForSendNumber();
-	void SendCommMess();
+	void ForcedDisconnect();
+	void RecvCommMess();
 };
 
 #endif CLIENT_H

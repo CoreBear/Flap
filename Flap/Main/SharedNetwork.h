@@ -7,33 +7,36 @@ class SharedNetwork final
 {
 public:
 	// Static Variables
-	enum class Command { GetNumber, Join, Leave, NumberOfCommands };
-	enum class Response { Full, Joined, SendNumber, NumberOfResponses };
+	enum class SpecialMessage { Disconnect, Full, GetNumber, Join, Joined, Ping, SendNumber, NumberOfSpecialMessages};
 
 	// Member Variables
-	const char* const COMMANDS[static_cast<int>(Command::NumberOfCommands)] =
+	const char* const SPECIAL_MESSAGES[static_cast<int>(SpecialMessage::NumberOfSpecialMessages)] =
 	{
+		"#Disconnect",
+		"#Full",
 		"#GetNumber",
 		"#Join",
-		"#Leave"
-	};
-	const char* const RESPONSES[static_cast<int>(Command::NumberOfCommands)] =
-	{
-		"#Full",
 		"#Joined",
+		"#Ping",
 		"#SendNumber"
 	};
 
 public:
 	// Member Variables
+	bool m_joinedServer;
+	bool m_serverDisconnected;
 	char m_numOfConnClientsOnServ;
 	char* mp_myIPAddress;
 	char* mp_serverIPAddress;
-	std::mutex m_numOfConnClientsOnServMutext;
+	std::mutex m_joinedServerMutex;
+	std::mutex m_numOfConnClientsOnServMutex;
+	std::mutex m_serverDisconnectedMutex;
 	std::mutex m_serverIPAddressMutex;
 
 	// Initialization
 	inline SharedNetwork() :
+		m_joinedServer(false),
+		m_serverDisconnected(false),
 		m_numOfConnClientsOnServ('0'),
 		mp_myIPAddress(nullptr),
 		mp_serverIPAddress(nullptr)

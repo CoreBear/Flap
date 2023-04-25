@@ -13,7 +13,7 @@ SharedGame* MenuBase::sp_sharedGame = nullptr;
 void MenuBase::InputDown()
 {
 	// If user has made it beyond the buttom, loop back to the top button
-	if (++m_currentButtonNumber == m_numberOfTextLines)
+	if (++m_currentButtonNumber == m_currNumOfTextLines)
 	{
 		m_currentButtonNumber = Consts::OFF_BY_ONE;
 	}
@@ -31,7 +31,7 @@ void MenuBase::InputUp()
 	// If user has made it beyond the top, loop back to the bottom button
 	if (--m_currentButtonNumber == Consts::NO_VALUE)
 	{
-		m_currentButtonNumber = m_numberOfTextLines - Consts::OFF_BY_ONE;
+		m_currentButtonNumber = m_currNumOfTextLines - Consts::OFF_BY_ONE;
 	}
 }
 #pragma endregion
@@ -39,7 +39,7 @@ void MenuBase::InputUp()
 #pragma region Destruction
 MenuBase::~MenuBase()
 {
-	for (int i = 0; i < m_numberOfTextLines; i++)
+	for (int i = 0; i < m_totNumOfTextLines; i++)
 	{
 		delete mp_textLines[i];
 	}
