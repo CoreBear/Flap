@@ -48,7 +48,23 @@ void InputManager::Update()
 
 	mr_sharedInput.m_inputTypeMutex.lock();
 
-	if (mr_sharedInput.m_inputType == Enums::InputType::Normal)
+	switch (mr_sharedInput.m_inputType)
+	{
+	case Enums::InputType::ToNorm:
+	{
+		mr_sharedInput.m_inputType = Enums::InputType::Normal;
+
+		for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_1++)
+		{
+			for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < Consts::NUMBER_OF_INPUTS; m_reusableIterator_2++)
+			{
+				mpp_inputPressStates[m_reusableIterator_1][m_reusableIterator_2] = Enums::InputPressState::Released;
+			}
+		}
+	}
+
+	// NOTE: Noticed the fallthrough!
+	case Enums::InputType::Normal:
 	{
 		mr_sharedInput.m_inputTypeMutex.unlock();
 
@@ -79,7 +95,8 @@ void InputManager::Update()
 			}
 		}
 	}
-	else
+	break;
+	case Enums::InputType::MenuCharInput:
 	{
 		mr_sharedInput.m_inputTypeMutex.unlock();
 
@@ -130,15 +147,16 @@ void InputManager::Update()
 			}
 		}
 	}
+	break;
+	}
 }
 #pragma endregion
 
 #pragma region Private Functionality
 void InputManager::ClearQueuesAndUpdateGameActivity(int _gameActivityIndex)
 {
+	// Clear input queues
 	mr_sharedInput.m_inputQueueMutex.lock();
-
-	// Clear each queue
 	for (m_reusableIterator_4 = Consts::NO_VALUE; m_reusableIterator_4 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_4++)
 	{
 		while (mr_sharedInput.m_inputQueue[m_reusableIterator_4].empty() == false)
@@ -146,11 +164,11 @@ void InputManager::ClearQueuesAndUpdateGameActivity(int _gameActivityIndex)
 			mr_sharedInput.m_inputQueue[m_reusableIterator_4].pop();
 		}
 	}
+	mr_sharedInput.m_inputQueueMutex.unlock();
 
 	mr_sharedGame.m_gameActivityIndexMutex.lock();
 	mr_sharedGame.m_gameActivityIndex = _gameActivityIndex;
 	mr_sharedGame.m_gameActivityIndexMutex.unlock();
-	mr_sharedInput.m_inputQueueMutex.unlock();
 }
 void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 {

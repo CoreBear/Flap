@@ -3,6 +3,7 @@
 
 #include "Host.h"
 #include "Queue.h"
+
 #include <unordered_map>
 
 class SharedNetwork;
@@ -11,17 +12,15 @@ class Server final : public Host
 {
 public:
 	// Initialization
-	bool Init_Succeeded(bool& _killMe) override;
 	inline Server(SharedNetwork& _sharedNetwork) :
-		Host(1, _sharedNetwork),							// HACK: Hardcoding
-		m_secondsBetweenBroadcast(NORMAL_BROADCAST_WAIT)
+		Host(1, _sharedNetwork)							// HACK: Hardcoding
 	{
 		return;
 	}
 	Server(const Server&) = delete;
 	Server& operator=(const Server&) = delete;
 
-	// Updates
+	// Loops
 	void UpdateLoop() override;
 
 	// Functionality
@@ -29,11 +28,11 @@ public:
 	void RecvCommMessLoop() override;
 	void Stop() override;
 
-	// Destruction
-	~Server() override;
-
 protected:
 	// Functionality
+#if SAME_SYSTEM_TESTING
+	void AssignPort() override;
+#endif SAME_SYSTEM_TESTING
 	void SendCommMess() override;
 
 private:
@@ -59,14 +58,8 @@ private:
 	};
 
 	// Member Variables
-	char m_broadcastSendBuffer[UCHAR_MAX];
-	const int NORMAL_BROADCAST_WAIT = 2;	// Needs to be above m_secondsBetweenBroadcast
 	int m_numberOfConnectedClients;
-	int m_secondsBetweenBroadcast;
 	int m_sizeofSockAddr;
-	const int INDEFINITE_BROADCAST_WAIT = UINT_MAX;
-	sockaddr_in m_broadSockAddrIn;
-	SOCKET m_broadSocket;
 	std::unordered_map<unsigned long, MapVal>m_mapOfClientAddrsConnTypeAndSpecMess;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapIterator;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapSendAllIterator;
@@ -74,8 +67,7 @@ private:
 	// Functionality
 	void HandleSpecMess();
 	bool RemoveClient_EmptyMap(std::unordered_map<unsigned long, MapVal>::iterator& _iterator);
-	void SendBroadMessLoop();
-	void SendCommMessToEveryClient();
+	void SendCommMessToEveryClient_Except(unsigned long _address = ULONG_MAX);
 };
 
 #endif SERVER_H

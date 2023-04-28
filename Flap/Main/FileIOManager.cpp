@@ -45,8 +45,8 @@ void FileIOManager::LoadHighScores()
 
 		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedGame.MAX_NUMBER_OF_HIGH_SCORES; m_reusableIterator++)
 		{
-			mr_sharedGame.mpp_highScoreLines[m_reusableIterator] = new char[mr_sharedGame.MAX_HS_STRING_LENGTH];
-			inStream.getline(mr_sharedGame.mpp_highScoreLines[m_reusableIterator], mr_sharedGame.MAX_HS_STRING_LENGTH);
+			mr_sharedGame.mpp_highScoreLines[m_reusableIterator] = new char[SharedGame::MAX_HS_STRING_LENGTH];
+			inStream.getline(mr_sharedGame.mpp_highScoreLines[m_reusableIterator], SharedGame::MAX_HS_STRING_LENGTH);
 		}
 
 		inStream.close();
@@ -108,7 +108,7 @@ void FileIOManager::UpdateHighScores(const char* _initials)
 				mr_sharedGame.mpp_highScoreLines[i] = mr_sharedGame.mpp_highScoreLines[i - Consts::OFF_BY_ONE];
 			}
 
-			char* newHighScoreString = new char[mr_sharedGame.MAX_HS_STRING_LENGTH];
+			char* newHighScoreString = new char[SharedGame::MAX_HS_STRING_LENGTH];
 			strcpy(newHighScoreString, _initials);
 			strcat(newHighScoreString, "|");
 

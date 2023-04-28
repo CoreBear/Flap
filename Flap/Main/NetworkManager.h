@@ -15,7 +15,6 @@ public:
 	NetworkManager& operator=(const NetworkManager&) = delete;
 
 	// Functionality
-	void HostUpdate(bool _isClient);
 	void Join();
 	void RunHost(bool _isClient);
 	void StopHost();
@@ -25,10 +24,8 @@ public:
 
 private:
 	// Member Variables
-	bool m_killClient;
 	Host* mp_host;
 	SharedNetwork& mr_sharedNetwork;
-	std::thread m_hostUpdateThread;
 	std::thread m_updateLoopThread;
 
 	// Functionality

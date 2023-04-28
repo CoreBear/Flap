@@ -1,16 +1,18 @@
-#ifndef CLIENT_SEARCH_MENU_H
-#define CLIENT_SEARCH_MENU_H
+#ifndef CLIENT_WAIT_MENU_H
+#define CLIENT_WAIT_MENU_H
 
+#include "BufferCell.h"
 #include "NetworkSearchMenu.h"
+#include "SharedNetwork.h"
 #include "TextLine.h"
 
 class SharedNetwork;
 
-class ClientSearchMenu final : public NetworkSearchMenu
+class ClientWaitMenu final : public NetworkSearchMenu
 {
 public:
 	// Initialization
-	ClientSearchMenu(SharedNetwork& _sharedNetwork) :
+	ClientWaitMenu(SharedNetwork& _sharedNetwork) :
 		NetworkSearchMenu(3, _sharedNetwork),			// This value must match the number of text lines below
 		m_lobbyWasEmptyLastFrame(true)
 	{
@@ -26,14 +28,56 @@ public:
 		// HACK: Do this dynamically. This is so the system only displays the first 2 options at first
 		m_currNumOfTextLines = 2;
 	}
-	ClientSearchMenu(const ClientSearchMenu&) = delete;
-	ClientSearchMenu& operator=(const ClientSearchMenu&) = delete;
+	ClientWaitMenu(const ClientWaitMenu&) = delete;
+	ClientWaitMenu& operator=(const ClientWaitMenu&) = delete;
+	void Initialize() override
+	{
+		// Initialize the dots
+		NetworkSearchMenu::Initialize();
+
+		mp_newString = new char[SharedGame::MAX_HS_STRING_LENGTH];
+		strcpy(mp_newString, "Number Of Connected Users: 0/4");
+
+		mp_walker = mp_newString;
+
+		m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_newString);
+
+		while (*mp_walker != '\0')
+		{
+			constexpr int ROW = 10;
+
+			mp_newBufferCell = new BufferCell;
+			mp_newBufferCell->m_character = *mp_walker;
+			mp_newBufferCell->m_colorBFGround = Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::White)];
+			mp_newBufferCell->m_position.m_x = m_columnPositionOffset++;
+			mp_newBufferCell->m_position.m_y = ROW;
+			m_cells.PushBack(mp_newBufferCell);
+
+			// Point at the cell that will be updated
+			if (*mp_walker == '0')
+			{
+				mp_connectedUsersBufferCell = mp_newBufferCell;
+			}
+
+			++mp_walker;
+		}
+
+		delete[] mp_newString;
+		mp_newString = nullptr;
+	}
 
 	//Updates
 	void FixedUpdate() override
 	{
-		if (NetworkSearchMenu::UpdateDotsAndConnectedUsers())
+		if (NetworkSearchMenu::UpdateDots())
 		{
+			// Number Of Connected Users
+			{
+				mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
+				mp_connectedUsersBufferCell->m_character = mr_sharedNetwork.m_numOfConnClientsOnServ;
+				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
+			}
+
 			// If lobby is empty
 			mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
 			if (mr_sharedNetwork.m_numOfConnClientsOnServ == '0')
@@ -86,4 +130,4 @@ private:
 	bool m_lobbyWasEmptyLastFrame;
 };
 
-#endif CLIENT_SEARCH_MENU_H
+#endif CLIENT_WAIT_MENU_H

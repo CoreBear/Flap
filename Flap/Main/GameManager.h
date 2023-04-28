@@ -3,6 +3,8 @@
 
 #include "GameThreadBase.h"
 
+#include "Enums.h"
+
 #include <chrono>
 #include <Windows.h>		// NOTE/WARNING: Has to be here or else the compiler screams about forward declaring HANDLE
 
@@ -47,5 +49,7 @@ private:
 
 	// Functionality
 	void GameOver();
+	void SetGameActivity(int _gameActivityIndex);
+	void SetInputType(Enums::InputType _inputType);
 };
 #endif GAME_MANAGER_H

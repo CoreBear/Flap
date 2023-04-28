@@ -1,6 +1,7 @@
 #pragma region Includes
 #include "MenuBase.h"
 
+#include "Consts.h"
 #include "SharedGame.h"
 #include "TextLine.h"
 #pragma endregion
@@ -39,7 +40,7 @@ void MenuBase::InputUp()
 #pragma region Destruction
 MenuBase::~MenuBase()
 {
-	for (int i = 0; i < m_totNumOfTextLines; i++)
+	for (int i = Consts::NO_VALUE; i < m_totNumOfTextLines; i++)
 	{
 		delete mp_textLines[i];
 	}

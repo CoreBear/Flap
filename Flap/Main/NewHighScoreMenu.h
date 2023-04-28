@@ -30,7 +30,7 @@ public:
 
 		m_initialIndex = Consts::NO_VALUE;
 		
-		memset(sp_sharedGame->m_initials, Consts::EMPTY_SPACE_CHAR, sp_sharedGame->MAX_NUMBER_OF_INITIALS);
+		memset(sp_sharedGame->m_initials, Consts::EMPTY_SPACE_CHAR, SharedGame::MAX_NUMBER_OF_INITIALS);
 		
 		// Generate instruction line
 		{
@@ -54,11 +54,12 @@ public:
 			}
 
 			delete[] mp_newString;
+			mp_newString = nullptr;
 		}
 
 		// Generate initial/score line
 		{
-			mp_newString = new char[sp_sharedGame->MAX_HS_STRING_LENGTH];
+			mp_newString = new char[SharedGame::MAX_HS_STRING_LENGTH];
 			strcpy(mp_newString, "Please enter your initials: ___ ");
 
 			const char* intString = Tools::IntToString(sp_sharedGame->m_largestSnakeLengthUponDeath);
@@ -81,6 +82,7 @@ public:
 				++mp_walker;
 			}
 
+			// Position iterator at the beginning of the initials
 			for (m_updateCellIterator = m_cells.Begin(); m_updateCellIterator != m_cells.End(); ++m_updateCellIterator)
 			{
 				if ((*m_updateCellIterator)->m_character == '_')
@@ -91,6 +93,7 @@ public:
 			}
 
 			delete[] mp_newString;
+			mp_newString = nullptr;
 		}
 	}
 
@@ -111,14 +114,16 @@ protected:
 	{
 		(*m_updateCellIterator)->m_character = static_cast<char>(_inputIndexOrKeyCode);
 		sp_sharedGame->m_initials[m_initialIndex] = static_cast<char>(_inputIndexOrKeyCode);
+		NextOption();
 	}
 	void NextOption() override
 	{
 		// If index can move right, move it right
-		if (m_initialIndex < sp_sharedGame->MAX_NUMBER_OF_INITIALS - Consts::OFF_BY_ONE)
+		if (m_initialIndex < SharedGame::MAX_NUMBER_OF_INITIALS - Consts::OFF_BY_ONE)
 		{
 			++m_initialIndex;
 
+			// Unhighlight the previous option and highlight the current option
 			(*m_updateCellIterator)->m_colorBFGround = Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::White)];
 			++m_updateCellIterator;
 			(*m_updateCellIterator)->m_colorBFGround = Consts::BACKGROUND_COLORS[static_cast<int>(Enums::Color::White)];
@@ -131,6 +136,7 @@ protected:
 		{
 			--m_initialIndex;
 
+			// Unhighlight the previous option and highlight the current option
 			(*m_updateCellIterator)->m_colorBFGround = Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::White)];
 			--m_updateCellIterator;
 			(*m_updateCellIterator)->m_colorBFGround = Consts::BACKGROUND_COLORS[static_cast<int>(Enums::Color::White)];

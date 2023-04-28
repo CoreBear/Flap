@@ -2,7 +2,6 @@
 #include "GameManager.h"
 
 #include "Consts.h"
-#include "Enums.h"
 #include "FileIOManager.h"
 #include "GameRunManager.h"
 #include "MenuManager.h"
@@ -78,9 +77,7 @@ void GameManager::Update()
 					mp_sharedNetwork->m_serverDisconnected = false;
 					mp_sharedNetwork->m_serverDisconnectedMutex.unlock();
 
-					mr_sharedGame.m_gameActivityIndexMutex.lock();
-					mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::StopHost;
-					mr_sharedGame.m_gameActivityIndexMutex.unlock();
+					mp_menuManager->DisplayMenu(Enums::MenuName::ServerSearch);
 				}
 				else
 				{
@@ -104,9 +101,7 @@ void GameManager::Update()
 
 		mp_menuManager->DisplayMenu(Enums::MenuName::Main);
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
 	}
 	break;
 	case Enums::GameActivity::ExitToResults:
@@ -119,10 +114,6 @@ void GameManager::Update()
 
 			if (m_newHighScore)
 			{
-				mr_sharedInput.m_inputTypeMutex.lock();
-				mr_sharedInput.m_inputType = Enums::InputType::HighScore;
-				mr_sharedInput.m_inputTypeMutex.unlock();
-
 				mp_menuManager->DisplayMenu(Enums::MenuName::NewHighScore);
 			}
 			else
@@ -137,9 +128,9 @@ void GameManager::Update()
 
 		GameOver();
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
+
+		SetInputType(Enums::InputType::MenuCharInput);
 	}
 	break;
 	case Enums::GameActivity::HighScoreToMain:
@@ -157,9 +148,7 @@ void GameManager::Update()
 			mp_menuManager->DisplayMenu(Enums::MenuName::Main);
 		}
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
 	}
 	break;
 	case Enums::MenuReturn::Join:
@@ -168,9 +157,7 @@ void GameManager::Update()
 
 		mp_networkManager->Join();
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
 	}
 	break;
 	case Enums::GameActivity::LoadGame:
@@ -183,9 +170,7 @@ void GameManager::Update()
 
 		mp_gameRunManager->StartGame(false);
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Game;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Game);
 	}
 	break;
 	case Enums::GameActivity::Menu:
@@ -228,9 +213,7 @@ void GameManager::Update()
 					mp_sharedNetwork->m_serverDisconnected = false;
 					mp_sharedNetwork->m_serverDisconnectedMutex.unlock();
 
-					mr_sharedGame.m_gameActivityIndexMutex.lock();
-					mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::StopHost;
-					mr_sharedGame.m_gameActivityIndexMutex.unlock();
+					mp_menuManager->DisplayMenu(Enums::MenuName::ServerSearch);
 				}
 				else
 				{
@@ -251,9 +234,7 @@ void GameManager::Update()
 		mp_gameRunManager->PauseGame();
 		mp_menuManager->DisplayMenu(Enums::MenuName::Pause);
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
 	}
 	break;
 	case Enums::GameActivity::PlayGameLocal:
@@ -264,9 +245,7 @@ void GameManager::Update()
 
 		mp_gameRunManager->StartGame(true);
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Game;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Game);
 	}
 	break;
 	case Enums::GameActivity::PlayGameSingle:
@@ -277,9 +256,7 @@ void GameManager::Update()
 
 		mp_gameRunManager->StartGame(true);
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Game;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Game);
 	}
 	break;
 	case Enums::GameActivity::ResumeGame:
@@ -288,9 +265,7 @@ void GameManager::Update()
 
 		mp_gameRunManager->ResumeGame();
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Game;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Game);
 	}
 	break;
 	case Enums::GameActivity::RunAsClient:
@@ -301,9 +276,9 @@ void GameManager::Update()
 
 		mp_menuManager->DisplayMenu(Enums::MenuName::ServerSearch);
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
+
+		SetInputType(Enums::InputType::MenuCharInput);
 	}
 	break;
 	case Enums::GameActivity::RunAsServer:
@@ -314,9 +289,7 @@ void GameManager::Update()
 
 		mp_menuManager->DisplayMenu(Enums::MenuName::ClientSearch);
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
 	}
 	break;
 	case Enums::GameActivity::SaveGame:
@@ -334,19 +307,15 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
-		mr_sharedInput.m_inputTypeMutex.lock();
-		mr_sharedInput.m_inputType = Enums::InputType::Normal;
-		mr_sharedInput.m_inputTypeMutex.unlock();
-
 		mp_fileIOManager->SaveHighScores(m_newHighScore, mr_sharedGame.m_initials);
 
 		mp_menuManager->DisplayMenu(Enums::MenuName::HighScore);
 
 		mp_fileIOManager->ClearHighScores();
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
+
+		SetInputType(Enums::InputType::ToNorm);
 	}
 	break;
 	case Enums::GameActivity::ShowHighScores:
@@ -357,9 +326,7 @@ void GameManager::Update()
 
 		mp_menuManager->DisplayMenu(Enums::MenuName::HighScore);
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
 	}
 	break;
 	case Enums::GameActivity::StartNetworking:
@@ -370,9 +337,7 @@ void GameManager::Update()
 
 		mp_menuManager->DisplayMenu(Enums::MenuName::Network);
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
 	}
 	break;
 	case Enums::GameActivity::StopHost:
@@ -383,9 +348,9 @@ void GameManager::Update()
 
 		mp_menuManager->ReturnToPreviousMenu();
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
+
+		SetInputType(Enums::InputType::ToNorm);
 	}
 	break;
 	case Enums::GameActivity::StopNetworking:
@@ -397,9 +362,7 @@ void GameManager::Update()
 
 		mp_menuManager->ReturnToPreviousMenu();
 
-		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		mr_sharedGame.m_gameActivityIndex = Enums::GameActivity::Menu;
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+		SetGameActivity(Enums::GameActivity::Menu);
 	}
 	break;
 	default:
@@ -417,6 +380,18 @@ void GameManager::GameOver()
 	mr_sharedRender.ResetFrameBufferSynced();
 
 	mp_gameRunManager->GameOver();
+}
+void GameManager::SetGameActivity(int _gameActivityIndex)
+{
+	mr_sharedGame.m_gameActivityIndexMutex.lock();
+	mr_sharedGame.m_gameActivityIndex = _gameActivityIndex;
+	mr_sharedGame.m_gameActivityIndexMutex.unlock();
+}
+void GameManager::SetInputType(Enums::InputType _inputType)
+{
+	mr_sharedInput.m_inputTypeMutex.lock();
+	mr_sharedInput.m_inputType = _inputType;
+	mr_sharedInput.m_inputTypeMutex.unlock();
 }
 #pragma endregion
 

@@ -26,18 +26,23 @@ protected:
 	DynamicTextMenu& operator=(const DynamicTextMenu&) = delete;
 
 	// Functionality
-	void ClearCells()
+	void ClearCells() override
 	{
 		for (m_clearIterator = m_cells.Begin(); m_clearIterator != m_cells.End(); ++m_clearIterator)
 		{
 			delete (*m_clearIterator);
 		}
 
-		m_cells.Clear();
+		MenuBase::ClearCells();
 	}
 
 	// Destruction
-	inline ~DynamicTextMenu() override { ClearCells(); }
+	~DynamicTextMenu() override
+	{
+		delete[] mp_newString;
+
+		ClearCells();
+	}
 
 private:
 	// Member Variables

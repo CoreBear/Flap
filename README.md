@@ -26,3 +26,5 @@ Thoughts:
 - Yes, I know about and how to use the cstdlib and string functions like itoa and to_string, I just like writing my own sometimes, to make sure I know what's going on underneath.
 - Created DList and Queue. I could make the other containers, but I do want to display my knowledge and ability to use stl containers as well.
 - Because it was simpler, I implemented this Windows platform specific. Maybe one day I'll make this portable.
+- Yes, a Finite State Machine (ClientStateMachine), because why not?
+- Found a need to use "friend"s!!! (Host and client states...)

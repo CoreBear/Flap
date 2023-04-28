@@ -8,7 +8,7 @@ namespace Enums
 	enum class CollisionType { HeadToBody, HeadToFruit, HeadToHead };
 	enum class InputName { Accept, Down, Left, Pause, Right, Up, NumberOfNames, NA };
 	enum class InputPressState { Click, Dead, Held, PressedThisFrame, Released };
-	enum class InputType { HighScore, Normal };
+	enum class InputType { MenuCharInput, Normal, ToNorm };
 	class MenuName 
 	{ 
 	public: 

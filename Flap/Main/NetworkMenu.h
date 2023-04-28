@@ -15,7 +15,7 @@ public:
 	{
 		ClearCells();
 
-		mp_newString = new char[sp_sharedGame->MAX_HS_STRING_LENGTH];
+		mp_newString = new char[SharedGame::MAX_HS_STRING_LENGTH];
 		strcpy(mp_newString, "IP Address: ");
 		strcat(mp_newString, mr_sharedNetwork.mp_myIPAddress);
 
@@ -38,6 +38,7 @@ public:
 		}
 
 		delete[] mp_newString;
+		mp_newString = nullptr;
 	}
 	NetworkMenu(SharedNetwork& _sharedNetwork) :
 		DynamicTextMenu(4),	// This value must match the number of text lines below

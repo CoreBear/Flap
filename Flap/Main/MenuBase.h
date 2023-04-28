@@ -59,6 +59,7 @@ protected:
 
 	// Functionality
 	// NOTE: This function should never actually be called
+	inline virtual void ClearCells() { m_cells.Clear(); }
 	inline virtual int InputAcceptHandling() { return -1; };
 	inline virtual void NextOption() { return; }
 	inline virtual void PreviousOption() { return; }

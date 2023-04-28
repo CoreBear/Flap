@@ -1,115 +1,75 @@
 #pragma region Includes
 #include "Server.h"
-
-#include <thread>
 #pragma endregion
 
-#pragma region Initialization
-bool Server::Init_Succeeded(bool& _killMe)
+#pragma region Loops
+void Server::RecvCommMessLoop()
 {
-	// Enable socket options
-	char sockOpt = '1';
-
-	// Broadcast
+	// Daemon
+	while (true)
 	{
-		// Create broadcast sending socket
+		// NOTE: Container stores information about who it's being sent from
+		m_sizeofSockAddr = sizeof(m_commSockAddrIn);
+		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, UCHAR_MAX, 0, (SOCKADDR*)&m_commSockAddrIn, &m_sizeofSockAddr);
+		if (m_winsockResult == SOCKET_ERROR)
 		{
-			m_broadSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-			if (m_broadSocket == INVALID_SOCKET)
+			// HACK: Don't need the errno catch right here, just useful for debugging
+			switch (m_winsockErrno = WSAGetLastError())
 			{
-				m_winsockErrno = WSAGetLastError();
-				return false;
+				// If client disconnected, remove them and continue on without handling their message
+			case WSAECONNRESET:
+				continue;
+				// Server disconnects
+			case WSAEINTR:
+				return;
+				// Right now, just default, but look into all that are required
+			default:
+				break;
 			}
 
-			// Set udp socket for broading
-			m_winsockResult = setsockopt(m_broadSocket, SOL_SOCKET, SO_BROADCAST, &sockOpt, sizeof(sockOpt));
-			if (m_winsockResult == SOCKET_ERROR)
+			// Execution shouldn't make it here when everything is working properly
+			throw std::exception();
+		}
+
+		// Client command
+		if (m_recvBuffer[0] == '#')
+		{
+			// If this client has never attempted to communicate with server
+			if (m_mapOfClientAddrsConnTypeAndSpecMess.find(m_commSockAddrIn.sin_addr.S_un.S_addr) == m_mapOfClientAddrsConnTypeAndSpecMess.end())
 			{
-				m_winsockErrno = WSAGetLastError();
-				return false;
+				m_mapOfClientAddrsConnTypeAndSpecMess.emplace(m_commSockAddrIn.sin_addr.S_un.S_addr, MapVal(false));
+			}
+
+			// NOTE: All special messages are stored, so client can handle them at the proper time. This will mitigate send/recv confusion
+			if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Ping)]) == 0)
+			{
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Ping);
+			}
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == 0)
+			{
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Disconnect);
+			}
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::GetNumber)]) == 0)
+			{
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::GetNumber);
+			}
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Join)]) == 0)
+			{
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Join);
+			}
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Joined)]) == 0)
+			{
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Joined);
 			}
 		}
 
-		// Bind broadcast socket to send
+		// Other
+		else
 		{
-			m_broadSockAddrIn.sin_family = AF_INET;
-			m_broadSockAddrIn.sin_addr.S_un.S_addr = inet_addr(mr_sharedNetwork.mp_myIPAddress);		// Bind to my address
-			m_broadSockAddrIn.sin_port = htons(SERVER_BROADCAST_PORT);									// Bind to my port
 
-			m_winsockResult = bind(m_broadSocket, (SOCKADDR*)&m_broadSockAddrIn, sizeof(m_broadSockAddrIn));
-			if (m_winsockResult == SOCKET_ERROR)
-			{
-				m_winsockErrno = WSAGetLastError();
-				return false;
-
-			}
-
-			// HACK: Broadcast for all 0's. Figure out how to get onto other networks
-			// Broadcasting out to all on this network and listening on this port
-			m_broadSockAddrIn.sin_addr.S_un.S_addr = INADDR_BROADCAST;
 		}
 	}
-
-	// Communication
-	{
-		// Create socket
-		{
-			m_commSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-			if (m_commSocket == INVALID_SOCKET)
-			{
-				m_winsockErrno = WSAGetLastError();
-				return false;
-			}
-
-			// HACK: Only needed for the same system, which won't happen, unless we're testing
-			m_winsockResult = setsockopt(m_commSocket, SOL_SOCKET, SO_REUSEADDR, &sockOpt, sizeof(sockOpt));
-			if (m_winsockResult == SOCKET_ERROR)
-			{
-				m_winsockErrno = WSAGetLastError();
-				return false;
-			}
-		}
-
-		// Bind socket to receive
-		{
-			m_commSockAddrIn.sin_family = AF_INET;
-			m_commSockAddrIn.sin_addr.S_un.S_addr = inet_addr(mr_sharedNetwork.mp_myIPAddress);		// Bind to my address
-			m_commSockAddrIn.sin_port = htons(SERVER_COMMUNICATION_PORT);							// Bind to my port
-
-			m_winsockResult = bind(m_commSocket, (SOCKADDR*)&m_commSockAddrIn, sizeof(m_commSockAddrIn));
-			if (m_winsockResult == SOCKET_ERROR)
-			{
-				m_winsockErrno = WSAGetLastError();
-				return false;
-			}
-		}
-
-		// Format broadcast
-		{
-			const char* walker = mr_sharedNetwork.mp_myIPAddress;
-			int stringIndex = 0;
-
-			while (*walker != '\0')
-			{
-				m_broadcastSendBuffer[stringIndex++] = *walker;
-
-				++walker;
-			}
-
-			m_broadcastSendBuffer[stringIndex++] = '|';
-
-			_itoa(SERVER_COMMUNICATION_PORT, &m_broadcastSendBuffer[stringIndex], 10);
-		}
-	}
-
-	// Start a daemon thread for broadcasting
-	std::thread(&Server::SendBroadMessLoop, this).detach();
-
-	return true;
 }
-#pragma endregion
-
-#pragma region Updates
 void Server::UpdateLoop()
 {
 	while (m_isRunning)
@@ -152,73 +112,6 @@ void Server::Join()
 {
 
 }
-void Server::RecvCommMessLoop()
-{
-	// Daemon
-	while (true)
-	{
-		// NOTE: Container stores information about who it's being sent from
-		m_sizeofSockAddr = sizeof(m_commSockAddrIn);
-		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, UCHAR_MAX, 0, (SOCKADDR*)&m_commSockAddrIn, &m_sizeofSockAddr);
-		if (m_winsockResult == SOCKET_ERROR)
-		{
-			// HACK: Don't need the errno catch right here, just useful for debugging
-			switch (m_winsockErrno = WSAGetLastError())
-			{
-				// If client disconnected, remove them and continue on without handling their message
-			case WSAECONNRESET:
-				continue;
-				// Server disconnects
-			case WSAEINTR:
-				return;
-				// Right now, just default, but look into all that are required
-			default: 
-				break;
-			}
-
-			// Execution shouldn't make it here when everything is working properly
-			throw std::exception("user generated");
-		}
-
-		// Client command
-		if (m_recvBuffer[0] == '#')
-		{
-			// If this client has never attempted to communicate with server
-			if (m_mapOfClientAddrsConnTypeAndSpecMess.find(m_commSockAddrIn.sin_addr.S_un.S_addr) == m_mapOfClientAddrsConnTypeAndSpecMess.end())
-			{
-				m_mapOfClientAddrsConnTypeAndSpecMess.emplace(m_commSockAddrIn.sin_addr.S_un.S_addr, MapVal(false));
-			}
-
-			// NOTE: All special messages are stored, so client can handle them at the proper time. This will mitigate send/recv confusion
-			if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Ping)]) == 0)
-			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Ping);
-			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == 0)
-			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Disconnect);
-			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::GetNumber)]) == 0)
-			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::GetNumber);
-			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Join)]) == 0)
-			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Join);
-			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Joined)]) == 0)
-			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Joined);
-			}
-		}
-
-		// Other
-		else
-		{
-
-		}
-	}
-}
 void Server::Stop()
 {
 	m_isRunning = false;
@@ -227,9 +120,18 @@ void Server::Stop()
 
 	GenSpecMess(SharedNetwork::SpecialMessage::Disconnect);
 
-	SendCommMessToEveryClient();
+	SendCommMessToEveryClient_Except();
 }
 #pragma endregion
+
+#if SAME_SYSTEM_TESTING
+#pragma region Protected Functionality
+void Server::AssignPort()
+{
+	m_commSockAddrIn.sin_port = htons(SERVER_COMMUNICATION_PORT); // Bind to my port
+}
+#pragma endregion
+#endif SAME_SYSTEM_TESTING
 
 #pragma region Private Functionality
 void Server::HandleSpecMess()
@@ -275,7 +177,7 @@ void Server::HandleSpecMess()
 
 					GenSpecMess(SharedNetwork::SpecialMessage::SendNumber);
 
-					SendCommMessToEveryClient();
+					SendCommMessToEveryClient_Except();
 				}
 				else
 				{
@@ -318,56 +220,37 @@ void Server::SendCommMess()
 		}
 
 		// Execution shouldn't make it here when everything is working properly
-		throw std::exception("user generated");
+		throw std::exception();
 	}
 }
-void Server::SendBroadMessLoop()
+void Server::SendCommMessToEveryClient_Except(unsigned long _address)
 {
-	// Daemon thread
-	while (true)
+	// If an address comes in
+	if (_address != ULONG_MAX)
 	{
-		// NOTE: Container stores information about who it's being sent to
-		m_winsockResult = sendto(m_broadSocket, m_broadcastSendBuffer, UCHAR_MAX, 0, (SOCKADDR*)&m_broadSockAddrIn, sizeof(m_broadSockAddrIn));
-		if (m_winsockResult == SOCKET_ERROR)
+		// For each connected client
+		for (m_mapSendAllIterator = m_mapOfClientAddrsConnTypeAndSpecMess.begin(); m_mapSendAllIterator != m_mapOfClientAddrsConnTypeAndSpecMess.end(); ++m_mapSendAllIterator)
 		{
-			// HACK: Don't need the errno catch right here, just useful for debugging
-			switch (m_winsockErrno = WSAGetLastError())
+			// If this client's address is not the one to be excluded, assign address and send message
+			if (m_mapSendAllIterator->first != _address)
 			{
-				// Server disconnects
-			case WSAEINTR:
-			case WSAENOTSOCK:
-			case WSANOTINITIALISED:
-				return;
-				// Right now, just default, but look into all that are required
-			default:
-				break;
+				m_commSockAddrIn.sin_addr.S_un.S_addr = m_mapSendAllIterator->first;
+
+				SendCommMess();
 			}
-
-			// Execution shouldn't make it here when everything is working properly
-			throw std::exception("user generated");
 		}
-
-		// Sleep
-		std::this_thread::sleep_for(std::chrono::seconds(m_secondsBetweenBroadcast));
 	}
-}
-void Server::SendCommMessToEveryClient()
-{
-	for (m_mapSendAllIterator = m_mapOfClientAddrsConnTypeAndSpecMess.begin(); m_mapSendAllIterator != m_mapOfClientAddrsConnTypeAndSpecMess.end(); ++m_mapSendAllIterator)
+
+	// If no address comes int
+	else
 	{
-		m_commSockAddrIn.sin_addr.S_un.S_addr = m_mapSendAllIterator->first;
+		// For each connected client, assign address and send message
+		for (m_mapSendAllIterator = m_mapOfClientAddrsConnTypeAndSpecMess.begin(); m_mapSendAllIterator != m_mapOfClientAddrsConnTypeAndSpecMess.end(); ++m_mapSendAllIterator)
+		{
+			m_commSockAddrIn.sin_addr.S_un.S_addr = m_mapSendAllIterator->first;
 
-		SendCommMess();
+			SendCommMess();
+		}
 	}
-}
-#pragma endregion
-
-#pragma region Destruction
-Server::~Server()
-{
-	// Does nothing, since this id UDP
-	shutdown(m_broadSocket, SD_BOTH);
-
-	closesocket(m_broadSocket);
 }
 #pragma endregion

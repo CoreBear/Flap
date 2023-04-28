@@ -1,163 +1,163 @@
 #pragma region Includes
 #include "Client.h"
+
+#include "ClientStateMachine.h"
 #pragma endregion
 
 #pragma region Initialization
-bool Client::Init_Succeeded(bool& _killMe)
+Client::Client(SharedNetwork& _sharedNetwork) :
+	Host(1, _sharedNetwork),						// HACK: Hardcoding
+	m_currentClientState(nullptr),
+	m_allClientStates(nullptr)
 {
-	// Enable socket options
-	char sockOpt = '1';
+	m_allClientStates = new	ClientStateMachine*[static_cast<int>(SharedNetwork::SharedNetwork::ClientState::NumberOfActionableStates)];
 
-	// Broadcast
+	for (int stateIndex = 0; stateIndex < static_cast<int>(SharedNetwork::ClientState::NumberOfActionableStates); stateIndex++)
 	{
-		SOCKET m_broadcastSocket;
-
-		// Create broadcast receiving socket
+		switch (static_cast<SharedNetwork::ClientState>(stateIndex))
 		{
-			m_broadcastSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-			if (m_broadcastSocket == INVALID_SOCKET)
-			{
-				m_winsockErrno = WSAGetLastError();
-				return false;
-			}
-
-			// HACK: Only needed for the same system, which won't happen, unless we're testing
-			m_winsockResult = setsockopt(m_broadcastSocket, SOL_SOCKET, SO_REUSEADDR, &sockOpt, sizeof(sockOpt));
-			if (m_winsockResult == SOCKET_ERROR)
-			{
-				m_winsockErrno = WSAGetLastError();
-				return false;
-			}
-		}
-
-		// Bind broadcast socket to receive
-		{
-			m_commSockAddrIn.sin_family = AF_INET;
-			m_commSockAddrIn.sin_addr.S_un.S_addr = INADDR_ANY;				// 000's for all octets, only worried about the port
-			m_commSockAddrIn.sin_port = htons(SERVER_BROADCAST_PORT);		// Listen for broadcast
-
-			m_winsockResult = bind(m_broadcastSocket, (SOCKADDR*)&m_commSockAddrIn, sizeof(m_commSockAddrIn));
-			if (m_winsockResult == SOCKET_ERROR)
-			{
-				m_winsockErrno = WSAGetLastError();
-				return false;
-			}
-		}
-
-		// Receive broadcast
-		m_winsockResult = recvfrom(m_broadcastSocket, m_recvBuffer, UCHAR_MAX, 0, NULL, NULL);
-		if (m_winsockResult == SOCKET_ERROR)
-		{
-			m_winsockErrno = WSAGetLastError();
-			return false;
+		case SharedNetwork::ClientState::AttemptToJoinServ:
+			m_allClientStates[stateIndex] = new AttemptingToJoinServer(*this, _sharedNetwork);
+			break;
+		case SharedNetwork::ClientState::JoinedServ:
+			m_allClientStates[stateIndex] = new JoinedServer(*this, _sharedNetwork);
+			break;
+		case SharedNetwork::ClientState::NotJoined:
+			m_currentClientState = m_allClientStates[stateIndex] = new NotJoined(*this, _sharedNetwork);
+			break;
 		}
 	}
 
-	if (_killMe)
-	{
-		return false;
-	}
-	
-	// Communication
-	{
-		// Create socket
-		m_commSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		if (m_commSocket == INVALID_SOCKET)
-		{
-			m_winsockErrno = WSAGetLastError();
-			return false;
-		}
-
-		// HACK: Only needed for the same system, which won't happen, unless we're testing
-		m_winsockResult = setsockopt(m_commSocket, SOL_SOCKET, SO_REUSEADDR, &sockOpt, sizeof(sockOpt));
-		if (m_winsockResult == SOCKET_ERROR)
-		{
-			m_winsockErrno = WSAGetLastError();
-			return false;
-		}
-
-		// Bind socket to receive
-		{
-			// Parse receive buffer to get addr and port
-			mp_walker_1 = m_recvBuffer;
-			int stringIndex = 0;
-
-			while (*mp_walker_1 != '|')
-			{
-				++mp_walker_1;
-			}
-
-			*mp_walker_1 = '\0';
-			++mp_walker_1;
-
-			m_commSockAddrIn.sin_addr.S_un.S_addr = inet_addr(mr_sharedNetwork.mp_myIPAddress);	// Bind to my address
-
-			// If client and server have the same IP
-			if (strcmp(mr_sharedNetwork.mp_myIPAddress, m_recvBuffer) == 0)
-			{
-				m_commSockAddrIn.sin_port = htons(8998);	// Bind to my port (different port than server, because the client and server have the same IP Address)
-			}
-
-			// If client and server have different IP's
-			else
-			{
-				m_commSockAddrIn.sin_port = htons(SERVER_COMMUNICATION_PORT);	// Bind to my port (same port as server)
-			}
-
-			// Bind comm socket with server's port
-			m_winsockResult = bind(m_commSocket, (SOCKADDR*)&m_commSockAddrIn, sizeof(m_commSockAddrIn));
-			if (m_winsockResult == SOCKET_ERROR)
-			{
-				m_winsockErrno = WSAGetLastError();
-				return false;
-			}
-		}
-
-		// Update server addr info
-		m_commSockAddrIn.sin_addr.S_un.S_addr = inet_addr(m_recvBuffer);	// The server's address
-		m_commSockAddrIn.sin_port = htons(atoi(mp_walker_1));					// The server's port
-
-		// Store the server's address
-		mr_sharedNetwork.m_serverIPAddressMutex.lock();
-		mr_sharedNetwork.mp_serverIPAddress = new char[strlen(m_recvBuffer) + 1];
-		strcpy(mr_sharedNetwork.mp_serverIPAddress, m_recvBuffer);
-		mr_sharedNetwork.m_serverIPAddressMutex.unlock();
-	}
-
-	// Get connected number of users
-	{
-		GenAssAndSendSpecMess(SharedNetwork::SpecialMessage::GetNumber);
-
-		// Break for specific circumstances
-		/*while (true)
-		{*/
-			RecvCommMess();
-
-			/*switch (switch_on)
-			{
-			case:
-				break;
-			case:
-				break;
-			case:
-				break;
-			case:
-				return true;
-			}
-		}*/
-	}
+	mr_sharedNetwork.m_nextClientStateMutex.lock();
+	mr_sharedNetwork.m_waitForMenuUpdate = true;
+	mr_sharedNetwork.m_currentClientState = SharedNetwork::ClientState::NotJoined;	// Arbitrary state, as long as it's not NotJoined
+	mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::NotJoined;
+	mr_sharedNetwork.m_nextClientStateMutex.unlock();
 }
 #pragma endregion
 
-#pragma region Updates
+#pragma region Loops
+void Client::RecvCommMessLoop()
+{
+	// Daemon
+	while (true)
+	{
+		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, UCHAR_MAX, 0, NULL, NULL);
+		if (m_winsockResult == SOCKET_ERROR)
+		{
+			// HACK: Don't need the errno catch right here, just useful for debugging
+			switch (m_winsockErrno = WSAGetLastError())
+			{
+			case WSAECONNRESET:		// This will be returned if the server hasn't binded to port yet. Make sure it doesn't have any other issue
+			case WSAEINTR:			// This will be returned when client attempts disconnection
+			case WSANOTINITIALISED:	// This will be returned when client attempts disconnection
+			{
+				int h = 0;
+			}
+				continue;
+			case WSAENOTSOCK:		// This will be returned when client attempts disconnection
+				return;
+			// If disconnected from server (no matter which side does it)
+			//{
+			//	ForcedDisconnect();
+
+			//	// Sleep, until the OS decides to clean this thread up
+			//	std::this_thread::sleep_for(std::chrono::seconds(ULLONG_MAX));
+			//}
+			//return;
+			default: // Right now, just default, but look into all that are required
+				break;
+			}
+
+			// Execution shouldn't make it here when everything is working properly
+			throw std::exception();
+		}
+
+		// Server response
+		if (m_recvBuffer[0] == '#')
+		{
+			if (CheckForSendNumber())
+			{
+				// Store value in shared space
+				mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
+				mr_sharedNetwork.m_numOfConnClientsOnServ = *mp_walker_1;
+				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
+			}
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == 0)
+			{
+				ForcedDisconnect();
+			}
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Full)]) == 0)
+			{
+				mr_sharedNetwork.m_nextClientStateMutex.lock();
+				mr_sharedNetwork.m_waitForMenuUpdate = true;
+				mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::FullServ;
+				mr_sharedNetwork.m_nextClientStateMutex.unlock();
+			}
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Joined)]) == 0)
+			{
+				// Set server's address to send to
+				m_commSockAddrIn.sin_addr.S_un.S_addr = inet_addr(mr_sharedNetwork.m_serverIPAddress);		
+
+				mr_sharedNetwork.m_nextClientStateMutex.lock();
+				mr_sharedNetwork.m_waitForMenuUpdate = true;
+				mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::JoinedServ;
+				mr_sharedNetwork.m_nextClientStateMutex.unlock();
+			}
+		}
+
+		// Other
+		else
+		{
+
+		}
+	}
+}
 void Client::UpdateLoop()
 {
 	while (m_isRunning)
 	{
-		GenAssAndSendSpecMess(SharedNetwork::SpecialMessage::Ping);
+		// If client state is actionable (i.e., it can be denit'd/init'd/updated) and it's not waiting for menu to update itself
+		mr_sharedNetwork.m_nextClientStateMutex.lock();
+		if (mr_sharedNetwork.m_nextClientState < SharedNetwork::ClientState::NumberOfActionableStates && mr_sharedNetwork.m_waitForMenuUpdate == false)
+		{
+			// If client state changed
+			if (mr_sharedNetwork.m_currentClientState != mr_sharedNetwork.m_nextClientState)
+			{
+				// Change storage state while still locked
+				mr_sharedNetwork.m_currentClientState = mr_sharedNetwork.m_nextClientState;
 
-		// So the client doesn't do this all too rapidly
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+				mr_sharedNetwork.m_nextClientStateMutex.unlock();
+
+				// Denitialize previous state
+				if (m_currentClientState != nullptr)
+				{
+					m_currentClientState->Denit();
+				}
+
+				// Change to next state and initialize state
+				m_currentClientState = m_allClientStates[static_cast<int>(mr_sharedNetwork.m_nextClientState)];
+				m_currentClientState->Init();
+			}
+
+			// If client state did not change
+			else
+			{
+				mr_sharedNetwork.m_nextClientStateMutex.unlock();
+			}
+
+			// Update the current state
+			m_currentClientState->Update();
+
+			// Sleep, so the client doesn't do this all too rapidly
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+
+		// If client state did not change
+		else
+		{
+			mr_sharedNetwork.m_nextClientStateMutex.unlock();
+		}
 	}
 }
 #pragma endregion
@@ -165,20 +165,7 @@ void Client::UpdateLoop()
 #pragma region Public Functionality
 void Client::Join()
 {
-	if (m_attemptingOrConnectedToServer == false)
-	{
-		m_attemptingOrConnectedToServer = true;
-
-		GenAssAndSendSpecMess(SharedNetwork::SpecialMessage::Join);
-	}
-}
-void Client::RecvCommMessLoop()
-{
-	// Daemon
-	while (true)
-	{
-		RecvCommMess();
-	}
+	m_currentClientState->Join();
 }
 void Client::Stop()
 {
@@ -190,6 +177,14 @@ void Client::Stop()
 #pragma endregion
 
 #pragma region Protected Functionality
+#if SAME_SYSTEM_TESTING
+void Client::AssignPort()
+{
+	// HACK: Maybe look into resetting this offsetter, so it doesn't end up in weird ports. Maybe...
+	static int portOffsetterForMultClients = 0;
+	m_commSockAddrIn.sin_port = htons(8998 + portOffsetterForMultClients++);	// Bind to my port (different port than server, because the client and server have the same IP Address)
+}
+#endif SAME_SYSTEM_TESTING
 void Client::SendCommMess()
 {
 	// NOTE: Container stores information about who it's being sent to
@@ -199,12 +194,15 @@ void Client::SendCommMess()
 		// HACK: Don't need the errno catch right here, just useful for debugging
 		switch (m_winsockErrno = WSAGetLastError())
 		{
-		default: // Right now, just default, but look into all that are required
+		case WSAEADDRNOTAVAIL:	// This is returned when trying to send to unbinded addr info
 			break;
+		default: // Right now, just default, but look into all that are required
+		{
+			// Execution shouldn't make it here when everything is working properly
+			throw std::exception();
 		}
-
-		// Execution shouldn't make it here when everything is working properly
-		//throw std::exception("user generated");
+		break;
+		}
 	}
 }
 #pragma endregion
@@ -236,90 +234,28 @@ void Client::ForcedDisconnect()
 
 	// Notify the user that the server disconnected
 
+	mr_sharedNetwork.m_nextClientStateMutex.lock();
+	mr_sharedNetwork.m_waitForMenuUpdate = true;
+	mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::ServDisc;
+	mr_sharedNetwork.m_nextClientStateMutex.unlock();
+
 	mr_sharedNetwork.m_serverDisconnectedMutex.lock();
 	mr_sharedNetwork.m_serverDisconnected = true;
 	mr_sharedNetwork.m_serverDisconnectedMutex.unlock();
-}
-void Client::RecvCommMess()
-{
-	m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, UCHAR_MAX, 0, NULL, NULL);
-	if (m_winsockResult == SOCKET_ERROR)
-	{
-		// HACK: Don't need the errno catch right here, just useful for debugging
-		switch (m_winsockErrno = WSAGetLastError())
-		{
-			// If disconnected from server (no matter which side does it)
-		case WSAECONNRESET:
-		case WSAEINTR:
-		case WSAENOTSOCK:
-		case WSANOTINITIALISED:
-		{
-			ForcedDisconnect();
-			
-			// Sleep, until the OS decides to clean this thread up
-			std::this_thread::sleep_for(std::chrono::seconds(ULLONG_MAX));
-		}
-		return;
-		default: // Right now, just default, but look into all that are required
-			break;
-		}
-
-		// Execution shouldn't make it here when everything is working properly
-		throw std::exception("user generated");
-	}
-
-	// Server response
-	if (m_recvBuffer[0] == '#')
-	{
-		if (CheckForSendNumber())
-		{
-			// Store value in shared space
-			mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
-			mr_sharedNetwork.m_numOfConnClientsOnServ = *mp_walker_1;
-			mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
-		}
-		else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == 0)
-		{
-			ForcedDisconnect();
-		}
-		else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Full)]) == 0)
-		{
-			m_attemptingOrConnectedToServer = false;
-
-			// Display to the user that the server was full
-		}
-		else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Joined)]) == 0)
-		{
-			// Display to the user that they've joined the server
-
-			mr_sharedNetwork.m_joinedServerMutex.lock();
-			mr_sharedNetwork.m_joinedServer = true;
-			mr_sharedNetwork.m_joinedServerMutex.unlock();
-		}
-	}
-
-	// Other
-	else
-	{
-
-	}
 }
 #pragma endregion
 
 #pragma region Destruction
 Client::~Client()
 {
-	mr_sharedNetwork.m_joinedServerMutex.lock();
-	mr_sharedNetwork.m_joinedServer = false;
-	mr_sharedNetwork.m_joinedServerMutex.unlock();
-
 	mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
 	mr_sharedNetwork.m_numOfConnClientsOnServ = '0';
 	mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
 
-	mr_sharedNetwork.m_serverIPAddressMutex.lock();
-	delete[] mr_sharedNetwork.mp_serverIPAddress;
-	mr_sharedNetwork.mp_serverIPAddress = nullptr;
-	mr_sharedNetwork.m_serverIPAddressMutex.unlock();
+	for (int stateIndex = 0; stateIndex < static_cast<int>(SharedNetwork::ClientState::NumberOfActionableStates); stateIndex++)
+	{
+		delete m_allClientStates[stateIndex];
+	}
+	delete[] m_allClientStates;
 }
 #pragma endregion

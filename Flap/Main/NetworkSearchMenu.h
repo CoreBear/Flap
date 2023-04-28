@@ -17,70 +17,40 @@ public:
 		ClearCells();
 
 		// Dots
+		mp_newString = new char[SharedGame::MAX_HS_STRING_LENGTH];
+		strcpy(mp_newString, "...");
+
+		mp_walker = mp_newString;
+
+		m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_newString);
+
+		while (*mp_walker != '\0')
 		{
-			mp_newString = new char[sp_sharedGame->MAX_HS_STRING_LENGTH];
-			strcpy(mp_newString, "...");
+			constexpr int ROW = 2;
 
-			mp_walker = mp_newString;
+			mp_newBufferCell = new BufferCell;
+			mp_newBufferCell->m_character = *mp_walker;
+			mp_newBufferCell->m_colorBFGround = (mp_walker == mp_newString) ? Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::White)] : NULL;
+			mp_newBufferCell->m_position.m_x = m_columnPositionOffset++;
+			mp_newBufferCell->m_position.m_y = ROW;
+			m_cells.PushBack(mp_newBufferCell);
 
-			m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_newString);
-
-			while (*mp_walker != '\0')
-			{
-				constexpr int ROW = 2;
-
-				mp_newBufferCell = new BufferCell;
-				mp_newBufferCell->m_character = *mp_walker;
-				mp_newBufferCell->m_colorBFGround = (mp_walker == mp_newString) ? Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::White)] : NULL;
-				mp_newBufferCell->m_position.m_x = m_columnPositionOffset++;
-				mp_newBufferCell->m_position.m_y = ROW;
-				m_cells.PushBack(mp_newBufferCell);
-
-				++mp_walker;
-			}
-
-			m_dotUpdateTargetFrame = GameManager::s_masterFixedFrameCount + m_numberOfFramesBetweenDotUpdate;
-			m_numberOfDotsOn = Consts::OFF_BY_ONE;
-
-			delete[] mp_newString;
+			++mp_walker;
 		}
 
-		// Number Of Connected Users
-		{
+		m_dotUpdateTargetFrame = GameManager::s_masterFixedFrameCount + m_numberOfFramesBetweenDotUpdate;
+		m_numberOfDotsOn = Consts::OFF_BY_ONE;
 
-			mp_newString = new char[sp_sharedGame->MAX_HS_STRING_LENGTH];
-			strcpy(mp_newString, "Number Of Connected Users: 0/4");
-
-			mp_walker = mp_newString;
-
-			m_columnPositionOffset = Tools::CenterText_ReturnStartColumn(mp_newString);
-
-			while (*mp_walker != '\0')
-			{
-				constexpr int ROW = 10;
-
-				mp_newBufferCell = new BufferCell;
-				mp_newBufferCell->m_character = *mp_walker;
-				mp_newBufferCell->m_colorBFGround = Consts::FOREGROUND_COLORS[static_cast<int>(Enums::Color::White)];
-				mp_newBufferCell->m_position.m_x = m_columnPositionOffset++;
-				mp_newBufferCell->m_position.m_y = ROW;
-				m_cells.PushBack(mp_newBufferCell);
-
-				// Point at the cell that will be updated
-				if (*mp_walker == '0')
-				{
-					mp_connectedUsersBufferCell = mp_newBufferCell;
-				}
-
-				++mp_walker;
-			}
-
-			delete[] mp_newString;
-		}
+		delete[] mp_newString;
+		mp_newString = nullptr;
 	}
+
+	// Destruction
+	inline virtual ~NetworkSearchMenu() { return; }
 
 protected:
 	// Member Variables
+	BufferCell* mp_connectedUsersBufferCell;
 	SharedNetwork& mr_sharedNetwork;
 	
 	// Initialization
@@ -95,7 +65,7 @@ protected:
 	NetworkSearchMenu& operator=(const NetworkSearchMenu&) = delete;
 	
 	// Functionality
-	bool UpdateDotsAndConnectedUsers()
+	bool UpdateDots()
 	{
 		if (GameManager::s_masterFixedFrameCount == m_dotUpdateTargetFrame)
 		{
@@ -128,13 +98,6 @@ protected:
 				}
 			}
 
-			// Number Of Connected Users
-			{
-				mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
-				mp_connectedUsersBufferCell->m_character = mr_sharedNetwork.m_numOfConnClientsOnServ;
-				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
-			}
-
 			// Let system know dots were updated
 			return true;
 		}
@@ -145,7 +108,6 @@ protected:
 
 private:
 	// Member Variables
-	BufferCell* mp_connectedUsersBufferCell;
 	DList<BufferCell*>::Iterator m_updateCellIterator;
 	int m_dotIndex;
 	int m_numberOfDotsOn;

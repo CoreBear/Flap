@@ -2,7 +2,7 @@
 #include "MenuManager.h"
 
 #include "BufferCell.h"
-#include "ClientSearchMenu.h"
+#include "ClientWaitMenu.h"
 #include "ExitMenu.h"
 #include "HighScoreMenu.h"
 #include "LocalMultiplayerMenu.h"
@@ -42,7 +42,7 @@ MenuManager::MenuManager(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork,
 		{
 		case Enums::MenuName::ClientSearch:
 		{
-			mpp_menus[m_reusableIterator] = new ClientSearchMenu(_sharedNetwork);
+			mpp_menus[m_reusableIterator] = new ClientWaitMenu(_sharedNetwork);
 		}
 		break;
 		case Enums::MenuName::Exit:
@@ -113,7 +113,7 @@ MenuManager::MenuManager(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork,
 		default:
 		{
 			// NOTE/WARNING: Execution shouldn't make it here
-			throw std::exception("user generated");
+			throw std::exception();
 		}
 		break;
 		}
@@ -137,27 +137,31 @@ void MenuManager::FixedUpdate()
 #pragma region Public Functionality
 void MenuManager::DisplayMenu(int _menuNameIndex, bool _isReturning)
 {
-	// If returning to a previous menu
-	if (_isReturning)
+	// If switching to a different menu
+	if (_menuNameIndex != m_currentMenuIndex)
 	{
-		m_returnMenuStack.pop();
-	}
-
-	// If not returning to a previous menu
-	else
-	{
-		// If menu can be returned to
-		if (m_menuCanBeReturnedTo[m_currentMenuIndex])
+		// If returning to a previous menu
+		if (_isReturning)
 		{
-			m_returnMenuStack.push(m_currentMenuIndex);
+			m_returnMenuStack.pop();
 		}
 
-		// Reset next menu's button number
-		mpp_menus[_menuNameIndex]->ResetButtonNumber();
-	}
+		// If not returning to a previous menu
+		else
+		{
+			// If menu can be returned to
+			if (m_menuCanBeReturnedTo[m_currentMenuIndex])
+			{
+				m_returnMenuStack.push(m_currentMenuIndex);
+			}
 
-	m_currentMenuIndex = _menuNameIndex;
-	mpp_menus[_menuNameIndex]->Initialize();
+			// Reset next menu's button number
+			mpp_menus[_menuNameIndex]->ResetButtonNumber();
+		}
+
+		m_currentMenuIndex = _menuNameIndex;
+		mpp_menus[m_currentMenuIndex]->Initialize();
+	}
 }
 bool MenuManager::PreviousMenuIs(int _menuIndexBeingChecked)
 {

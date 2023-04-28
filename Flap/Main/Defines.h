@@ -2,6 +2,6 @@
 #define DEFINES_H
 
 #define LEAK_DETECTION 1
-#define WINDOWS 0
+#define SAME_SYSTEM_TESTING 1
 
 #endif

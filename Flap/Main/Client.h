@@ -3,23 +3,18 @@
 
 #include "Host.h"
 
+class ClientStateMachine;
 class SharedNetwork;
 
 class Client final : public Host
 {
 public:
 	// Initialization
-	inline Client(SharedNetwork& _sharedNetwork) :
-		Host(1, _sharedNetwork),						// HACK: Hardcoding
-		m_attemptingOrConnectedToServer(false)
-	{
-		return;
-	}
+	Client(SharedNetwork& _sharedNetwork);
 	Client(const Client&) = delete;
 	Client& operator=(const Client&) = delete;
-	bool Init_Succeeded(bool& _killMe) override;
 
-	// Updates
+	// Loops
 	void UpdateLoop() override;
 
 	// Functionality
@@ -32,18 +27,21 @@ public:
 
 protected:
 	// Functionality
+#if SAME_SYSTEM_TESTING
+	void AssignPort() override;
+#endif SAME_SYSTEM_TESTING
 	void SendCommMess() override;
 
 private:
 	// Member Variables
-	bool m_attemptingOrConnectedToServer;
 	char* mp_walker_1;
 	const char* mp_walker_2;
+	ClientStateMachine* m_currentClientState;
+	ClientStateMachine** m_allClientStates;
 
 	// Functionality
 	bool CheckForSendNumber();
 	void ForcedDisconnect();
-	void RecvCommMess();
 };
 
 #endif CLIENT_H

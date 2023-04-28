@@ -92,6 +92,22 @@ public:
 
 			return *this;
 		}
+		Iterator& operator-=(int _numberOfIncrements)
+		{
+			for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < _numberOfIncrements; m_reusableIterator++)
+			{
+				if (m_current != nullptr)
+				{
+					m_current = m_current->m_prev;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			return *this;
+		}
 		inline bool operator==(const Iterator& _rhs) { return (m_current == _rhs.m_current); }
 		inline bool operator!=(const Iterator& _rhs) { return (m_current != _rhs.m_current); }
 		inline Type& operator*() { return m_current->m_value; }
@@ -167,6 +183,22 @@ public:
 				if (Iterator::m_current != nullptr)
 				{
 					Iterator::m_current = Iterator::m_current->m_next;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			return *this;
+		}
+		Const_Iterator& operator-=(int _numberOfIncrements)
+		{
+			for (Iterator::m_reusableIterator = Consts::NO_VALUE; Iterator::m_reusableIterator < _numberOfIncrements; Iterator::m_reusableIterator++)
+			{
+				if (Iterator::m_current != nullptr)
+				{
+					Iterator::m_current = Iterator::m_current->m_prev;
 				}
 				else
 				{

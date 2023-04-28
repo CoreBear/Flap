@@ -102,7 +102,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;SAME_SYSTEM_TESTING;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -117,8 +117,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,6 +132,7 @@
     <ClCompile Include="Avatar.cpp" />
     <ClCompile Include="BufferCell.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ClientStateMachine.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="FileIOManager.cpp" />
     <ClCompile Include="Host.cpp" />
@@ -161,8 +163,10 @@
     <ClInclude Include="Avatar.h" />
     <ClInclude Include="BufferCell.h" />
     <ClInclude Include="Client.h" />
-    <ClInclude Include="ClientSearchMenu.h" />
+    <ClInclude Include="ClientStateMachine.h" />
+    <ClInclude Include="ClientWaitMenu.h" />
     <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="Defines.h" />
     <ClInclude Include="DynamicTextMenu.h" />
     <ClInclude Include="FileIOManager.h" />
     <ClInclude Include="Host.h" />
@@ -196,7 +200,6 @@
     <ClInclude Include="Enums.h" />
     <ClInclude Include="SpawnManager.h" />
     <ClInclude Include="Structure.h" />
-    <ClInclude Include="Defines.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="GameThreadBase.h" />
     <ClInclude Include="NetworkManager.h" />
