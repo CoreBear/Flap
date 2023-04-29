@@ -3,17 +3,19 @@
 
 #include "Host.h"
 #include "Queue.h"
+#include "Structure.h"
 
 #include <unordered_map>
 
+class SharedGame;
 class SharedNetwork;
 
 class Server final : public Host
 {
 public:
 	// Initialization
-	inline Server(SharedNetwork& _sharedNetwork) :
-		Host(1, _sharedNetwork)							// HACK: Hardcoding
+	inline Server(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
+		Host(1, _sharedGame, _sharedNetwork)							// HACK: Hardcoding
 	{
 		return;
 	}
@@ -44,6 +46,7 @@ private:
 		bool m_joined;
 		int m_numberOfCyclesSinceLastPing;
 		Queue<SharedNetwork::SpecialMessage> m_specialMessageQueue;
+		Structure::Vector2<short> m_maxFrameBufferWidthHeight;
 
 		// Initialization
 		inline MapVal(bool _connected) :
@@ -58,6 +61,7 @@ private:
 	};
 
 	// Member Variables
+	char* mp_joinFrameBufferDimensionsPipeNuller;
 	int m_numberOfConnectedClients;
 	int m_sizeofSockAddr;
 	std::unordered_map<unsigned long, MapVal>m_mapOfClientAddrsConnTypeAndSpecMess;
@@ -67,6 +71,7 @@ private:
 
 	// Functionality
 	void AddrAndSendCommMess(unsigned long _addressOrPort);
+	bool CheckForJoin();
 	void HandleSpecMess();
 	bool RemoveClient_EmptyMap(std::unordered_map<unsigned long, MapVal>::iterator& _iterator);
 	void SendCommMessToEveryClient_Except(unsigned long _addressOrPort = ULONG_MAX);

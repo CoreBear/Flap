@@ -1,5 +1,8 @@
 #pragma region Includes
 #include "Host.h"
+
+#include "SharedGame.h"
+#include "Tools.h"
 #pragma endregion
 
 #pragma region Initialization
@@ -86,14 +89,35 @@ void Host::GenSpecMess(SharedNetwork::SpecialMessage _specialMessage)
 	case SharedNetwork::SpecialMessage::Disconnect:
 	case SharedNetwork::SpecialMessage::Full:
 	case SharedNetwork::SpecialMessage::GetNumber:
-	case SharedNetwork::SpecialMessage::Join:
 	case SharedNetwork::SpecialMessage::Joined:
 	case SharedNetwork::SpecialMessage::Ping:
 		strcpy(m_sendBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(_specialMessage)]);
 		break;
+
+	// Example Message: "#Join|240|63"
+	case SharedNetwork::SpecialMessage::Join:
+	{
+		strcpy(m_sendBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(_specialMessage)]);
+
+		strcat(m_sendBuffer, "|");
+
+		const char* intString = Tools::IntToString(mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x);
+		strcat(m_sendBuffer, intString);
+		delete[] intString;
+
+		strcat(m_sendBuffer, "|");
+
+		intString = Tools::IntToString(mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_y);
+		strcat(m_sendBuffer, intString);
+		delete[] intString;
+	}
+	break;
+
+	// Example Message: "#SendNumber|123456"
 	case SharedNetwork::SpecialMessage::SendNumber:
 	{
 		strcpy(m_sendBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::SendNumber)]);
+		strcat(m_sendBuffer, "|");
 		strcat(m_sendBuffer, static_cast<const char*>(&mr_sharedNetwork.m_numOfConnClientsOnServ));
 	}
 	break;

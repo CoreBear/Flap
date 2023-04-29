@@ -12,6 +12,7 @@
 #include "Consts.h"
 #include "Host.h"
 #include "Server.h"
+#include "SharedGame.h"
 #include "SharedNetwork.h"
 
 #include <string>
@@ -37,15 +38,15 @@ void NetworkManager::Join()
 {
 	mp_host->Join();
 }
-void NetworkManager::RunHost(bool _isClient)
+void NetworkManager::RunHost(bool _isClient, SharedGame& _sharedGame)
 {
 	if (_isClient)
 	{
-		mp_host = new Client(mr_sharedNetwork);
+		mp_host = new Client(_sharedGame, mr_sharedNetwork);
 	}
 	else
 	{
-		mp_host = new Server(mr_sharedNetwork);
+		mp_host = new Server(_sharedGame, mr_sharedNetwork);
 	}
 
 	mp_host->Init();

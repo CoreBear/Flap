@@ -10,8 +10,8 @@
 #pragma endregion
 
 #pragma region Initialization
-SharedGame::SharedGame(const Structure::Vector2<short>& _maxWindowSizeDimensions) :
-	m_bufferSize(_maxWindowSizeDimensions.m_x * _maxWindowSizeDimensions.m_y),
+SharedGame::SharedGame(const Structure::Vector2<short>& _frameBufferWidthHeight) :
+	m_bufferSize(_frameBufferWidthHeight.m_x * _frameBufferWidthHeight.m_y),
 	mp_frameBuffer(new BufferCell[m_bufferSize]),
 	mpp_highScoreLines(nullptr),
 	m_isInGameSession(false),
@@ -22,8 +22,7 @@ SharedGame::SharedGame(const Structure::Vector2<short>& _maxWindowSizeDimensions
 	m_numberOfFramesBetweenSpawn(60),			// NOTE: Arbitrary value
 	mp_availableSpawnPositions(nullptr),
 	mp_arrayOfColumnIndices(nullptr),
-	FRAME_BUFFER_HEIGHT_WIDTH(_maxWindowSizeDimensions),
-	MAX_WINDOW_SIZE_DIMENSIONS(_maxWindowSizeDimensions)
+	FRAME_BUFFER_HEIGHT_WIDTH(_frameBufferWidthHeight)
 {
 	MenuBase::AssignSharedGame(*this);
 	SceneObject::AssignSharedGame(*this);
@@ -91,8 +90,8 @@ SharedGame::SharedGame(const Structure::Vector2<short>& _maxWindowSizeDimensions
 		}
 	}
 
-	m_gameAreaHeightWidth.m_x = FRAME_BUFFER_HEIGHT_WIDTH.m_x;
-	m_gameAreaHeightWidth.m_y = FRAME_BUFFER_HEIGHT_WIDTH.m_y;
+	m_gameAreaWidthHeight.m_x = FRAME_BUFFER_HEIGHT_WIDTH.m_x;
+	m_gameAreaWidthHeight.m_y = FRAME_BUFFER_HEIGHT_WIDTH.m_y;
 
 	m_gameAreaTopLeftPosition.m_x = 0;
 	m_gameAreaTopLeftPosition.m_y = 0;

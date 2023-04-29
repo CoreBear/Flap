@@ -4,6 +4,7 @@
 #include <thread>
 
 class Host;
+class SharedGame;
 class SharedNetwork;
 
 class NetworkManager final
@@ -16,7 +17,7 @@ public:
 
 	// Functionality
 	void Join();
-	void RunHost(bool _isClient);
+	void RunHost(bool _isClient, SharedGame& _sharedGame);
 	void StopHost();
 
 	// Destruction

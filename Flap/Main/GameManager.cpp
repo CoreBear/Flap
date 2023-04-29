@@ -268,7 +268,7 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
-		mp_networkManager->RunHost(true);
+		mp_networkManager->RunHost(true, mr_sharedGame);
 
 		mp_menuManager->DisplayMenu(Enums::MenuName::ServerSearch);
 
@@ -281,7 +281,7 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
-		mp_networkManager->RunHost(false);
+		mp_networkManager->RunHost(false, mr_sharedGame);
 
 		mp_menuManager->DisplayMenu(Enums::MenuName::ClientSearch);
 

@@ -7,6 +7,8 @@
 
 #include <WinSock2.h>
 
+class SharedGame;
+
 class Host
 {
 public:
@@ -35,8 +37,11 @@ protected:
 	bool m_isRunning;
 	char m_recvBuffer[UCHAR_MAX];
 	char m_sendBuffer[UCHAR_MAX];
+	char* mp_recvBuffWalker;
+	const char* mp_specMessWalker;
 	int m_winsockErrno;
 	int m_winsockResult;
+	SharedGame* const mp_sharedGame;
 	SharedNetwork& mr_sharedNetwork;
 	sockaddr_in m_commSockAddrIn;
 	SOCKET m_commSocket;
@@ -44,10 +49,11 @@ protected:
 	static constexpr unsigned short SERVER_COMMUNICATION_PORT = 9889;
 
 	//Initialization
-	inline Host(float m_numberOfSecondsBetweenFixedUpdate, SharedNetwork& _sharedNetwork) :
+	inline Host(float m_numberOfSecondsBetweenFixedUpdate, SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
 		m_isRunning(true),
 		m_winsockErrno(0),
 		m_winsockResult(0),
+		mp_sharedGame(&_sharedGame),
 		mr_sharedNetwork(_sharedNetwork)
 	{
 		return;

@@ -2,6 +2,7 @@
 #include "Server.h"
 
 #include "Consts.h"
+#include "Tools.h"
 #pragma endregion
 
 #pragma region Loops
@@ -61,7 +62,7 @@ void Server::RecvCommMessLoop()
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::GetNumber);
 			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Join)]) == Consts::NO_VALUE)
+			else if (CheckForJoin())
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Join);
 			}
@@ -152,6 +153,39 @@ void Server::AddrAndSendCommMess(unsigned long _addressOrPort)
 
 	SendCommMess();
 }
+bool Server::CheckForJoin()
+{
+	mp_recvBuffWalker = m_recvBuffer;
+	mp_specMessWalker = mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Join)];
+
+	while (*mp_recvBuffWalker != '|')
+	{
+		// If any character is off, this is not the SendNumber response
+		if (*mp_recvBuffWalker != *mp_specMessWalker)
+		{
+			return false;
+		}
+
+		++mp_recvBuffWalker;
+		++mp_specMessWalker;
+	}
+
+	// To get beyond the pipe character
+	++mp_recvBuffWalker;
+
+	mp_joinFrameBufferDimensionsPipeNuller = mp_recvBuffWalker;
+
+	// Move deleter down to pipe
+	while (*mp_joinFrameBufferDimensionsPipeNuller != '|')
+	{
+		++mp_joinFrameBufferDimensionsPipeNuller;
+	}
+
+	// Null pipe
+	*mp_joinFrameBufferDimensionsPipeNuller = '\0';
+
+	return true;
+}
 void Server::HandleSpecMess()
 {
 	// For each client
@@ -188,6 +222,13 @@ void Server::HandleSpecMess()
 				if (m_numberOfConnectedClients < MAX_NUMBER_OF_CLIENTS)
 				{
 					m_mapIterator->second.m_joined = true;
+
+					m_mapIterator->second.m_maxFrameBufferWidthHeight.m_x = static_cast<short>(Tools::StringToInt(mp_recvBuffWalker));
+
+					mp_recvBuffWalker = mp_joinFrameBufferDimensionsPipeNuller;
+					++mp_recvBuffWalker;
+
+					m_mapIterator->second.m_maxFrameBufferWidthHeight.m_y = static_cast<short>(Tools::StringToInt(mp_recvBuffWalker));
 
 					mr_sharedNetwork.m_numOfConnClientsOnServ = static_cast<char>(++m_numberOfConnectedClients) + '0';
 

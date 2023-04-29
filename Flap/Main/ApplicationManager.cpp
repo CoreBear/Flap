@@ -51,8 +51,8 @@ int main()
 
 		SetupConsole(windowDimensions, outputWindowHandle);
 
-		Structure::Vector2<short> maxWindowSizeDimensions(windowDimensions.X, windowDimensions.Y);
-		SharedGame sharedGame(maxWindowSizeDimensions);
+		Structure::Vector2<short> frameBufferWidthHeight(windowDimensions.X, windowDimensions.Y);
+		SharedGame sharedGame(frameBufferWidthHeight);
 		SharedInput sharedInput;
 
 		enum class ThreadType { Game, Input, Render, NumberOfTypes };

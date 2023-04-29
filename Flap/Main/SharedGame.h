@@ -37,13 +37,12 @@ public:
 	Queue<int>* mp_availableSpawnPositions;
 	std::random_device m_random;
 	unsigned short m_largestSnakeColor;
-	Structure::Vector2<short> m_gameAreaHeightWidth;
+	Structure::Vector2<short> m_gameAreaWidthHeight;
 	Structure::Vector2<short> m_gameAreaTopLeftPosition;
 	const Structure::Vector2<short> FRAME_BUFFER_HEIGHT_WIDTH;
-	const Structure::Vector2<short> MAX_WINDOW_SIZE_DIMENSIONS;
 
 	// Initialization
-	SharedGame(const Structure::Vector2<short>& _maxWindowSizeDimensions);
+	SharedGame(const Structure::Vector2<short>& _frameBufferWidthHeight);
 	SharedGame(const SharedGame&) = delete;
 	SharedGame& operator=(const SharedGame&) = delete;
 

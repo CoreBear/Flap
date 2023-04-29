@@ -3,13 +3,15 @@
 
 #include "ClientStateMachine.h"
 #include "Consts.h"
+#include "SharedGame.h"
+#include "SharedNetwork.h"
 
 #include <random>
 #pragma endregion
 
 #pragma region Initialization
-Client::Client(SharedNetwork& _sharedNetwork) :
-	Host(1, _sharedNetwork),						// HACK: Hardcoding
+Client::Client(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
+	Host(1, _sharedGame, _sharedNetwork),						// HACK: Hardcoding
 	m_currentClientState(nullptr),
 	m_allClientStates(nullptr)
 {
@@ -83,21 +85,21 @@ void Client::RecvCommMessLoop()
 			{
 				// Store value in shared space
 				mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
-				mr_sharedNetwork.m_numOfConnClientsOnServ = *mp_walker_1;
+				mr_sharedNetwork.m_numOfConnClientsOnServ = *mp_recvBuffWalker;
 				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
 			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == 0)
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == Consts::NO_VALUE)
 			{
 				ForcedDisconnect();
 			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Full)]) == 0)
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Full)]) == Consts::NO_VALUE)
 			{
 				mr_sharedNetwork.m_nextClientStateMutex.lock();
 				mr_sharedNetwork.m_waitForMenuUpdate = true;
 				mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::FullServ;
 				mr_sharedNetwork.m_nextClientStateMutex.unlock();
 			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Joined)]) == 0)
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Joined)]) == Consts::NO_VALUE)
 			{
 				// Set server's address to send to
 				m_commSockAddrIn.sin_addr.S_un.S_addr = inet_addr(mr_sharedNetwork.m_serverIPAddress);		
@@ -213,20 +215,23 @@ void Client::SendCommMess()
 #pragma region Private Functionality
 bool Client::CheckForSendNumber()
 {
-	mp_walker_1 = m_recvBuffer;
-	mp_walker_2 = mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::SendNumber)];
+	mp_recvBuffWalker = m_recvBuffer;
+	mp_specMessWalker = mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::SendNumber)];
 
-	while (*mp_walker_2 != '\0')
+	while (*mp_recvBuffWalker != '|')
 	{
 		// If any character is off, this is not the SendNumber response
-		if (*mp_walker_1 != *mp_walker_2)
+		if (*mp_recvBuffWalker != *mp_specMessWalker)
 		{
 			return false;
 		}
 
-		++mp_walker_1;
-		++mp_walker_2;
+		++mp_recvBuffWalker;
+		++mp_specMessWalker;
 	}
+
+	// To get beyond the pipe character
+	++mp_recvBuffWalker;
 
 	return true;
 }

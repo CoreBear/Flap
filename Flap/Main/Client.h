@@ -4,13 +4,14 @@
 #include "Host.h"
 
 class ClientStateMachine;
+class SharedGame;
 class SharedNetwork;
 
 class Client final : public Host
 {
 public:
 	// Initialization
-	Client(SharedNetwork& _sharedNetwork);
+	Client(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork);
 	Client(const Client&) = delete;
 	Client& operator=(const Client&) = delete;
 
@@ -34,8 +35,6 @@ protected:
 
 private:
 	// Member Variables
-	char* mp_walker_1;
-	const char* mp_walker_2;
 	ClientStateMachine* m_currentClientState;
 	ClientStateMachine** m_allClientStates;
 
