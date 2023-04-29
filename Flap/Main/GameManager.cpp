@@ -54,8 +54,6 @@ void GameManager::Update()
 				++s_masterFixedFrameCount;
 
 				mp_gameRunManager->FixedUpdate();
-
-				//mp_collisionRenderReadOutOfBuffer->FixedUpdate();
 			}
 		}
 
