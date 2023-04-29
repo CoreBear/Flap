@@ -2,6 +2,8 @@
 #include "Client.h"
 
 #include "ClientStateMachine.h"
+
+#include <random>
 #pragma endregion
 
 #pragma region Initialization
@@ -177,14 +179,15 @@ void Client::Stop()
 #pragma endregion
 
 #pragma region Protected Functionality
-#if SAME_SYSTEM_TESTING
+#ifdef SAME_SYSTEM_NETWORK
 void Client::AssignPort()
 {
-	// HACK: Maybe look into resetting this offsetter, so it doesn't end up in weird ports. Maybe...
-	static int portOffsetterForMultClients = 0;
-	m_commSockAddrIn.sin_port = htons(8998 + portOffsetterForMultClients++);	// Bind to my port (different port than server, because the client and server have the same IP Address)
+	// HACK: Not the best of ideas, but this should rarely result in multiple clients having the same port number
+	std::random_device random;
+	int p = 8998 + (random() % 100);
+	m_commSockAddrIn.sin_port = htons(p);	// Bind to my port (different port than server, because the client and server have the same IP Address)
 }
-#endif SAME_SYSTEM_TESTING
+#endif SAME_SYSTEM_NETWORK
 void Client::SendCommMess()
 {
 	// NOTE: Container stores information about who it's being sent to

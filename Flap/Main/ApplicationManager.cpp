@@ -16,7 +16,7 @@
 #include <Windows.h>
 #pragma endregion
 
-#if LEAK_DETECTION
+#ifdef LEAK_DETECTION
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -37,7 +37,7 @@ void ThreadEntry_Loop(GameThreadBase** const _gameThreadBase, int _threadIndex, 
 
 int main()
 {
-#if LEAK_DETECTION
+#ifdef LEAK_DETECTION
 	// Memory leak detection code
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	// This function call will set a breakpoint at the location of a leaked block
@@ -91,7 +91,7 @@ int main()
 		delete[] gameThreadBases;
 	}
 
-#if LEAK_DETECTION
+#ifdef LEAK_DETECTION
 	_CrtDumpMemoryLeaks();
 #endif	// LEAK_DECTION
 

@@ -17,7 +17,7 @@ public:
 
 		mp_newString = new char[SharedGame::MAX_HS_STRING_LENGTH];
 		strcpy(mp_newString, "IP Address: ");
-		strcat(mp_newString, mr_sharedNetwork.mp_myIPAddress);
+		strcat(mp_newString, mr_sharedNetwork.m_mayIPAddress);
 
 		mp_walker = mp_newString;
 

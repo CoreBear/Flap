@@ -21,7 +21,7 @@ void Host::Init()
 				throw std::exception();
 			}
 
-#if SAME_SYSTEM_TESTING // Address can be reused for both the client and server(s)
+#ifdef SAME_SYSTEM_NETWORK // Address can be reused for both the client and server(s)
 			m_winsockResult = setsockopt(m_commSocket, SOL_SOCKET, SO_REUSEADDR, &sockOpt, sizeof(sockOpt));
 			if (m_winsockResult == SOCKET_ERROR)
 			{
@@ -30,19 +30,19 @@ void Host::Init()
 				// Execution shouldn't make it here when everything is working properly
 				throw std::exception();
 			}
-#endif SAME_SYSTEM_TESTING
+#endif SAME_SYSTEM_NETWORK
 		}
 
 		// Bind socket to receive
 		{
 			m_commSockAddrIn.sin_family = AF_INET;
-			m_commSockAddrIn.sin_addr.S_un.S_addr = inet_addr(mr_sharedNetwork.mp_myIPAddress);		// Bind to my address
+			m_commSockAddrIn.sin_addr.S_un.S_addr = inet_addr(mr_sharedNetwork.m_mayIPAddress);		// Bind to my address
 			
-#if SAME_SYSTEM_TESTING			// Ports need to be different, so hosts don't attempt to consume their own messages
+#ifdef SAME_SYSTEM_NETWORK			// Ports need to be different, so hosts don't attempt to consume their own messages
 			AssignPort();
-#else !SAME_SYSTEM_TESTING		// Bind to common port
+#else !SAME_SYSTEM_NETWORK		// Bind to common port
 			m_commSockAddrIn.sin_port = htons(SERVER_COMMUNICATION_PORT);
-#endif SAME_SYSTEM_TESTING
+#endif SAME_SYSTEM_NETWORK
 
 			m_winsockResult = bind(m_commSocket, (SOCKADDR*)&m_commSockAddrIn, sizeof(m_commSockAddrIn));
 			if (m_winsockResult == SOCKET_ERROR)
@@ -62,14 +62,18 @@ void Host::Init()
 #pragma endregion
 
 #pragma region Protected Functionality
-void Host::GenAssAndSendSpecMess(SharedNetwork::SpecialMessage _specialMessage, unsigned long _address)
+void Host::GenAssAndSendSpecMess(SharedNetwork::SpecialMessage _specialMessage, unsigned long _addressOrPort)
 {
 	GenSpecMess(_specialMessage);
 
 	// If an address comes in, assign it
-	if (_address != ULONG_MAX)
+	if (_addressOrPort != ULONG_MAX)
 	{
-		m_commSockAddrIn.sin_addr.S_un.S_addr = _address;
+#ifdef SAME_SYSTEM_NETWORK
+		m_commSockAddrIn.sin_port = _addressOrPort;
+#else !SAME_SYSTEM_NETWORK
+		m_commSockAddrIn.sin_addr.S_un.S_addr = _addressOrPort;
+#endif SAME_SYSTEM_NETWORK
 	}
 
 	SendCommMess();

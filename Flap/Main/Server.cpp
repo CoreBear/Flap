@@ -34,32 +34,38 @@ void Server::RecvCommMessLoop()
 		// Client command
 		if (m_recvBuffer[0] == '#')
 		{
-			// If this client has never attempted to communicate with server
-			if (m_mapOfClientAddrsConnTypeAndSpecMess.find(m_commSockAddrIn.sin_addr.S_un.S_addr) == m_mapOfClientAddrsConnTypeAndSpecMess.end())
+#ifdef SAME_SYSTEM_NETWORK
+			m_sendingClientsAddrPort = static_cast<unsigned long>(m_commSockAddrIn.sin_port);
+#else !SAME_SYSTEM_NETWORK
+			m_sendingClientsAddrPort = m_commSockAddrIn.sin_addr.S_un.S_addr;
+#endif SAME_SYSTEM_NETWORK
+
+			// If this client's IP address is not found, the client has never attempted to communicate with server and a new pair should be created and added
+			if (m_mapOfClientAddrsConnTypeAndSpecMess.find(m_sendingClientsAddrPort) == m_mapOfClientAddrsConnTypeAndSpecMess.end())
 			{
-				m_mapOfClientAddrsConnTypeAndSpecMess.emplace(m_commSockAddrIn.sin_addr.S_un.S_addr, MapVal(false));
+				m_mapOfClientAddrsConnTypeAndSpecMess.emplace(m_sendingClientsAddrPort, MapVal(false));
 			}
 
 			// NOTE: All special messages are stored, so client can handle them at the proper time. This will mitigate send/recv confusion
 			if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Ping)]) == 0)
 			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Ping);
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Ping);
 			}
 			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == 0)
 			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Disconnect);
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Disconnect);
 			}
 			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::GetNumber)]) == 0)
 			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::GetNumber);
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::GetNumber);
 			}
 			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Join)]) == 0)
 			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Join);
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Join);
 			}
 			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Joined)]) == 0)
 			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_commSockAddrIn.sin_addr.S_un.S_addr].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Joined);
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Joined);
 			}
 		}
 
@@ -124,16 +130,26 @@ void Server::Stop()
 }
 #pragma endregion
 
-#if SAME_SYSTEM_TESTING
+#ifdef SAME_SYSTEM_NETWORK
 #pragma region Protected Functionality
 void Server::AssignPort()
 {
 	m_commSockAddrIn.sin_port = htons(SERVER_COMMUNICATION_PORT); // Bind to my port
 }
 #pragma endregion
-#endif SAME_SYSTEM_TESTING
+#endif SAME_SYSTEM_NETWORK
 
 #pragma region Private Functionality
+void Server::AddrAndSendCommMess(unsigned long _addressOrPort)
+{
+#ifdef SAME_SYSTEM_NETWORK
+	m_commSockAddrIn.sin_port = static_cast<unsigned short>(_addressOrPort);
+#else !SAME_SYSTEM_NETWORK
+	m_commSockAddrIn.sin_addr.S_un.S_addr = _addressOrPort;
+#endif SAME_SYSTEM_NETWORK
+
+	SendCommMess();
+}
 void Server::HandleSpecMess()
 {
 	// For each client
@@ -203,6 +219,10 @@ bool Server::RemoveClient_EmptyMap(std::unordered_map<unsigned long, Server::Map
 
 	_iterator = m_mapOfClientAddrsConnTypeAndSpecMess.erase(_iterator);
 
+	GenSpecMess(SharedNetwork::SpecialMessage::SendNumber);
+
+	SendCommMessToEveryClient_Except();
+
 	return _iterator == m_mapOfClientAddrsConnTypeAndSpecMess.end();
 }
 void Server::SendCommMess()
@@ -234,9 +254,7 @@ void Server::SendCommMessToEveryClient_Except(unsigned long _address)
 			// If this client's address is not the one to be excluded, assign address and send message
 			if (m_mapSendAllIterator->first != _address)
 			{
-				m_commSockAddrIn.sin_addr.S_un.S_addr = m_mapSendAllIterator->first;
-
-				SendCommMess();
+				AddrAndSendCommMess(m_mapSendAllIterator->first);
 			}
 		}
 	}
@@ -247,9 +265,7 @@ void Server::SendCommMessToEveryClient_Except(unsigned long _address)
 		// For each connected client, assign address and send message
 		for (m_mapSendAllIterator = m_mapOfClientAddrsConnTypeAndSpecMess.begin(); m_mapSendAllIterator != m_mapOfClientAddrsConnTypeAndSpecMess.end(); ++m_mapSendAllIterator)
 		{
-			m_commSockAddrIn.sin_addr.S_un.S_addr = m_mapSendAllIterator->first;
-
-			SendCommMess();
+			AddrAndSendCommMess(m_mapSendAllIterator->first);
 		}
 	}
 }

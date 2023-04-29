@@ -30,9 +30,9 @@ public:
 
 protected:
 	// Functionality
-#if SAME_SYSTEM_TESTING
+#ifdef SAME_SYSTEM_NETWORK
 	void AssignPort() override;
-#endif SAME_SYSTEM_TESTING
+#endif SAME_SYSTEM_NETWORK
 	void SendCommMess() override;
 
 private:
@@ -63,11 +63,13 @@ private:
 	std::unordered_map<unsigned long, MapVal>m_mapOfClientAddrsConnTypeAndSpecMess;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapIterator;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapSendAllIterator;
+	unsigned long m_sendingClientsAddrPort;
 
 	// Functionality
+	void AddrAndSendCommMess(unsigned long _addressOrPort);
 	void HandleSpecMess();
 	bool RemoveClient_EmptyMap(std::unordered_map<unsigned long, MapVal>::iterator& _iterator);
-	void SendCommMessToEveryClient_Except(unsigned long _address = ULONG_MAX);
+	void SendCommMessToEveryClient_Except(unsigned long _addressOrPort = ULONG_MAX);
 };
 
 #endif SERVER_H

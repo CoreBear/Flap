@@ -1,0 +1,500 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'AttemptingToJoinServer::m_numberOfWaits' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/ClientStateMachine.h"
+                },
+                "region": {
+                  "startLine": 44,
+                  "startColumn": 2,
+                  "endLine": 44,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "AttemptingToJoinServer::{ctor}",
+                  "decoratedName": "??0AttemptingToJoinServer@@QEAA@AEAVClient@@AEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "AttemptingToJoinServer::m_numberOfWaits"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Host::m_commSockAddrIn' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Host.h"
+                },
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 2,
+                  "endLine": 46,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Host::{ctor}",
+                  "decoratedName": "??0Host@@IEAA@MAEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Host::m_commSockAddrIn"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Host::m_commSocket' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Host.h"
+                },
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 2,
+                  "endLine": 46,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Host::{ctor}",
+                  "decoratedName": "??0Host@@IEAA@MAEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Host::m_commSocket"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Host::m_sendBuffer' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Host.h"
+                },
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 2,
+                  "endLine": 46,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Host::{ctor}",
+                  "decoratedName": "??0Host@@IEAA@MAEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Host::m_sendBuffer"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Host::m_recvBuffer' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Host.h"
+                },
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 2,
+                  "endLine": 46,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Host::{ctor}",
+                  "decoratedName": "??0Host@@IEAA@MAEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Host::m_recvBuffer"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Client::mp_walker_1' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                },
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 9,
+                  "endLine": 8,
+                  "endColumn": 9
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Client::{ctor}",
+                  "decoratedName": "??0Client@@QEAA@AEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Client::mp_walker_1"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Client::mp_walker_2' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                },
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 9,
+                  "endLine": 8,
+                  "endColumn": 9
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Client::{ctor}",
+                  "decoratedName": "??0Client@@QEAA@AEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Client::mp_walker_2"
+          }
+        },
+        {
+          "ruleId": "C33010",
+          "message": {
+            "text": "Unchecked lower bound for enum ((this->Host::mr_sharedNetwork)->SharedNetwork::m_nextClientState) used as index.."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                },
+                "region": {
+                  "startLine": 139,
+                  "startColumn": 5,
+                  "endLine": 139,
+                  "endColumn": 98
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Client::UpdateLoop",
+                  "decoratedName": "?UpdateLoop@Client@@UEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                          },
+                          "region": {
+                            "startLine": 116,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                          },
+                          "region": {
+                            "startLine": 118,
+                            "startColumn": 9
+                          }
+                        },
+                        "message": {
+                          "text": "Branching based on condition 'this->m_isRunning'. 'true' branch is taken"
+                        }
+                      },
+                      "kinds": [
+                        "Branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 47
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                          },
+                          "region": {
+                            "startLine": 122,
+                            "startColumn": 42
+                          }
+                        },
+                        "message": {
+                          "text": "Branching based on condition 'this->mr_sharedNetwork->m_nextClientState < 3'. 'true' branch is taken\nEnum value '((this->Host::mr_sharedNetwork)->SharedNetwork::m_nextClientState)' is checked for upper bound."
+                        }
+                      },
+                      "kinds": [
+                        "Combination"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                          },
+                          "region": {
+                            "startLine": 122,
+                            "startColumn": 116
+                          }
+                        },
+                        "message": {
+                          "text": "Branching based on condition 'this->mr_sharedNetwork->m_waitForMenuUpdate'. 'false' branch is taken"
+                        }
+                      },
+                      "kinds": [
+                        "Branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                          },
+                          "region": {
+                            "startLine": 125,
+                            "startColumn": 46
+                          }
+                        },
+                        "message": {
+                          "text": "Branching based on condition 'this->mr_sharedNetwork->m_currentClientState != this->mr_sharedNetwork->m_nextClientState'. 'true' branch is taken\nBounds check status of enum value '((this->Host::mr_sharedNetwork)->SharedNetwork::m_nextClientState)' remains unchanged."
+                        }
+                      },
+                      "kinds": [
+                        "Combination"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                          },
+                          "region": {
+                            "startLine": 128,
+                            "startColumn": 43
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                          },
+                          "region": {
+                            "startLine": 130,
+                            "startColumn": 51
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                          },
+                          "region": {
+                            "startLine": 133,
+                            "startColumn": 30
+                          }
+                        },
+                        "message": {
+                          "text": "Branching based on condition 'this->m_currentClientState != 0'. 'false' branch is taken"
+                        }
+                      },
+                      "kinds": [
+                        "Branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+                          },
+                          "region": {
+                            "startLine": 139,
+                            "startColumn": 26
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.34.31937.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///C:/Flap/Flap/Main/ClientStateMachine.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "8d4fd602558fe6ef6cadb55af6c26244760180a28292c22643e148c7e5eea201"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///C:/Flap/Flap/Main/Host.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "572171599c2d719df46d80d341278ef33a9bfee6597fd8b72e6ad513e53efe70"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///C:/Flap/Flap/Main/Client.cpp"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "5058db175109959ccb223ea0823039bd53953666d67e3fd775d8cf4c853233a9"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/client.h"
+          },
+          "hashes": {
+            "sha-256": "5d2f364cf294b13c059bd95299f1b200db7f7a1a963518834e7e3b772480c5e9"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/sharednetwork.h"
+          },
+          "hashes": {
+            "sha-256": "945f1a265492a0180ec8608d10e64fe72726316e3ce85728b13e58b388994b7e"
+          }
+        }
+      ]
+    }
+  ]
+}

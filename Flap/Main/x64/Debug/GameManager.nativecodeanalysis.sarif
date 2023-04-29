@@ -1,0 +1,311 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'FileIOManager::m_reusableIterator' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/FileIOManager.h"
+                },
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 2,
+                  "endLine": 10,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "FileIOManager::{ctor}",
+                  "decoratedName": "??0FileIOManager@@QEAA@AEAVSharedGame@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "FileIOManager::m_reusableIterator"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'MenuBase::mp_textLines' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/MenuBase.h"
+                },
+                "region": {
+                  "startLine": 52,
+                  "startColumn": 2,
+                  "endLine": 52,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "MenuBase::{ctor}",
+                  "decoratedName": "??0MenuBase@@IEAA@H@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "MenuBase::mp_textLines"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'GameManager::m_newHighScore' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/GameManager.cpp"
+                },
+                "region": {
+                  "startLine": 18,
+                  "startColumn": 14,
+                  "endLine": 18,
+                  "endColumn": 14
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "GameManager::{ctor}",
+                  "decoratedName": "??0GameManager@@QEAA@AEBQEAXAEAVSharedGame@@AEAVSharedInput@@AEAVSharedRender@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "GameManager::m_newHighScore"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'GameManager::mp_networkManager' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/GameManager.cpp"
+                },
+                "region": {
+                  "startLine": 18,
+                  "startColumn": 14,
+                  "endLine": 18,
+                  "endColumn": 14
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "GameManager::{ctor}",
+                  "decoratedName": "??0GameManager@@QEAA@AEBQEAXAEAVSharedGame@@AEAVSharedInput@@AEAVSharedRender@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "GameManager::mp_networkManager"
+          }
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.34.31937.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///C:/Flap/Flap/Main/FileIOManager.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "21b91569c7a0169fdf424bea35eeb6c44d0ecabc283aa19adccf8e8c581a4e7d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///C:/Flap/Flap/Main/MenuBase.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "3ed55396b1cfcfb623ed662269014abcca979c4c1e86769342164f924e91dce8"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///C:/Flap/Flap/Main/GameManager.cpp"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "7c1002d910307b95b2160e94fff58019ea5a813c223f89e7a67fb43b9f59c611"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/gamemanager.h"
+          },
+          "hashes": {
+            "sha-256": "ce24a0d929d61b1944b96fca069e6712e99213a57100db3bbe91773aec216e0c"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/gamethreadbase.h"
+          },
+          "hashes": {
+            "sha-256": "4ec14dc1363480f49ec9d7960a8306c377f758d56d8ec27912f6ad254ecc596a"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/enums.h"
+          },
+          "hashes": {
+            "sha-256": "545a1a19b5f8b98c0be254e0e481e6c065e6042aaef3a607c19a6c3ee2c720a7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/consts.h"
+          },
+          "hashes": {
+            "sha-256": "1d4776a356b25b93e2975a7368393d0f2b6ff958212444809dae9c6de9becf18"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/gamerunmanager.h"
+          },
+          "hashes": {
+            "sha-256": "c3c3de5fb6d8f0367209009ee06e5c615c10ca436123a17d1e96a22feb1e82d5"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/menumanager.h"
+          },
+          "hashes": {
+            "sha-256": "4d112ed9ec178ee9c9b6acd4f0fab5ccc60783a58e363c0fc9370e15c435b2f7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/dlist.h"
+          },
+          "hashes": {
+            "sha-256": "c11c319c9fbbc229b8bb06a1d4d7b8f00194a15e4d13cc27c4550e93bf474edb"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/inputreceiver.h"
+          },
+          "hashes": {
+            "sha-256": "9a7e342810dc235a46925be6d485061444db7d42526dae3f1179a4545f0c9072"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/structure.h"
+          },
+          "hashes": {
+            "sha-256": "12131b152f29ce63727beea945b665ad2644dc696eda8e8d1126ca3e0a60344b"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/tools.h"
+          },
+          "hashes": {
+            "sha-256": "267985eb0ef1e2d7e06f6b97a16a6375e215e6023746cfb4a6ee700d0fc65969"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/sharedrender.h"
+          },
+          "hashes": {
+            "sha-256": "a4001307e877e1b5a82620a5aeb71c54494c56736d8d526b64a98de716d2ba70"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/networkmanager.h"
+          },
+          "hashes": {
+            "sha-256": "504aa7df66e678d78f99522c42736867341c905e7e537586626e6c16d46499a6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/sharedgame.h"
+          },
+          "hashes": {
+            "sha-256": "58dc8b72a4f5a37dee27a0515355ba01219aeed7882895b6bc5ffd86d7402a61"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/queue.h"
+          },
+          "hashes": {
+            "sha-256": "1c20ba852eeebb36a013c326493105bc6e3c63139d33f5fae32a0295cd7dbfc1"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/sharedinput.h"
+          },
+          "hashes": {
+            "sha-256": "e95857f5e9ce40918fb6a38812b4f8bf26182d95d44919db7cee295d1cab314c"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/sharednetwork.h"
+          },
+          "hashes": {
+            "sha-256": "945f1a265492a0180ec8608d10e64fe72726316e3ce85728b13e58b388994b7e"
+          }
+        }
+      ]
+    }
+  ]
+}

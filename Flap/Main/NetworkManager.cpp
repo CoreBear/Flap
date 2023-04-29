@@ -67,6 +67,9 @@ void NetworkManager::StopHost()
 #pragma region Private Functionality
 void NetworkManager::GenerateIPAddress()
 {
+#ifdef TEST_ON_LOOP_BACK
+	strcpy(mr_sharedNetwork.m_mayIPAddress, "127.000.000.001");
+#else !TEST_ON_LOOP_BACK
 	// Get the actual name of this system
 	char hostName[100];
 	if (gethostname(hostName, sizeof(hostName)) == SOCKET_ERROR)
@@ -99,22 +102,18 @@ void NetworkManager::GenerateIPAddress()
 		octet = static_cast<int>(addr.S_un.S_un_b.s_b4);
 		string += std::to_string(octet);
 
-		mr_sharedNetwork.mp_myIPAddress = new char[string.size() + 1];
-		mr_sharedNetwork.mp_myIPAddress[string.size()] = '\0';
-
 		for (int i = 0; i < string.size(); i++)
 		{
-			mr_sharedNetwork.mp_myIPAddress[i] = string[i];
+			mr_sharedNetwork.m_mayIPAddress[i] = string[i];
 		}
 	}
+#endif TEST_ON_LOOP_BACK
 }
 #pragma endregion
 
 #pragma region Destruction
 NetworkManager::~NetworkManager()
 {
-	delete mr_sharedNetwork.mp_myIPAddress;
-
 	// Terminates use of the WS2_32.DLL
 	WSACleanup();
 }

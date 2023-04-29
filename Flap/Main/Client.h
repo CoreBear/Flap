@@ -27,9 +27,9 @@ public:
 
 protected:
 	// Functionality
-#if SAME_SYSTEM_TESTING
+#ifdef SAME_SYSTEM_NETWORK
 	void AssignPort() override;
-#endif SAME_SYSTEM_TESTING
+#endif SAME_SYSTEM_NETWORK
 	void SendCommMess() override;
 
 private:

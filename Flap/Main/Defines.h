@@ -1,7 +1,15 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-#define LEAK_DETECTION 1
-#define SAME_SYSTEM_TESTING 1
+#ifndef LEAK_DETECTION
+#define LEAK_DETECTION
+#endif LEAK_DETECTION
 
-#endif
+#ifndef SAME_SYSTEM_NETWORK
+#define SAME_SYSTEM_NETWORK
+
+//#define TEST_ON_LOOP_BACK
+
+#endif SAME_SYSTEM_NETWORK
+
+#endif DEFINES_H

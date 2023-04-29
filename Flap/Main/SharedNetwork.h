@@ -32,8 +32,8 @@ public:
 	bool m_serverDisconnected;
 	bool m_waitForMenuUpdate;
 	char m_numOfConnClientsOnServ;
-	char* mp_myIPAddress;
-	char m_serverIPAddress[IP_ADDR_CHAR_LENGTH]{ '_', '_', '_', '.', '_', '_', '_', '.', '_', '_', '_', '.', '_', '_', '_' };
+	char m_mayIPAddress[IP_ADDR_CHAR_LENGTH + 1];
+	char m_serverIPAddress[IP_ADDR_CHAR_LENGTH + 1]{ '_', '_', '_', '.', '_', '_', '_', '.', '_', '_', '_', '.', '_', '_', '_', '\0' };
 	ClientState m_currentClientState;
 	ClientState m_nextClientState;
 	std::mutex m_nextClientStateMutex;
@@ -47,11 +47,11 @@ public:
 		m_serverDisconnected(false),
 		m_waitForMenuUpdate(false),
 		m_numOfConnClientsOnServ('0'),
-		mp_myIPAddress(nullptr),
 		m_currentClientState(ClientState::NotJoined),
 		m_nextClientState(ClientState::NotJoined)
 	{
-		return;
+		memset(m_mayIPAddress, 0, IP_ADDR_CHAR_LENGTH);
+		m_mayIPAddress[IP_ADDR_CHAR_LENGTH] = '\0';
 	}
 	SharedNetwork(const SharedNetwork&) = delete;
 	SharedNetwork& operator=(const SharedNetwork&) = delete;

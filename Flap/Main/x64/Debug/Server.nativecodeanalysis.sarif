@@ -1,0 +1,422 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'AttemptingToJoinServer::m_numberOfWaits' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/ClientStateMachine.h"
+                },
+                "region": {
+                  "startLine": 44,
+                  "startColumn": 2,
+                  "endLine": 44,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "AttemptingToJoinServer::{ctor}",
+                  "decoratedName": "??0AttemptingToJoinServer@@QEAA@AEAVClient@@AEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "AttemptingToJoinServer::m_numberOfWaits"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Host::m_commSockAddrIn' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Host.h"
+                },
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 2,
+                  "endLine": 46,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Host::{ctor}",
+                  "decoratedName": "??0Host@@IEAA@MAEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Host::m_commSockAddrIn"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Host::m_commSocket' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Host.h"
+                },
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 2,
+                  "endLine": 46,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Host::{ctor}",
+                  "decoratedName": "??0Host@@IEAA@MAEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Host::m_commSocket"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Host::m_sendBuffer' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Host.h"
+                },
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 2,
+                  "endLine": 46,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Host::{ctor}",
+                  "decoratedName": "??0Host@@IEAA@MAEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Host::m_sendBuffer"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Host::m_recvBuffer' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Host.h"
+                },
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 2,
+                  "endLine": 46,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Host::{ctor}",
+                  "decoratedName": "??0Host@@IEAA@MAEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Host::m_recvBuffer"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Server::m_numberOfConnectedClients' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Server.h"
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 2,
+                  "endLine": 15,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Server::{ctor}",
+                  "decoratedName": "??0Server@@QEAA@AEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Server::m_numberOfConnectedClients"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Server::m_sizeofSockAddr' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Server.h"
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 2,
+                  "endLine": 15,
+                  "endColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Server::{ctor}",
+                  "decoratedName": "??0Server@@QEAA@AEAVSharedNetwork@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Server::m_sizeofSockAddr"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Queue<enum SharedNetwork::SpecialMessage>::m_temp' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Queue.h"
+                },
+                "region": {
+                  "startLine": 38,
+                  "startColumn": 1,
+                  "endLine": 38,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Queue<enum SharedNetwork::SpecialMessage>::{ctor}",
+                  "decoratedName": "??0?$Queue@W4SpecialMessage@SharedNetwork@@@@QEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Queue<enum SharedNetwork::SpecialMessage>::m_temp"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Server::MapVal::m_numberOfCyclesSinceLastPing' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Server.h"
+                },
+                "region": {
+                  "startLine": 55,
+                  "startColumn": 3,
+                  "endLine": 55,
+                  "endColumn": 3
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Server::MapVal::{ctor}",
+                  "decoratedName": "??0MapVal@Server@@QEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Server::MapVal::m_numberOfCyclesSinceLastPing"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'Server::MapVal::m_joined' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Flap/Flap/Main/Server.h"
+                },
+                "region": {
+                  "startLine": 55,
+                  "startColumn": 3,
+                  "endLine": 55,
+                  "endColumn": 3
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Server::MapVal::{ctor}",
+                  "decoratedName": "??0MapVal@Server@@QEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "Server::MapVal::m_joined"
+          }
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.34.31937.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///C:/Flap/Flap/Main/ClientStateMachine.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "8d4fd602558fe6ef6cadb55af6c26244760180a28292c22643e148c7e5eea201"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///C:/Flap/Flap/Main/Host.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "572171599c2d719df46d80d341278ef33a9bfee6597fd8b72e6ad513e53efe70"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///C:/Flap/Flap/Main/Server.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "f7733abd7747735975dcd1ef8fe26e4e8daba79ae6a8f05f85de3e69b7d1c62e"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///C:/Flap/Flap/Main/Queue.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "1c20ba852eeebb36a013c326493105bc6e3c63139d33f5fae32a0295cd7dbfc1"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/server.cpp"
+          },
+          "roles": [
+            "analysisTarget"
+          ],
+          "hashes": {
+            "sha-256": "24fd8fe21130c91d949a0e37b6eb4d732bf222da3c7ba8b8083bed24ed3fd558"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/sharednetwork.h"
+          },
+          "hashes": {
+            "sha-256": "945f1a265492a0180ec8608d10e64fe72726316e3ce85728b13e58b388994b7e"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/dlist.h"
+          },
+          "hashes": {
+            "sha-256": "c11c319c9fbbc229b8bb06a1d4d7b8f00194a15e4d13cc27c4550e93bf474edb"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/consts.h"
+          },
+          "hashes": {
+            "sha-256": "1d4776a356b25b93e2975a7368393d0f2b6ff958212444809dae9c6de9becf18"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/flap/flap/main/enums.h"
+          },
+          "hashes": {
+            "sha-256": "545a1a19b5f8b98c0be254e0e481e6c065e6042aaef3a607c19a6c3ee2c720a7"
+          }
+        }
+      ]
+    }
+  ]
+}

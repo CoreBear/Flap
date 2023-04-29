@@ -2,6 +2,7 @@
 #define HOST_H
 
 #include "ClientStateMachine.h"
+#include "Defines.h"
 #include "SharedNetwork.h"
 
 #include <WinSock2.h>
@@ -36,11 +37,11 @@ protected:
 	char m_sendBuffer[UCHAR_MAX];
 	int m_winsockErrno;
 	int m_winsockResult;
-	static constexpr int SERVER_BROADCAST_PORT = 3006;
-	static constexpr int SERVER_COMMUNICATION_PORT = 9889;
 	SharedNetwork& mr_sharedNetwork;
 	sockaddr_in m_commSockAddrIn;
 	SOCKET m_commSocket;
+	static constexpr unsigned short SERVER_BROADCAST_PORT = 3006;
+	static constexpr unsigned short SERVER_COMMUNICATION_PORT = 9889;
 
 	//Initialization
 	inline Host(float m_numberOfSecondsBetweenFixedUpdate, SharedNetwork& _sharedNetwork) :
@@ -53,10 +54,10 @@ protected:
 	}
 
 	// Functionality
-#if SAME_SYSTEM_TESTING
+#ifdef SAME_SYSTEM_NETWORK
 	virtual void AssignPort() = 0;
-#endif SAME_SYSTEM_TESTING
-	void GenAssAndSendSpecMess(SharedNetwork::SpecialMessage _specialMessage, unsigned long _address = ULONG_MAX);
+#endif SAME_SYSTEM_NETWORK
+	void GenAssAndSendSpecMess(SharedNetwork::SpecialMessage _specialMessage, unsigned long _addressOrPort = ULONG_MAX);
 	void GenSpecMess(SharedNetwork::SpecialMessage _specialMessage);
 	virtual void SendCommMess() = 0;
 };

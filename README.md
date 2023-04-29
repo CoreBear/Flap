@@ -16,6 +16,9 @@ Notes:
      - Input will be on its own thread
      - Rendering will be on its own thread
 		- A console project won't be able to take advantage of the speed of a separate render thread :(, but it could be used for key-frame interpolation :)
+- Implemented a loopback define to get the system to work properly on a private network
+     - inet_addr cannot validate the address
+     - Will not need to go another route, because this game will not be played on private networks. Maybe not ever :(
 
 Thoughts:
 - No work-tickets, since I'm working alone. I'm bouncing around, because I've been creating a backlong on Notepad++ and handling them as I build out the structure of the game.

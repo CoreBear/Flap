@@ -56,8 +56,13 @@ void JoinedServer::Update()
 #pragma region Public Functionality
 void NotJoined::Join()
 {
+#ifdef TEST_ON_LOOP_BACK
+	// If attempting to connect to loopback
+	if (strcmp(mr_sharedNetwork.m_serverIPAddress, "127.000.000.001") == 0)
+#else !TEST_ON_LOOP_BACK
 	// If attempting to connect to a valid address
 	if (inet_addr(mr_sharedNetwork.m_serverIPAddress) != INADDR_NONE)
+#endif TEST_ON_LOOP_BACK
 	{
 		mp_client->m_commSockAddrIn.sin_addr.S_un.S_addr = inet_addr(mr_sharedNetwork.m_serverIPAddress);	// Assign to server's address
 		mp_client->m_commSockAddrIn.sin_port = htons(mp_client->SERVER_COMMUNICATION_PORT);					// Assign to server's port
