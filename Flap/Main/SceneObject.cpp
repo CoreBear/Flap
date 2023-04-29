@@ -32,7 +32,7 @@ void SceneObject::SetPosition(const Structure::Vector2& _position)
 #pragma region Protected Functionality
 bool SceneObject::CheckPositionValidity(Structure::Vector2& _position)
 {
-	return (_position.m_x < Consts::NO_VALUE || _position.m_y < Consts::NO_VALUE || _position.m_x == sp_sharedRender->m_frameBufferDimensions.X || _position.m_y == sp_sharedRender->m_frameBufferDimensions.Y) ? false : true;
+	return (_position.m_x < Consts::OFF_BY_ONE || _position.m_y < Consts::OFF_BY_ONE || _position.m_x == sp_sharedRender->m_frameBufferDimensions.X || _position.m_y == sp_sharedRender->m_frameBufferDimensions.Y) ? false : true;
 
 }
 void SceneObject::WriteIntoFrameBufferCell(Structure::CollisionRenderInfo& _collisionRenderInfo)

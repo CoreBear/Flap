@@ -47,3 +47,4 @@
 *.pdb
 *.tlog
 *.vs
+/Flap/Main/x64/Debug
