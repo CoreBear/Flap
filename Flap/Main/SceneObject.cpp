@@ -23,14 +23,14 @@ void SceneObject::Initialize(const Structure::Generic* const _genericContainer)
 #pragma endregion
 
 #pragma region Public Functionality
-void SceneObject::SetPosition(const Structure::Vector2& _position)
+void SceneObject::SetPosition(const Structure::Vector2<int>& _position)
 {
 	m_position = _position;
 }
 #pragma endregion
 
 #pragma region Protected Functionality
-bool SceneObject::CheckPositionValidity(Structure::Vector2& _position)
+bool SceneObject::CheckPositionValidity(Structure::Vector2<int>& _position)
 {
 	return (_position.m_x < Consts::OFF_BY_ONE || _position.m_y < Consts::OFF_BY_ONE || _position.m_x == sp_sharedRender->m_frameBufferDimensions.X || _position.m_y == sp_sharedRender->m_frameBufferDimensions.Y) ? false : true;
 

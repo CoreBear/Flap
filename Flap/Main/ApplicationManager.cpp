@@ -52,7 +52,7 @@ int main()
 
 		SetupConsole(windowDimensions, outputWindowHandle);
 
-		Structure::Vector2 maxWindowSizeDimensions(static_cast<int>(windowDimensions.X), static_cast<int>(windowDimensions.Y));
+		Structure::Vector2<int> maxWindowSizeDimensions(static_cast<int>(windowDimensions.X), static_cast<int>(windowDimensions.Y));
 		SharedGame sharedGame(maxWindowSizeDimensions);
 		SharedInput sharedInput;
 		SharedRender sharedRender(windowDimensions);

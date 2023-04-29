@@ -1,12 +1,13 @@
 #pragma region Includes
 #include "SharedGame.h"
 
-#include "SceneObject.h"
+#include "Queue.h"
 #include "MenuBase.h"
+#include "SceneObject.h"
 #pragma endregion
 
 #pragma region Initialization
-SharedGame::SharedGame(const Structure::Vector2& _maxWindowSizeDimensions) :
+SharedGame::SharedGame(const Structure::Vector2<int>& _maxWindowSizeDimensions) :
 	mpp_highScoreLines(nullptr),
 	m_isInGameSession(false),
 	m_gameActivityIndex(Enums::GameActivity::Menu),
@@ -17,14 +18,14 @@ SharedGame::SharedGame(const Structure::Vector2& _maxWindowSizeDimensions) :
 	mp_availableSpawnPositions(nullptr),
 	mp_arrayOfColumnIndices(nullptr),
 	m_currentPlayAreaSizeDimensions(_maxWindowSizeDimensions),
-	MAX_WINDOW_SIZE_Dimensions(_maxWindowSizeDimensions)
+	MAX_WINDOW_SIZE_DIMENSIONS(_maxWindowSizeDimensions)
 {
 	MenuBase::AssignSharedGame(*this);
 	SceneObject::AssignSharedGame(*this);
 
 	for (int positionIndex = Consts::NO_VALUE; positionIndex < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; positionIndex++)
 	{
-		mp_snakeStartPositions[positionIndex] = new Structure::Vector2[static_cast<int>(positionIndex + Consts::OFF_BY_ONE)];
+		mp_snakeStartPositions[positionIndex] = new Structure::Vector2<int>[static_cast<int>(positionIndex + Consts::OFF_BY_ONE)];
 	}
 
 	// HACK: Do this dynamically and use calculated positions
@@ -93,7 +94,7 @@ void SharedGame::GameSession(bool _isInGameSession, bool _isSinglePlayerGame)
 	m_isInGameSession = _isInGameSession;
 	m_isSinglePlayerGame = _isSinglePlayerGame;
 }
-const Structure::Vector2& SharedGame::GetRandomSpawnPositionRef()
+const Structure::Vector2<int>& SharedGame::GetRandomSpawnPositionRef()
 {
 	// Select a row with available columns
 	do
@@ -106,7 +107,7 @@ const Structure::Vector2& SharedGame::GetRandomSpawnPositionRef()
 	mp_availableSpawnPositions[m_randomPosition.m_y].PopFront();
 	return m_randomPosition;
 }
-const Structure::Vector2& SharedGame::GetSnakeStartPositionRef(int _numberOfPlayersIndex, int _playerIndex)
+const Structure::Vector2<int>& SharedGame::GetSnakeStartPositionRef(int _numberOfPlayersIndex, int _playerIndex)
 { 
 	RemoveAvailableSpawnIndex(mp_snakeStartPositions[_numberOfPlayersIndex][_playerIndex].m_x, mp_snakeStartPositions[_numberOfPlayersIndex][_playerIndex].m_y);
 

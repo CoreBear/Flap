@@ -31,7 +31,7 @@ public:
 	inline Enums::SpawnState GetSpawenState() const { return m_spawnState; }
 	inline virtual void Pause() { return; }
 	inline virtual void Resume() { return; }
-	void SetPosition(const Structure::Vector2& _position);
+	void SetPosition(const Structure::Vector2<int>& _position);
 	inline void SetSpawnState(Enums::SpawnState _spawnState) { m_spawnState = _spawnState; }
 
 	// Destruction
@@ -45,13 +45,13 @@ protected:
 	static SharedGame* sp_sharedGame;
 
 	// Member Variables
-	Structure::Vector2 m_position;			
+	Structure::Vector2<int> m_position;			
 
 	// Initialization
 	SceneObject() : m_spawnState(Enums::SpawnState::WaitingSelection) { return; }
 
 	// Functionality
-	bool CheckPositionValidity(Structure::Vector2& _position);
+	bool CheckPositionValidity(Structure::Vector2<int>& _position);
 	void WriteIntoFrameBufferCell(Structure::CollisionRenderInfo& _collisionRenderInfo);
 
 private:

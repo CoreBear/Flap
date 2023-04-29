@@ -10,17 +10,18 @@ namespace Structure
 {
 	// ???: Forward declaration is not working for some reason
 
+	template<class Type>
 	struct Vector2
 	{
 	public:
 		// Member Variables
-		int m_x;
-		int m_y;
+		Type m_x;
+		Type m_y;
 
 		// Initialization
 		inline Vector2() : m_x(Consts::NO_VALUE), m_y(Consts::NO_VALUE) { return; }
-		inline Vector2(int _x, int _y) : m_x(_x), m_y(_y) { return; }
-		Vector2(const Vector2&) = default;
+		inline Vector2(Type _x, Type _y) : m_x(_x), m_y(_y) { return; }
+		Vector2(const Vector2<Type>&) = default;
 
 		// Functionality
 		inline void operator=(const Vector2& _rhs) { m_x = _rhs.m_x; m_y = _rhs.m_y; }
@@ -46,7 +47,7 @@ namespace Structure
 		Enums::ObjectType m_objectType;
 		int m_value;
 		unsigned short m_color;
-		Vector2 m_position;
+		Vector2<int> m_position;
 
 		// Initialization
 		CollisionRenderInfo() = default;

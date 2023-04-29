@@ -14,7 +14,7 @@ public:
 	char m_character;
 	int m_objectInCellIndex;
 	unsigned short m_colorBFGround;
-	Structure::Vector2 m_position;
+	Structure::Vector2<int> m_position;
 	void* mp_voidSceneObject[MAX_NUMBER_OF_OBJECTS_IN_CELL];
 
 	// Initialization

@@ -8,7 +8,7 @@
 namespace Structure { struct CollisionRenderInfo; };
 namespace Structure { struct Generic; };
 class SharedGame;
-namespace Structure { struct Vector2; };
+namespace Structure { template<class Type> struct Vector2; }
 
 class Snake : public SceneObject
 {
@@ -60,7 +60,7 @@ private:
 	unsigned int m_numberOfFramesBetweenMoves;
 	unsigned int m_numberOfFramesLeftBeforePause;
 	unsigned int m_numberOfTailSectionsToAdd;
-	Structure::Vector2 m_newTailPosition;
+	Structure::Vector2<int> m_newTailPosition;
 
 	// Functionality
 	void Death();

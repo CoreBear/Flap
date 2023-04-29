@@ -9,7 +9,7 @@ public:
 	// Member Variables
 	const char* m_text;
 	int m_textLineEndColum;
-	Structure::Vector2 m_position;
+	Structure::Vector2<int> m_position;
 
 	// Initialization
 	TextLine() = delete;

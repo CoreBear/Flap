@@ -12,7 +12,7 @@ class SceneObject;
 class SharedGame;
 class SharedInput;
 class SharedRender;
-namespace Structure { struct Vector2; }
+namespace Structure { template<class Type> struct Vector2; }
 
 class ObjectManager final
 {
@@ -33,7 +33,7 @@ public:
 	inline void RemoveFromSceneObjects(SceneObject* const _sceneObject) { m_removeFromSceneObjects.push(_sceneObject); }
 	void Pause();
 	void Resume();
-	void SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic* const _genericContainer = nullptr);
+	void SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2<int>& _position, const Structure::Generic* const _genericContainer = nullptr);
 	void Start(bool _newGame);
 
 	// Desturction

@@ -15,7 +15,7 @@ class SharedInput;
 class SharedNetwork;
 class SharedRender;
 class TextLine;
-namespace Structure { struct Vector2; }
+namespace Structure { template<class Type> struct Vector2; }
 
 class MenuManager final : public InputReceiver
 {

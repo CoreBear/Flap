@@ -29,7 +29,7 @@ private:
 	int m_spawnTargetFrame;
 	ObjectManager& mr_objectManager;
 	SharedGame& mr_sharedGame;
-	Structure::Vector2 m_randomPosition;
+	Structure::Vector2<int> m_randomPosition;
 
 	// Functionality
 	void SpawnFood();

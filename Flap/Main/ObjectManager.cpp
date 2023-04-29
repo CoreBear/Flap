@@ -145,7 +145,7 @@ void ObjectManager::Resume()
 		(*m_sceneObjectsIterator)->Resume();
 	}
 }
-void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2& _position, const Structure::Generic* const _genericContainer)
+void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2<int>& _position, const Structure::Generic* const _genericContainer)
 {
 	m_numberOfObjectsPooledForThisType = NUMBER_OF_OBJECTS_TO_POOL_PER_TYPE[static_cast<int>(_objectType)];
 

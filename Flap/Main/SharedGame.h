@@ -3,12 +3,14 @@
 
 #include "Consts.h"
 #include "Enums.h"
-#include "Queue.h"
 #include "Structure.h"
 
 #include <mutex>
 #include <queue>
 #include <random>
+
+template<class Type>
+class Queue;
 
 class SharedGame final
 {
@@ -18,7 +20,7 @@ public:
 	static constexpr int MAX_HS_STRING_LENGTH = 50;			// NOTE: Arbitrary value
 
 	// Member Variables
-	char m_initials[MAX_NUMBER_OF_INITIALS]{ 'C','L','M' };
+	char m_initials[MAX_NUMBER_OF_INITIALS]{ ' ',' ',' ' };
 	char** mpp_highScoreLines;
 	int m_gameActivityIndex;
 	int m_largestSnakeLengthUponDeath;
@@ -29,11 +31,11 @@ public:
 	Queue<int>* mp_availableSpawnPositions;
 	std::random_device m_random;
 	unsigned short m_largestSnakeColor;
-	Structure::Vector2 m_currentPlayAreaSizeDimensions;
-	const Structure::Vector2 MAX_WINDOW_SIZE_Dimensions;
+	Structure::Vector2<int> m_currentPlayAreaSizeDimensions;
+	const Structure::Vector2<int> MAX_WINDOW_SIZE_DIMENSIONS;
 
 	// Initialization
-	SharedGame(const Structure::Vector2& _maxWindowSizeDimensions);
+	SharedGame(const Structure::Vector2<int>& _maxWindowSizeDimensions);
 	SharedGame(const SharedGame&) = delete;
 	SharedGame& operator=(const SharedGame&) = delete;
 
@@ -45,9 +47,9 @@ public:
 	inline int GetNumberOfFramesBeforeGameStart() const { return m_numberOfFramesBeforeGameStart; }
 	inline int GetNumberOfSnakesInGame() const { return m_numberOfSnakesInGame; }
 	inline int& GetPlayerSnakeColorIndexRef(int _playerIndex) { return (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex : m_playerTwoSnakeColorIndex; }
-	const Structure::Vector2& GetRandomSpawnPositionRef();
+	const Structure::Vector2<int>& GetRandomSpawnPositionRef();
 	inline bool GetSinglePlayerBool() const { return m_isSinglePlayerGame; }
-	const Structure::Vector2& GetSnakeStartPositionRef(int _numberOfPlayersIndex, int _playerIndex);
+	const Structure::Vector2<int>& GetSnakeStartPositionRef(int _numberOfPlayersIndex, int _playerIndex);
 	inline void IncrementNumberOfSnakesInGame() { ++m_numberOfSnakesInGame; }
 	void RemoveAvailableSpawnIndex(int _x, int _y);
 	void ResetAvailableSpawnIndices();
@@ -70,8 +72,8 @@ private:
 	int m_reusableIterator_1;
 	int m_reusableIterator_2;
 	int* mp_arrayOfColumnIndices;
-	Structure::Vector2 m_randomPosition;
-	Structure::Vector2* mp_snakeStartPositions[Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME];
+	Structure::Vector2<int> m_randomPosition;
+	Structure::Vector2<int>* mp_snakeStartPositions[Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME];
 };
 
 #endif SHARED_GAME_H
