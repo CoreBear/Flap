@@ -101,9 +101,20 @@ void SetupConsole(COORD& _windowDimensions, HANDLE& _outputWindowHandle)
 {
 	// https://learn.microsoft.com/en-us/windows/console/console-functions
 
-	// Position window in top-left
 	HWND consoleWindow = GetConsoleWindow();
-	SetWindowPos(consoleWindow, 0, -8, -1, 0, 0, SWP_SHOWWINDOW);
+	DWORD dwStyle = GetWindowLong(consoleWindow, GWL_STYLE);
+	WINDOWPLACEMENT windowPlacement = { sizeof(windowPlacement) };
+
+	// Fullscreen window
+	if (dwStyle & WS_OVERLAPPEDWINDOW)
+	{
+		MONITORINFO monitorInfo = { sizeof(monitorInfo) };
+		if (GetWindowPlacement(consoleWindow, &windowPlacement) && GetMonitorInfo(MonitorFromWindow(consoleWindow, MONITOR_DEFAULTTOPRIMARY), &monitorInfo))
+		{
+			SetWindowLong(consoleWindow, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
+			SetWindowPos(consoleWindow, HWND_TOP, monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.top, monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top, SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+		}
+	}
 
 	// NOTE/WARNING: THE ORDER OF THESE TWO ARE IMPORTANT!
 	_outputWindowHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -119,14 +130,6 @@ void SetupConsole(COORD& _windowDimensions, HANDLE& _outputWindowHandle)
 	};
 	SetConsoleScreenBufferSize(_outputWindowHandle, _windowDimensions);
 	SetConsoleWindowInfo(_outputWindowHandle, true, &windowRect);
-
-	// Removes the minimize & maximize options
-	{
-		LONG windowInfo = GetWindowLong(consoleWindow, GWL_STYLE);
-		windowInfo &= ~(WS_MINIMIZEBOX);
-		windowInfo &= ~(WS_MAXIMIZEBOX);
-		SetWindowLong(consoleWindow, GWL_STYLE, windowInfo);
-	}
 
 	// Hides cursor
 	{
