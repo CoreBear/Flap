@@ -34,6 +34,7 @@ public:
 	char m_numOfConnClientsOnServ;
 	char m_mayIPAddress[IP_ADDR_CHAR_LENGTH + 1];
 	char m_serverIPAddress[IP_ADDR_CHAR_LENGTH + 1]{ '_', '_', '_', '.', '_', '_', '_', '.', '_', '_', '_', '.', '_', '_', '_', '\0' };
+	const char* const LOOP_BACK_ADDR = "127.000.000.001";
 	ClientState m_currentClientState;
 	ClientState m_nextClientState;
 	std::mutex m_nextClientStateMutex;

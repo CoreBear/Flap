@@ -1,14 +1,24 @@
 #pragma region Includes
 #include "Tools.h"
+
+#include "SharedGame.h"
 #pragma endregion
 
 #pragma region Static Initialization
 int Tools::s_reusableIterator_1;
 int Tools::s_reusableIterator_2;
-SharedRender* Tools::sp_sharedRender = nullptr;
+SharedGame* Tools::sp_sharedGame = nullptr;
+
+void Tools::AssignSharedGame(SharedGame& _sharedGame)
+{
+	sp_sharedGame = &_sharedGame;
+}
 #pragma endregion
 
 #pragma region Functionality
+int Tools::CenterText_ReturnStartColumn() { return static_cast<int>(sp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x / 2); }
+int Tools::CenterText_ReturnStartColumn(const char* _textLine) { return static_cast<int>((sp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x / 2) - strlen(_textLine) / 2); }
+int Tools::CenterText_ReturnStartColumn(int _textLineLength) { return (sp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x / 2) - _textLineLength / 2; }
 char Tools::IntToChar(int _number)
 {
 	if (_number < Consts::NO_VALUE)

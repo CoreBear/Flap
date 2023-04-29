@@ -7,13 +7,13 @@
 #include <mutex>
 #include <Windows.h>
 
-class SharedRender;
+class SharedGame;
 
 class RenderManager final : public GameThreadBase
 {
 public:
 	// Initialization
-	RenderManager(const HANDLE& _outputWindowHandle, SharedRender& _sharedRender);
+	RenderManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame);
 	RenderManager(const RenderManager&) = delete;
 	RenderManager& operator=(const RenderManager&) = delete;
 
@@ -25,11 +25,12 @@ public:
 
 private:
 	CHAR_INFO* const mp_renderBuffer;
-	COORD m_topLeftCellDimensions;
-	const HANDLE& OUTPUT_WINDOW_HANDLE;
+	COORD FRAME_BUFFER_HEIGHT_WIDTH;
+	COORD m_frameBufferTopLeftPosition;
+	const HANDLE OUTPUT_WINDOW_HANDLE;
 	int m_reusableIterator;						
-	SharedRender& mr_sharedRender;
-	SMALL_RECT m_writeRegionRect;
+	SharedGame& mr_sharedGame;
+	SMALL_RECT m_drawRegion;
 	std::unique_lock<std::mutex> m_frameBufferUniqueLock;
 };
 

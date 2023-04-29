@@ -6,14 +6,14 @@
 #include <mutex>
 
 class BufferCell;
-class SharedRender;
+class SharedGame;
 class SceneObject;
 
 class CollisionManager final
 {
 public:
 	// Initialization
-	CollisionManager(SharedRender& _sharedRender);
+	CollisionManager(SharedGame& _sharedGame);
 	CollisionManager(const CollisionManager&) = delete;
 	CollisionManager& operator=(const CollisionManager&) = delete;
 
@@ -30,7 +30,7 @@ private:
 	int m_reusableIterator;
 	SceneObject* mp_firstSceneObject;
 	SceneObject* mp_secondSceneObject;
-	SharedRender& mr_sharedRender;
+	SharedGame& mr_sharedGame;
 	std::unique_lock<std::mutex> m_frameBufferUniqueLock;
 
 	// Functionality

@@ -3,14 +3,14 @@
 
 #include "BufferCell.h"
 #include "SceneObject.h"
-#include "SharedRender.h"
+#include "SharedGame.h"
 #include "Structure.h"
 #pragma endregion
 
 #pragma region Initialization
-CollisionManager::CollisionManager(SharedRender& _sharedRender) :
-	mr_sharedRender(_sharedRender),
-	m_frameBufferUniqueLock(_sharedRender.m_frameBufferMutex)
+CollisionManager::CollisionManager(SharedGame& _sharedGame) :
+	mr_sharedGame(_sharedGame),
+	m_frameBufferUniqueLock(_sharedGame.m_frameBufferMutex)
 {
 	m_frameBufferUniqueLock.unlock();
 }
@@ -19,15 +19,15 @@ CollisionManager::CollisionManager(SharedRender& _sharedRender) :
 #pragma region Updates
 void CollisionManager::FixedUpdate()
 {
-	mr_sharedRender.m_frameBufferMutex.lock();
+	mr_sharedGame.m_frameBufferMutex.lock();
 
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedRender.m_bufferSize; m_reusableIterator++)
+	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedGame.m_bufferSize; m_reusableIterator++)
 	{
-		UpdateCell(mr_sharedRender.mp_frameBuffer[m_reusableIterator]);
+		UpdateCell(mr_sharedGame.mp_frameBuffer[m_reusableIterator]);
 	}
 
-	mr_sharedRender.m_frameBufferMutex.unlock();
-	mr_sharedRender.m_frameBufferConVar.notify_one();
+	mr_sharedGame.m_frameBufferMutex.unlock();
+	mr_sharedGame.m_frameBufferConVar.notify_one();
 }
 #pragma endregion
 

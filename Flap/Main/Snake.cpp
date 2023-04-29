@@ -5,7 +5,6 @@
 #include "GameManager.h"
 #include "ObjectManager.h"
 #include "SharedGame.h"
-#include "SharedRender.h"
 #include "Structure.h"
 #include "Tools.h"
 #pragma endregion

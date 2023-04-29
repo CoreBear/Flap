@@ -9,20 +9,18 @@
 #include "SharedGame.h"
 #include "SharedInput.h"
 #include "SharedNetwork.h"
-#include "SharedRender.h"
 #pragma endregion
 
 #pragma region Initialization
 unsigned int GameManager::s_masterFixedFrameCount = Consts::NO_VALUE;
 
-GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender) :
+GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame, SharedInput& _sharedInput) :
 	mp_fileIOManager(new FileIOManager(_sharedGame)),
-	mp_gameRunManager(new GameRunManager(_sharedGame, _sharedInput, _sharedRender)),
+	mp_gameRunManager(new GameRunManager(_sharedGame, _sharedInput)),
 	mp_sharedNetwork(new SharedNetwork),
-	mp_menuManager(new MenuManager(_sharedGame, *mp_sharedNetwork, _sharedRender)),
+	mp_menuManager(new MenuManager(_sharedGame, *mp_sharedNetwork)),
 	mr_sharedGame(_sharedGame),
-	mr_sharedInput(_sharedInput),
-	mr_sharedRender(_sharedRender)
+	mr_sharedInput(_sharedInput)
 {
 	m_currentTime = m_lastTime = std::chrono::high_resolution_clock::now();
 }
@@ -375,7 +373,7 @@ void GameManager::GameOver()
 {
 	mr_sharedGame.GameSession(false, false);
 
-	mr_sharedRender.ResetFrameBufferSynced();
+	mr_sharedGame.ResetFrameBufferSynced();
 
 	mp_gameRunManager->GameOver();
 }

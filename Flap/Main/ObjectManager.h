@@ -5,20 +5,19 @@
 #include "Enums.h"
 
 #include <queue>
-#include <Windows.h>
 
 namespace Structure { struct Generic; }
 class SceneObject;
 class SharedGame;
 class SharedInput;
-class SharedRender;
+class SharedGame;
 namespace Structure { template<class Type> struct Vector2; }
 
 class ObjectManager final
 {
 public:
 	// Initialization
-	ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender);
+	ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput);
 	ObjectManager(const ObjectManager&) = delete;
 	ObjectManager& operator=(const ObjectManager&) = delete;
 
@@ -51,6 +50,5 @@ private:
 	SceneObject* mp_addRemove;
 	SceneObject*** mppp_pooledObjects;
 	SharedGame& mr_sharedGame;
-	SharedRender& mr_sharedRender;
 };
 #endif OBJECT_MANAGER_H

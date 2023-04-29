@@ -5,14 +5,13 @@
 #include "ObjectManager.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
-#include "SharedRender.h"
 #include "SpawnManager.h"
 #pragma endregion
 
 #pragma region Initialization
-GameRunManager::GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender) :
-	mp_collisionManager(new CollisionManager(_sharedRender)),
-	mp_objectManager(new ObjectManager(_sharedGame, _sharedInput, _sharedRender)),
+GameRunManager::GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput) :
+	mp_collisionManager(new CollisionManager(_sharedGame)),
+	mp_objectManager(new ObjectManager(_sharedGame, _sharedInput)),
 	mr_sharedGame(_sharedGame),
 	mp_spawnManager(new SpawnManager(*mp_objectManager, _sharedGame))
 {

@@ -65,7 +65,7 @@ namespace Structure
 		Input() = default;
 		Input(const Input&) = default;
 		Input& operator=(const Input&) = default;
-	};
+	}; 
 }
 
 #endif STRUCTURE_H

@@ -13,7 +13,6 @@ class BufferCell;
 class SharedGame;
 class SharedInput;
 class SharedNetwork;
-class SharedRender;
 class TextLine;
 namespace Structure { template<class Type> struct Vector2; }
 
@@ -21,7 +20,7 @@ class MenuManager final : public InputReceiver
 {
 public:
 	// Initialzation
-	MenuManager(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork, SharedRender& _sharedRender);
+	MenuManager(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork);
 	MenuManager(const MenuManager&) = delete;
 	MenuManager& operator=(const MenuManager&) = delete;
 
@@ -74,7 +73,6 @@ private:
 	DList<BufferCell*>::Iterator m_menuCellsIterator;
 	MenuBase** mpp_menus;
 	SharedGame& mr_sharedGame;
-	SharedRender& mr_sharedRender;
 	std::stack<int> m_returnMenuStack;
 	unsigned short m_lineColor;
 

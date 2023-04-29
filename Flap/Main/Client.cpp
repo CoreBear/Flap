@@ -2,6 +2,7 @@
 #include "Client.h"
 
 #include "ClientStateMachine.h"
+#include "Consts.h"
 
 #include <random>
 #pragma endregion
@@ -14,7 +15,7 @@ Client::Client(SharedNetwork& _sharedNetwork) :
 {
 	m_allClientStates = new	ClientStateMachine*[static_cast<int>(SharedNetwork::SharedNetwork::ClientState::NumberOfActionableStates)];
 
-	for (int stateIndex = 0; stateIndex < static_cast<int>(SharedNetwork::ClientState::NumberOfActionableStates); stateIndex++)
+	for (int stateIndex = Consts::NO_VALUE; stateIndex < static_cast<int>(SharedNetwork::ClientState::NumberOfActionableStates); stateIndex++)
 	{
 		switch (static_cast<SharedNetwork::ClientState>(stateIndex))
 		{
@@ -44,7 +45,7 @@ void Client::RecvCommMessLoop()
 	// Daemon
 	while (true)
 	{
-		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, UCHAR_MAX, 0, NULL, NULL);
+		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, UCHAR_MAX, Consts::NO_VALUE, NULL, NULL);
 		if (m_winsockResult == SOCKET_ERROR)
 		{
 			// HACK: Don't need the errno catch right here, just useful for debugging
@@ -184,8 +185,7 @@ void Client::AssignPort()
 {
 	// HACK: Not the best of ideas, but this should rarely result in multiple clients having the same port number
 	std::random_device random;
-	int p = 8998 + (random() % 100);
-	m_commSockAddrIn.sin_port = htons(p);	// Bind to my port (different port than server, because the client and server have the same IP Address)
+	m_commSockAddrIn.sin_port = htons(8998 + (random() % 100));	// Bind to my port (different port than server, because the client and server have the same IP Address)
 }
 #endif SAME_SYSTEM_NETWORK
 void Client::SendCommMess()
@@ -255,7 +255,7 @@ Client::~Client()
 	mr_sharedNetwork.m_numOfConnClientsOnServ = '0';
 	mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
 
-	for (int stateIndex = 0; stateIndex < static_cast<int>(SharedNetwork::ClientState::NumberOfActionableStates); stateIndex++)
+	for (int stateIndex = Consts::NO_VALUE; stateIndex < static_cast<int>(SharedNetwork::ClientState::NumberOfActionableStates); stateIndex++)
 	{
 		delete m_allClientStates[stateIndex];
 	}

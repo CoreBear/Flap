@@ -17,7 +17,6 @@
 #include "SharedGame.h"
 #include "SharedInput.h"
 #include "SharedNetwork.h"
-#include "SharedRender.h"
 #include "SinglePlayerMenu.h"
 #include "Structure.h"
 #include "TextLine.h"
@@ -27,9 +26,8 @@
 #pragma endregion
 
 #pragma region Initialization
-MenuManager::MenuManager(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork, SharedRender& _sharedRender) :
-	mr_sharedGame(_sharedGame),
-	mr_sharedRender(_sharedRender)
+MenuManager::MenuManager(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
+	mr_sharedGame(_sharedGame)
 {
 	m_readIndex = Consts::NO_VALUE;
 
@@ -275,7 +273,7 @@ void MenuManager::ClearReturnMenuStack()
 }
 void MenuManager::WriteMenuIntoFrameBuffer()
 {
-	mr_sharedRender.m_frameBufferMutex.lock();
+	mr_sharedGame.m_frameBufferMutex.lock();
 
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mpp_menus[m_currentMenuIndex]->m_currNumOfTextLines; m_reusableIterator++)
 	{
@@ -284,13 +282,13 @@ void MenuManager::WriteMenuIntoFrameBuffer()
 
 	for (m_menuCellsIterator = mpp_menus[m_currentMenuIndex]->m_cells.Begin(); m_menuCellsIterator != mpp_menus[m_currentMenuIndex]->m_cells.End(); ++m_menuCellsIterator)
 	{
-		mp_bufferCell = &mr_sharedRender.mp_frameBuffer[((*m_menuCellsIterator)->m_position.m_y * mr_sharedRender.m_frameBufferDimensions.X) + (*m_menuCellsIterator)->m_position.m_x];
+		mp_bufferCell = &mr_sharedGame.mp_frameBuffer[((*m_menuCellsIterator)->m_position.m_y * mr_sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_x) + (*m_menuCellsIterator)->m_position.m_x];
 		mp_bufferCell->m_character = (*m_menuCellsIterator)->m_character;
 		mp_bufferCell->m_colorBFGround = (*m_menuCellsIterator)->m_colorBFGround;
 	}
 
-	mr_sharedRender.m_frameBufferMutex.unlock();
-	mr_sharedRender.m_frameBufferConVar.notify_one();
+	mr_sharedGame.m_frameBufferMutex.unlock();
+	mr_sharedGame.m_frameBufferConVar.notify_one();
 }
 void MenuManager::WriteTextLineIntoBuffer(bool _highlightLine, const TextLine& _textLine)
 {
@@ -307,7 +305,7 @@ void MenuManager::WriteTextLineIntoBuffer(bool _highlightLine, const TextLine& _
 	constexpr char const END_OF_STRING = '\0';
 	while (*mp_walker != END_OF_STRING)
 	{
-		mp_bufferCell = &mr_sharedRender.mp_frameBuffer[(_textLine.m_position.m_y * mr_sharedRender.m_frameBufferDimensions.X) + m_textLetterColumnPosition++];
+		mp_bufferCell = &mr_sharedGame.mp_frameBuffer[(_textLine.m_position.m_y * mr_sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_x) + m_textLetterColumnPosition++];
 		mp_bufferCell->m_character = *mp_walker;
 		mp_bufferCell->m_colorBFGround = m_lineColor;
 

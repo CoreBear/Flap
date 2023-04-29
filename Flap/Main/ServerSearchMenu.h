@@ -3,6 +3,7 @@
 
 #include "BufferCell.h"
 #include "Consts.h"
+#include "Defines.h"
 #include "DList.h"
 #include "NetworkSearchMenu.h"
 #include "SharedNetwork.h"
@@ -20,6 +21,27 @@ public:
 		mp_newString = new char[SharedGame::MAX_HS_STRING_LENGTH];
 		strcpy(mp_newString, "Server IP: ");
 
+#ifdef TEST_ON_LOOP_BACK
+		strcat(mp_newString, mr_sharedNetwork.LOOP_BACK_ADDR);
+
+		// If IP has not already been entered
+		mr_sharedNetwork.m_serverIPAddressMutex.lock();
+		if (mr_sharedNetwork.m_serverIPIsEmpty)
+		{
+			mr_sharedNetwork.m_serverIPIsEmpty = false;
+
+			mp_walker = mr_sharedNetwork.LOOP_BACK_ADDR;
+			m_reusableIterator = Consts::NO_VALUE;
+
+			while (*mp_walker != '\0')
+			{
+				mr_sharedNetwork.m_serverIPAddress[m_reusableIterator++] = *mp_walker;
+
+				++mp_walker;
+			}
+		}
+		mr_sharedNetwork.m_serverIPAddressMutex.unlock();
+#else !TEST_ON_LOOP_BACK
 		// If user hasn't tried entering an IP
 		mr_sharedNetwork.m_serverIPAddressMutex.lock();
 		if (mr_sharedNetwork.m_serverIPIsEmpty)
@@ -37,6 +59,7 @@ public:
 
 			mr_sharedNetwork.m_serverIPAddressMutex.unlock();
 		}
+#endif TEST_ON_LOOP_BACK
 
 		mp_walker = mp_newString;
 
@@ -225,11 +248,14 @@ protected:
 	};
 	void InputCharacter(int _inputIndexOrKeyCode) override
 	{
+#ifndef TEST_ON_LOOP_BACK
 		(*m_ipCellIterator)->m_character = static_cast<char>(_inputIndexOrKeyCode);
-		mr_sharedNetwork.m_nextClientStateMutex.lock();
+		mr_sharedNetwork.m_serverIPAddressMutex.lock();
 		mr_sharedNetwork.m_serverIPIsEmpty = false;
 		mr_sharedNetwork.m_serverIPAddress[m_ipIndex] = static_cast<char>(_inputIndexOrKeyCode);
-		mr_sharedNetwork.m_nextClientStateMutex.unlock();
+		mr_sharedNetwork.m_serverIPAddressMutex.unlock();
+#endif TEST_ON_LOOP_BACK
+
 		NextOption();
 	}
 	void NextOption() override

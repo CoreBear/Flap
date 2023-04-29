@@ -5,12 +5,13 @@
 #include "Enums.h"
 #include "Structure.h"
 
+#include <condition_variable>
 #include <mutex>
 #include <queue>
 #include <random>
 
-template<class Type>
-class Queue;
+class BufferCell;
+template<class Type> class Queue;
 
 class SharedGame final
 {
@@ -20,22 +21,29 @@ public:
 	static constexpr int MAX_HS_STRING_LENGTH = 50;			// NOTE: Arbitrary value
 
 	// Member Variables
+	int m_bufferSize;	// Has to be up here to initialize before other things
+	bool m_resizeFrameBuffer;
+	BufferCell* const mp_frameBuffer;
 	char m_initials[MAX_NUMBER_OF_INITIALS]{ ' ',' ',' ' };
 	char** mpp_highScoreLines;
+	std::condition_variable m_frameBufferConVar;
 	int m_gameActivityIndex;
 	int m_largestSnakeLengthUponDeath;
 	int m_numberOfFramesBetweenSpawn;
 	const int MAX_NUMBER_OF_NODES_TO_ADD;
 	static constexpr int MAX_NUMBER_OF_HIGH_SCORES = 10;	// NOTE: Arbitrary value
+	std::mutex m_frameBufferMutex;
 	std::mutex m_gameActivityIndexMutex;
 	Queue<int>* mp_availableSpawnPositions;
 	std::random_device m_random;
 	unsigned short m_largestSnakeColor;
-	Structure::Vector2<int> m_currentPlayAreaSizeDimensions;
-	const Structure::Vector2<int> MAX_WINDOW_SIZE_DIMENSIONS;
+	Structure::Vector2<short> m_gameAreaHeightWidth;
+	Structure::Vector2<short> m_gameAreaTopLeftPosition;
+	const Structure::Vector2<short> FRAME_BUFFER_HEIGHT_WIDTH;
+	const Structure::Vector2<short> MAX_WINDOW_SIZE_DIMENSIONS;
 
 	// Initialization
-	SharedGame(const Structure::Vector2<int>& _maxWindowSizeDimensions);
+	SharedGame(const Structure::Vector2<short>& _maxWindowSizeDimensions);
 	SharedGame(const SharedGame&) = delete;
 	SharedGame& operator=(const SharedGame&) = delete;
 
@@ -53,6 +61,8 @@ public:
 	inline void IncrementNumberOfSnakesInGame() { ++m_numberOfSnakesInGame; }
 	void RemoveAvailableSpawnIndex(int _x, int _y);
 	void ResetAvailableSpawnIndices();
+	void ResetFrameBuffer();
+	void ResetFrameBufferSynced();
 	inline void SetSinglePlayerBool(bool _isSinglePlayerGame) { m_isSinglePlayerGame = _isSinglePlayerGame; }
 	inline void SetPlayerSnakeColorIndex(int _colorIndex, int _playerIndex) { (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex = _colorIndex : m_playerTwoSnakeColorIndex = _colorIndex; }
 	inline void ZeroNumberOfSnakesInGame() { m_numberOfSnakesInGame = Consts::NO_VALUE; }
@@ -71,6 +81,7 @@ private:
 	int m_randomRow;
 	int m_reusableIterator_1;
 	int m_reusableIterator_2;
+	int m_reusableIterator_3;
 	int* mp_arrayOfColumnIndices;
 	Structure::Vector2<int> m_randomPosition;
 	Structure::Vector2<int>* mp_snakeStartPositions[Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME];

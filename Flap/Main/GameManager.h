@@ -15,7 +15,7 @@ class NetworkManager;
 class SharedGame;
 class SharedInput;
 class SharedNetwork;
-class SharedRender;
+class SharedGame;
 
 class GameManager final : public GameThreadBase
 {
@@ -24,7 +24,7 @@ public:
 	static unsigned int s_masterFixedFrameCount;
 
 	// Initialization
-	GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender);
+	GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame, SharedInput& _sharedInput);
 	GameManager(const GameManager&) = delete;
 	GameManager& operator=(const GameManager&) = delete;
 
@@ -45,7 +45,6 @@ private:
 	NetworkManager* mp_networkManager;		// NOTE: Allocated and destroyed at specific times so winsock isn't always initialized
 	SharedGame& mr_sharedGame;
 	SharedInput& mr_sharedInput;
-	SharedRender& mr_sharedRender;
 
 	// Functionality
 	void GameOver();

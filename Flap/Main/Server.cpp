@@ -1,5 +1,7 @@
 #pragma region Includes
 #include "Server.h"
+
+#include "Consts.h"
 #pragma endregion
 
 #pragma region Loops
@@ -10,7 +12,7 @@ void Server::RecvCommMessLoop()
 	{
 		// NOTE: Container stores information about who it's being sent from
 		m_sizeofSockAddr = sizeof(m_commSockAddrIn);
-		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, UCHAR_MAX, 0, (SOCKADDR*)&m_commSockAddrIn, &m_sizeofSockAddr);
+		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, UCHAR_MAX, Consts::NO_VALUE, (SOCKADDR*)&m_commSockAddrIn, &m_sizeofSockAddr);
 		if (m_winsockResult == SOCKET_ERROR)
 		{
 			// HACK: Don't need the errno catch right here, just useful for debugging
@@ -47,23 +49,23 @@ void Server::RecvCommMessLoop()
 			}
 
 			// NOTE: All special messages are stored, so client can handle them at the proper time. This will mitigate send/recv confusion
-			if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Ping)]) == 0)
+			if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Ping)]) == Consts::NO_VALUE)
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Ping);
 			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == 0)
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == Consts::NO_VALUE)
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Disconnect);
 			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::GetNumber)]) == 0)
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::GetNumber)]) == Consts::NO_VALUE)
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::GetNumber);
 			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Join)]) == 0)
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Join)]) == Consts::NO_VALUE)
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Join);
 			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Joined)]) == 0)
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Joined)]) == Consts::NO_VALUE)
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Joined);
 			}
@@ -162,7 +164,7 @@ void Server::HandleSpecMess()
 			{
 			case SharedNetwork::SpecialMessage::Ping:
 			{
-				m_mapIterator->second.m_numberOfCyclesSinceLastPing = 0;
+				m_mapIterator->second.m_numberOfCyclesSinceLastPing = Consts::NO_VALUE;
 			}
 			break;
 			case SharedNetwork::SpecialMessage::Disconnect:

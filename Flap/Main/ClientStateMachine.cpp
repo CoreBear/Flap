@@ -2,6 +2,7 @@
 #include "ClientStateMachine.h"
 
 #include "Client.h"
+#include "Consts.h"
 
 #include <thread>
 #pragma endregion
@@ -9,7 +10,7 @@
 #pragma region Attempting To Join Server State
 void AttemptingToJoinServer::Update()
 {
-	m_numberOfWaits = 0;
+	m_numberOfWaits = Consts::NO_VALUE;
 
 	// Wait for x-number of seconds, but wake up each second
 	constexpr int MAX_NUMBER_OF_WAITS = 5;
@@ -58,7 +59,7 @@ void NotJoined::Join()
 {
 #ifdef TEST_ON_LOOP_BACK
 	// If attempting to connect to loopback
-	if (strcmp(mr_sharedNetwork.m_serverIPAddress, "127.000.000.001") == 0)
+	if (strcmp(mr_sharedNetwork.m_serverIPAddress, mr_sharedNetwork.LOOP_BACK_ADDR) == Consts::NO_VALUE)
 #else !TEST_ON_LOOP_BACK
 	// If attempting to connect to a valid address
 	if (inet_addr(mr_sharedNetwork.m_serverIPAddress) != INADDR_NONE)

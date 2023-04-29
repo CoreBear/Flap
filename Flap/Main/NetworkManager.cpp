@@ -9,6 +9,7 @@
 // I believe it's coming from <windows.h>, but they're both integral to the system.
 
 #include "Client.h"
+#include "Consts.h"
 #include "Host.h"
 #include "Server.h"
 #include "SharedNetwork.h"
@@ -22,9 +23,9 @@ NetworkManager::NetworkManager(SharedNetwork& _sharedNetwork) :
 {
 	// Initiates use of WS2_32.DLL by a processand must be called before any network functions!
 	WSADATA wsadata;
-	if (WSAStartup(WINSOCK_VERSION, &wsadata) != 0) 
+	if (WSAStartup(WINSOCK_VERSION, &wsadata) != Consts::NO_VALUE) 
 	{
-		return;
+		throw std::exception();
 	}
 
 	GenerateIPAddress();
@@ -68,20 +69,20 @@ void NetworkManager::StopHost()
 void NetworkManager::GenerateIPAddress()
 {
 #ifdef TEST_ON_LOOP_BACK
-	strcpy(mr_sharedNetwork.m_mayIPAddress, "127.000.000.001");
+	strcpy(mr_sharedNetwork.m_mayIPAddress, mr_sharedNetwork.LOOP_BACK_ADDR);
 #else !TEST_ON_LOOP_BACK
 	// Get the actual name of this system
 	char hostName[100];
 	if (gethostname(hostName, sizeof(hostName)) == SOCKET_ERROR)
 	{
-		return;
+		throw std::exception();
 	}
 
 	// Get this system's address
 	struct hostent* addresses = gethostbyname(hostName);
 	if (addresses == 0)
 	{
-		return;
+		throw std::exception();
 	}
 
 	// Store this system's address as a string
@@ -102,7 +103,7 @@ void NetworkManager::GenerateIPAddress()
 		octet = static_cast<int>(addr.S_un.S_un_b.s_b4);
 		string += std::to_string(octet);
 
-		for (int i = 0; i < string.size(); i++)
+		for (size_t i = Consts::NO_VALUE; i < string.size(); i++)
 		{
 			mr_sharedNetwork.m_mayIPAddress[i] = string[i];
 		}

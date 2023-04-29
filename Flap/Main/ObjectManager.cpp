@@ -8,7 +8,6 @@
 #include "NoTouchy.h"
 #include "SceneObject.h"
 #include "SharedGame.h"
-#include "SharedRender.h"
 #include "Snake.h"
 #include "Structure.h"
 
@@ -16,9 +15,8 @@
 #pragma endregion
 
 #pragma region Initialization
-ObjectManager::ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender) :
-	mr_sharedGame(_sharedGame),
-	mr_sharedRender(_sharedRender)
+ObjectManager::ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput) :
+	mr_sharedGame(_sharedGame)
 {
 	SceneObject::AssignObjectManager(*this);
 
@@ -62,14 +60,14 @@ ObjectManager::ObjectManager(SharedGame& _sharedGame, SharedInput& _sharedInput,
 #pragma region Updates
 void ObjectManager::FixedUpdate()
 {
-	mr_sharedRender.m_frameBufferMutex.lock();
+	mr_sharedGame.m_frameBufferMutex.lock();
 
 	for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
 	{
 		(*m_sceneObjectsIterator)->FixedUpdate();
 	}
 
-	mr_sharedRender.m_frameBufferMutex.unlock();
+	mr_sharedGame.m_frameBufferMutex.unlock();
 }
 void ObjectManager::LastUpdate()
 {

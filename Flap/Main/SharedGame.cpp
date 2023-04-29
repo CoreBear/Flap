@@ -1,13 +1,18 @@
 #pragma region Includes
 #include "SharedGame.h"
 
-#include "Queue.h"
+#include "BufferCell.h"
 #include "MenuBase.h"
+#include "Queue.h"
 #include "SceneObject.h"
+#include "Snake.h"
+#include "Tools.h"
 #pragma endregion
 
 #pragma region Initialization
-SharedGame::SharedGame(const Structure::Vector2<int>& _maxWindowSizeDimensions) :
+SharedGame::SharedGame(const Structure::Vector2<short>& _maxWindowSizeDimensions) :
+	m_bufferSize(_maxWindowSizeDimensions.m_x * _maxWindowSizeDimensions.m_y),
+	mp_frameBuffer(new BufferCell[m_bufferSize]),
 	mpp_highScoreLines(nullptr),
 	m_isInGameSession(false),
 	m_gameActivityIndex(Enums::GameActivity::Menu),
@@ -17,11 +22,15 @@ SharedGame::SharedGame(const Structure::Vector2<int>& _maxWindowSizeDimensions) 
 	m_numberOfFramesBetweenSpawn(60),			// NOTE: Arbitrary value
 	mp_availableSpawnPositions(nullptr),
 	mp_arrayOfColumnIndices(nullptr),
-	m_currentPlayAreaSizeDimensions(_maxWindowSizeDimensions),
+	FRAME_BUFFER_HEIGHT_WIDTH(_maxWindowSizeDimensions),
 	MAX_WINDOW_SIZE_DIMENSIONS(_maxWindowSizeDimensions)
 {
 	MenuBase::AssignSharedGame(*this);
 	SceneObject::AssignSharedGame(*this);
+	Snake::AssignSharedGame(*this);
+	Tools::AssignSharedGame(*this);
+
+	ResetFrameBuffer();
 
 	for (int positionIndex = Consts::NO_VALUE; positionIndex < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; positionIndex++)
 	{
@@ -81,6 +90,12 @@ SharedGame::SharedGame(const Structure::Vector2<int>& _maxWindowSizeDimensions) 
 			mp_snakeStartPositions[3][3].m_y = 20;
 		}
 	}
+
+	m_gameAreaHeightWidth.m_x = FRAME_BUFFER_HEIGHT_WIDTH.m_x;
+	m_gameAreaHeightWidth.m_y = FRAME_BUFFER_HEIGHT_WIDTH.m_y;
+
+	m_gameAreaTopLeftPosition.m_x = 0;
+	m_gameAreaTopLeftPosition.m_y = 0;
 }
 #pragma endregion
 
@@ -99,7 +114,7 @@ const Structure::Vector2<int>& SharedGame::GetRandomSpawnPositionRef()
 	// Select a row with available columns
 	do
 	{
-		m_randomPosition.m_y = m_random() % m_currentPlayAreaSizeDimensions.m_y;
+		m_randomPosition.m_y = m_random() % FRAME_BUFFER_HEIGHT_WIDTH.m_y;
 	} while (mp_availableSpawnPositions[m_randomPosition.m_y].IsEmpty());
 
 	// Store, remove, and return first randomized column index
@@ -122,14 +137,14 @@ void SharedGame::ResetAvailableSpawnIndices()
 	delete[] mp_arrayOfColumnIndices;
 	delete[] mp_availableSpawnPositions;
 
-	mp_arrayOfColumnIndices = new int[m_currentPlayAreaSizeDimensions.m_x];
-	mp_availableSpawnPositions = new Queue<int>[m_currentPlayAreaSizeDimensions.m_x];
+	mp_arrayOfColumnIndices = new int[FRAME_BUFFER_HEIGHT_WIDTH.m_x];
+	mp_availableSpawnPositions = new Queue<int>[FRAME_BUFFER_HEIGHT_WIDTH.m_x];
 
 	// For each row
-	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < m_currentPlayAreaSizeDimensions.m_y; m_reusableIterator_1++)
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < FRAME_BUFFER_HEIGHT_WIDTH.m_y; m_reusableIterator_1++)
 	{
 		// Reset column indices
-		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < m_currentPlayAreaSizeDimensions.m_x; m_reusableIterator_2++)
+		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < FRAME_BUFFER_HEIGHT_WIDTH.m_x; m_reusableIterator_2++)
 		{
 			mp_arrayOfColumnIndices[m_reusableIterator_2] = m_reusableIterator_2;
 		}
@@ -138,9 +153,9 @@ void SharedGame::ResetAvailableSpawnIndices()
 		mp_availableSpawnPositions[m_reusableIterator_1].Clear();
 
 		// Randomize column indices
-		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < m_currentPlayAreaSizeDimensions.m_x; m_reusableIterator_2++)
+		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < FRAME_BUFFER_HEIGHT_WIDTH.m_x; m_reusableIterator_2++)
 		{
-			m_randomColumn = m_random() % m_currentPlayAreaSizeDimensions.m_x;
+			m_randomColumn = m_random() % FRAME_BUFFER_HEIGHT_WIDTH.m_x;
 
 			mp_arrayOfColumnIndices[m_reusableIterator_2] += mp_arrayOfColumnIndices[m_randomColumn];
 			mp_arrayOfColumnIndices[m_randomColumn] = mp_arrayOfColumnIndices[m_reusableIterator_2] - mp_arrayOfColumnIndices[m_randomColumn];
@@ -148,17 +163,34 @@ void SharedGame::ResetAvailableSpawnIndices()
 		}
 
 		// Add randomized indices into row list
-		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < m_currentPlayAreaSizeDimensions.m_x; m_reusableIterator_2++)
+		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < FRAME_BUFFER_HEIGHT_WIDTH.m_x; m_reusableIterator_2++)
 		{
 			mp_availableSpawnPositions[m_reusableIterator_1].PushBack(mp_arrayOfColumnIndices[m_reusableIterator_2]);
 		}
 	}
+}
+void SharedGame::ResetFrameBuffer()
+{
+	for (m_reusableIterator_3 = Consts::NO_VALUE; m_reusableIterator_3 < m_bufferSize; m_reusableIterator_3++)
+	{
+		mp_frameBuffer[m_reusableIterator_3].ResetCell();
+	}
+}
+void SharedGame::ResetFrameBufferSynced()
+{
+	m_frameBufferMutex.lock();
+
+	ResetFrameBuffer();
+
+	m_frameBufferMutex.unlock();
 }
 #pragma endregion
 
 #pragma region Destruction
 SharedGame::~SharedGame()
 {
+	delete[] mp_frameBuffer;
+
 	if (mpp_highScoreLines != nullptr)
 	{
 		for (int lineIndex = Consts::NO_VALUE; lineIndex < MAX_NUMBER_OF_HIGH_SCORES; lineIndex++)

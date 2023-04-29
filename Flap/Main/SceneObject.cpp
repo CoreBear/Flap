@@ -6,13 +6,11 @@
 #include "ObjectManager.h"
 #include "SceneObject.h"
 #include "SharedGame.h"
-#include "SharedRender.h"
 #pragma endregion
 
 #pragma region Static Initialization
 ObjectManager* SceneObject::sp_objectManager = nullptr;
 SharedGame* SceneObject::sp_sharedGame = nullptr;
-SharedRender* SceneObject::sp_sharedRender = nullptr;
 #pragma endregion
 
 #pragma region Initialization
@@ -32,12 +30,12 @@ void SceneObject::SetPosition(const Structure::Vector2<int>& _position)
 #pragma region Protected Functionality
 bool SceneObject::CheckPositionValidity(Structure::Vector2<int>& _position)
 {
-	return (_position.m_x < Consts::OFF_BY_ONE || _position.m_y < Consts::OFF_BY_ONE || _position.m_x == sp_sharedRender->m_frameBufferDimensions.X || _position.m_y == sp_sharedRender->m_frameBufferDimensions.Y) ? false : true;
-
+	// NOTE: Notice the negation
+	return !(_position.m_x < Consts::NO_VALUE || _position.m_y < Consts::NO_VALUE || _position.m_x == sp_sharedGame->m_gameAreaHeightWidth.m_x || _position.m_y == sp_sharedGame->m_gameAreaHeightWidth.m_y);
 }
 void SceneObject::WriteIntoFrameBufferCell(Structure::CollisionRenderInfo& _collisionRenderInfo)
 {
-	mp_bufferCell = &sp_sharedRender->mp_frameBuffer[(_collisionRenderInfo.m_position.m_y * sp_sharedRender->m_frameBufferDimensions.X) + _collisionRenderInfo.m_position.m_x];
+	mp_bufferCell = &sp_sharedGame->mp_frameBuffer[(_collisionRenderInfo.m_position.m_y * sp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x) + _collisionRenderInfo.m_position.m_x];
 
 	mp_bufferCell->mp_collisionRenderInfo[mp_bufferCell->m_objectInCellIndex] = &_collisionRenderInfo;
 	mp_bufferCell->mp_voidSceneObject[mp_bufferCell->m_objectInCellIndex++] = reinterpret_cast<void*>(this);

@@ -70,7 +70,7 @@ void Host::GenAssAndSendSpecMess(SharedNetwork::SpecialMessage _specialMessage, 
 	if (_addressOrPort != ULONG_MAX)
 	{
 #ifdef SAME_SYSTEM_NETWORK
-		m_commSockAddrIn.sin_port = _addressOrPort;
+		m_commSockAddrIn.sin_port = static_cast<unsigned short>(_addressOrPort);
 #else !SAME_SYSTEM_NETWORK
 		m_commSockAddrIn.sin_addr.S_un.S_addr = _addressOrPort;
 #endif SAME_SYSTEM_NETWORK

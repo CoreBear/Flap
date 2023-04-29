@@ -8,14 +8,13 @@ class CollisionManager;
 class ObjectManager;
 class SharedGame;
 class SharedInput;
-class SharedRender;
 class SpawnManager;
 
 class GameRunManager final
 {
 public:
 	// Initialization
-	GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedRender& _sharedRender);
+	GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput);
 	GameRunManager(const GameRunManager&) = delete;
 	GameRunManager& operator=(const GameRunManager&) = delete;
 

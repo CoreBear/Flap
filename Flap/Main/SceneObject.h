@@ -7,7 +7,6 @@
 class BufferCell;
 class ObjectManager;
 class SharedGame;
-class SharedRender;
 
 class SceneObject
 {
@@ -15,7 +14,6 @@ public:
 	// Static Initialization
 	static void AssignObjectManager(ObjectManager& _objectManager) { sp_objectManager = &_objectManager; }
 	static void AssignSharedGame(SharedGame& _sharedGame) { sp_sharedGame = &_sharedGame; }
-	static void AssignSharedRender(SharedRender& _sharedRender) { sp_sharedRender = &_sharedRender; }
 
 	// Initialization
 	virtual void Initialize(const Structure::Generic* const _genericContainer);
@@ -57,7 +55,6 @@ protected:
 private:
 	// Member Variables
 	BufferCell* mp_bufferCell;
-	static SharedRender* sp_sharedRender;
 	Enums::SpawnState m_spawnState;
 };
 

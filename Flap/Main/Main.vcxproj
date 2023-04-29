@@ -145,7 +145,6 @@
     <ClCompile Include="MenuBase.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="SharedNetwork.cpp" />
-    <ClCompile Include="SharedRender.cpp" />
     <ClCompile Include="SharedGame.cpp" />
     <ClCompile Include="SharedInput.cpp" />
     <ClCompile Include="Snake.cpp" />
@@ -191,7 +190,6 @@
     <ClInclude Include="Server.h" />
     <ClInclude Include="ServerSearchMenu.h" />
     <ClInclude Include="SharedNetwork.h" />
-    <ClInclude Include="SharedRender.h" />
     <ClInclude Include="SharedGame.h" />
     <ClInclude Include="SharedInput.h" />
     <ClInclude Include="SinglePlayerMenu.h" />

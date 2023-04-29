@@ -8,7 +8,6 @@
 #include "RenderManager.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
-#include "SharedRender.h"
 #include "Structure.h"
 
 #include <mutex>
@@ -52,19 +51,18 @@ int main()
 
 		SetupConsole(windowDimensions, outputWindowHandle);
 
-		Structure::Vector2<int> maxWindowSizeDimensions(static_cast<int>(windowDimensions.X), static_cast<int>(windowDimensions.Y));
+		Structure::Vector2<short> maxWindowSizeDimensions(windowDimensions.X, windowDimensions.Y);
 		SharedGame sharedGame(maxWindowSizeDimensions);
 		SharedInput sharedInput;
-		SharedRender sharedRender(windowDimensions);
 
 		enum class ThreadType { Game, Input, Render, NumberOfTypes };
 
 		// Generate thread objects
 		GameThreadBase** gameThreadBases = new GameThreadBase * [static_cast<int>(ThreadType::NumberOfTypes)]
 		{
-			new GameManager(outputWindowHandle, sharedGame, sharedInput, sharedRender),
+			new GameManager(outputWindowHandle, sharedGame, sharedInput),
 			new InputManager(sharedGame, sharedInput),
-			new RenderManager(outputWindowHandle, sharedRender)
+			new RenderManager(outputWindowHandle, sharedGame)
 		};
 
 		std::thread threads[static_cast<int>(ThreadType::NumberOfTypes)];
