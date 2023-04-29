@@ -162,7 +162,7 @@ void GameManager::Update()
 
 		mp_fileIOManager->LoadGame();
 
-		mr_sharedGame.GameSession(true, true);
+		mr_sharedGame.StartGameSession(true, true);
 
 		mp_gameRunManager->StartGame(false);
 
@@ -228,7 +228,10 @@ void GameManager::Update()
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
 		mp_gameRunManager->PauseGame();
+
 		mp_menuManager->DisplayMenu(Enums::MenuName::Pause);
+
+		mr_sharedGame.TryToggleBorder(false);
 
 		SetGameActivity(Enums::GameActivity::Menu);
 	}
@@ -237,7 +240,7 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
-		mr_sharedGame.GameSession(true, false);
+		mr_sharedGame.StartGameSession(true, false);
 
 		mp_gameRunManager->StartGame(true);
 
@@ -248,7 +251,7 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
-		mr_sharedGame.GameSession(true, true);
+		mr_sharedGame.StartGameSession(true, true);
 
 		mp_gameRunManager->StartGame(true);
 
@@ -260,6 +263,8 @@ void GameManager::Update()
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
 		mp_gameRunManager->ResumeGame();
+
+		mr_sharedGame.TryToggleBorder(true);
 
 		SetGameActivity(Enums::GameActivity::Game);
 	}
@@ -371,7 +376,7 @@ void GameManager::Update()
 #pragma region Private Functionality
 void GameManager::GameOver()
 {
-	mr_sharedGame.GameSession(false, false);
+	mr_sharedGame.EndGameSession();
 
 	mr_sharedGame.ResetFrameBufferSynced();
 

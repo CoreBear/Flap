@@ -2,6 +2,7 @@
 #include "Server.h"
 
 #include "Consts.h"
+#include "SharedGame.h"
 #include "Tools.h"
 #pragma endregion
 
@@ -97,12 +98,6 @@ void Server::UpdateLoop()
 					{
 						break;
 					}
-
-					// If map is not empty, continue to the next client
-					else
-					{
-						continue;
-					}
 				}
 			}
 		}
@@ -119,7 +114,13 @@ void Server::UpdateLoop()
 #pragma region Public Functionality
 void Server::Join()
 {
+	mp_sharedGame->ResetLargestClientOffsets();
 
+	// Get the largest game area possible, that's common for all players
+	for (m_mapJoinIterator = m_mapOfClientAddrsConnTypeAndSpecMess.begin(); m_mapJoinIterator != m_mapOfClientAddrsConnTypeAndSpecMess.end(); ++m_mapJoinIterator)
+	{
+		mp_sharedGame->UpdateClientSharedGameAreaOffsets(m_mapIterator->second.m_maxFrameBufferWidthHeight);
+	}
 }
 void Server::Stop()
 {

@@ -27,7 +27,8 @@ private:
 	static constexpr int SECOND_OBJECT_INDEX = Consts::OFF_BY_ONE;
 
 	// Member Variables
-	int m_reusableIterator;
+	int m_reusableIterator_1;
+	int m_reusableIterator_2;
 	SceneObject* mp_firstSceneObject;
 	SceneObject* mp_secondSceneObject;
 	SharedGame& mr_sharedGame;

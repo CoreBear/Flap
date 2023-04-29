@@ -21,9 +21,8 @@ public:
 	static constexpr int MAX_HS_STRING_LENGTH = 50;			// NOTE: Arbitrary value
 
 	// Member Variables
-	int m_bufferSize;	// Has to be up here to initialize before other things
-	bool m_resizeFrameBuffer;
-	BufferCell* const mp_frameBuffer;
+	bool m_borderIsRequired;
+	BufferCell** mpp_frameBuffer;
 	char m_initials[MAX_NUMBER_OF_INITIALS]{ ' ',' ',' ' };
 	char** mpp_highScoreLines;
 	std::condition_variable m_frameBufferConVar;
@@ -37,9 +36,8 @@ public:
 	Queue<int>* mp_availableSpawnPositions;
 	std::random_device m_random;
 	unsigned short m_largestSnakeColor;
-	Structure::Vector2<short> m_gameAreaWidthHeight;
-	Structure::Vector2<short> m_gameAreaTopLeftPosition;
 	const Structure::Vector2<short> FRAME_BUFFER_HEIGHT_WIDTH;
+	Structure::Vector4<short> m_gameAreaBounds;
 
 	// Initialization
 	SharedGame(const Structure::Vector2<short>& _frameBufferWidthHeight);
@@ -49,7 +47,7 @@ public:
 	// Functionality
 	void AddAvailableSpawnIndex(int _x, int _y);
 	inline void DecrementNumberOfSnakesInGame() { --m_numberOfSnakesInGame; }
-	void GameSession(bool _isInGameSession, bool _isSinglePlayerGame);
+	void EndGameSession();
 	inline bool GetIsInGameSession() const { return m_isInGameSession; }
 	inline int GetNumberOfFramesBeforeGameStart() const { return m_numberOfFramesBeforeGameStart; }
 	inline int GetNumberOfSnakesInGame() const { return m_numberOfSnakesInGame; }
@@ -60,10 +58,15 @@ public:
 	inline void IncrementNumberOfSnakesInGame() { ++m_numberOfSnakesInGame; }
 	void RemoveAvailableSpawnIndex(int _x, int _y);
 	void ResetAvailableSpawnIndices();
+	inline void ResetLargestClientOffsets() { m_clientSharedGameAreaOffsets.m_x = m_clientSharedGameAreaOffsets.m_y = SHRT_MAX; }
 	void ResetFrameBuffer();
 	void ResetFrameBufferSynced();
 	inline void SetSinglePlayerBool(bool _isSinglePlayerGame) { m_isSinglePlayerGame = _isSinglePlayerGame; }
 	inline void SetPlayerSnakeColorIndex(int _colorIndex, int _playerIndex) { (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex = _colorIndex : m_playerTwoSnakeColorIndex = _colorIndex; }
+	void StartGameSession(bool _isInGameSession, bool _isSinglePlayerGame);
+	void TryToggleBorder(bool _isVisible);
+	void UpdateClientSharedGameAreaOffsets(const Structure::Vector2<short>& _clientOffsets);
+	void UpdateMyGameAreaBounds(short _xOffset, short _yOffset);
 	inline void ZeroNumberOfSnakesInGame() { m_numberOfSnakesInGame = Consts::NO_VALUE; }
 
 	// Destruction
@@ -81,9 +84,11 @@ private:
 	int m_reusableIterator_1;
 	int m_reusableIterator_2;
 	int m_reusableIterator_3;
+	int m_reusableIterator_4;
 	int* mp_arrayOfColumnIndices;
 	Structure::Vector2<int> m_randomPosition;
 	Structure::Vector2<int>* mp_snakeStartPositions[Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME];
+	Structure::Vector2<short> m_clientSharedGameAreaOffsets;
 };
 
 #endif SHARED_GAME_H

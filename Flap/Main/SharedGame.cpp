@@ -11,15 +11,14 @@
 
 #pragma region Initialization
 SharedGame::SharedGame(const Structure::Vector2<short>& _frameBufferWidthHeight) :
-	m_bufferSize(_frameBufferWidthHeight.m_x * _frameBufferWidthHeight.m_y),
-	mp_frameBuffer(new BufferCell[m_bufferSize]),
+	mpp_frameBuffer(new BufferCell*[_frameBufferWidthHeight.m_y]),
 	mpp_highScoreLines(nullptr),
 	m_isInGameSession(false),
 	m_gameActivityIndex(Enums::GameActivity::Menu),
-	MAX_NUMBER_OF_NODES_TO_ADD(9),				// NOTE: Arbitrary value
+	MAX_NUMBER_OF_NODES_TO_ADD(9),					// NOTE: Arbitrary value
 	m_numberOfSnakesInGame(Consts::NO_VALUE),
-	m_numberOfFramesBeforeGameStart(60),		// NOTE: Arbitrary value
-	m_numberOfFramesBetweenSpawn(60),			// NOTE: Arbitrary value
+	m_numberOfFramesBeforeGameStart(60),			// NOTE: Arbitrary value
+	m_numberOfFramesBetweenSpawn(60),				// NOTE: Arbitrary value
 	mp_availableSpawnPositions(nullptr),
 	mp_arrayOfColumnIndices(nullptr),
 	FRAME_BUFFER_HEIGHT_WIDTH(_frameBufferWidthHeight)
@@ -29,11 +28,16 @@ SharedGame::SharedGame(const Structure::Vector2<short>& _frameBufferWidthHeight)
 	Snake::AssignSharedGame(*this);
 	Tools::AssignSharedGame(*this);
 
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < _frameBufferWidthHeight.m_y; m_reusableIterator_1++)
+	{
+		mpp_frameBuffer[m_reusableIterator_1] = new BufferCell[_frameBufferWidthHeight.m_x];
+	}
+
 	ResetFrameBuffer();
 
-	for (int positionIndex = Consts::NO_VALUE; positionIndex < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; positionIndex++)
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; m_reusableIterator_1++)
 	{
-		mp_snakeStartPositions[positionIndex] = new Structure::Vector2<int>[static_cast<int>(positionIndex + Consts::OFF_BY_ONE)];
+		mp_snakeStartPositions[m_reusableIterator_1] = new Structure::Vector2<int>[static_cast<int>(m_reusableIterator_1 + Consts::OFF_BY_ONE)];
 	}
 
 	// HACK: Do this dynamically and use calculated positions
@@ -90,11 +94,8 @@ SharedGame::SharedGame(const Structure::Vector2<short>& _frameBufferWidthHeight)
 		}
 	}
 
-	m_gameAreaWidthHeight.m_x = FRAME_BUFFER_HEIGHT_WIDTH.m_x;
-	m_gameAreaWidthHeight.m_y = FRAME_BUFFER_HEIGHT_WIDTH.m_y;
-
-	m_gameAreaTopLeftPosition.m_x = 0;
-	m_gameAreaTopLeftPosition.m_y = 0;
+	ResetLargestClientOffsets();
+	UpdateMyGameAreaBounds(5, 2);// 0, 0);
 }
 #pragma endregion
 
@@ -103,10 +104,11 @@ void SharedGame::AddAvailableSpawnIndex(int _x, int _y)
 {
 	mp_availableSpawnPositions[_x].PushBack(_y);
 }
-void SharedGame::GameSession(bool _isInGameSession, bool _isSinglePlayerGame)
+void SharedGame::EndGameSession() 
 {
-	m_isInGameSession = _isInGameSession;
-	m_isSinglePlayerGame = _isSinglePlayerGame;
+	m_borderIsRequired = false;
+	m_isInGameSession = false;
+	m_isSinglePlayerGame = false;
 }
 const Structure::Vector2<int>& SharedGame::GetRandomSpawnPositionRef()
 {
@@ -170,9 +172,13 @@ void SharedGame::ResetAvailableSpawnIndices()
 }
 void SharedGame::ResetFrameBuffer()
 {
-	for (m_reusableIterator_3 = Consts::NO_VALUE; m_reusableIterator_3 < m_bufferSize; m_reusableIterator_3++)
+	// Using 3 and 4, becuase ResetAvailableSpawnIndices are using 1 and 2
+	for (m_reusableIterator_3 = Consts::NO_VALUE; m_reusableIterator_3 < FRAME_BUFFER_HEIGHT_WIDTH.m_y; m_reusableIterator_3++)
 	{
-		mp_frameBuffer[m_reusableIterator_3].ResetCell();
+		for (m_reusableIterator_4 = Consts::NO_VALUE; m_reusableIterator_4 < FRAME_BUFFER_HEIGHT_WIDTH.m_x; m_reusableIterator_4++)
+		{
+			mpp_frameBuffer[m_reusableIterator_3][m_reusableIterator_4].ResetCell();
+		}
 	}
 }
 void SharedGame::ResetFrameBufferSynced()
@@ -183,21 +189,67 @@ void SharedGame::ResetFrameBufferSynced()
 
 	m_frameBufferMutex.unlock();
 }
+void SharedGame::StartGameSession(bool _isInGameSession, bool _isSinglePlayerGame)
+{
+	m_isInGameSession = _isInGameSession;
+	m_isSinglePlayerGame = _isSinglePlayerGame;
+
+	if (m_gameAreaBounds.m_x != Consts::NO_VALUE || m_gameAreaBounds.m_y != Consts::NO_VALUE)
+	{
+		m_borderIsRequired = true;
+	}
+}
+void SharedGame::TryToggleBorder(bool _isVisible)
+{
+	if (_isVisible)
+	{
+		if (m_gameAreaBounds.m_x != Consts::NO_VALUE || m_gameAreaBounds.m_y != Consts::NO_VALUE)
+		{
+			m_borderIsRequired = true;
+			return;
+		}
+	}
+
+	m_borderIsRequired = false;
+}
+void SharedGame::UpdateClientSharedGameAreaOffsets(const Structure::Vector2<short>& _clientOffsets)
+{
+	if (_clientOffsets.m_x < m_clientSharedGameAreaOffsets.m_x)
+	{
+		m_clientSharedGameAreaOffsets.m_x = _clientOffsets.m_x;
+	}
+	if (_clientOffsets.m_y < m_clientSharedGameAreaOffsets.m_y)
+	{
+		m_clientSharedGameAreaOffsets.m_y = _clientOffsets.m_y;
+	}
+}
+void SharedGame::UpdateMyGameAreaBounds(short _xOffset, short _yOffset)
+{
+	m_gameAreaBounds.m_w = _xOffset;
+	m_gameAreaBounds.m_x = _yOffset;
+	m_gameAreaBounds.m_y = FRAME_BUFFER_HEIGHT_WIDTH.m_x - _xOffset;
+	m_gameAreaBounds.m_z = FRAME_BUFFER_HEIGHT_WIDTH.m_y - _yOffset;
+}
 #pragma endregion
 
 #pragma region Destruction
 SharedGame::~SharedGame()
 {
-	delete[] mp_frameBuffer;
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < FRAME_BUFFER_HEIGHT_WIDTH.m_y; m_reusableIterator_1++)
+	{
+		delete[] mpp_frameBuffer[m_reusableIterator_1];
+	}
+
+	delete[] mpp_frameBuffer;
 
 	if (mpp_highScoreLines != nullptr)
 	{
-		for (int lineIndex = Consts::NO_VALUE; lineIndex < MAX_NUMBER_OF_HIGH_SCORES; lineIndex++)
+		for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < MAX_NUMBER_OF_HIGH_SCORES; m_reusableIterator_1++)
 		{
-			if (mpp_highScoreLines[lineIndex] != nullptr)
+			if (mpp_highScoreLines[m_reusableIterator_1] != nullptr)
 			{
-				delete[] mpp_highScoreLines[lineIndex];
-				mpp_highScoreLines[lineIndex] = nullptr;
+				delete[] mpp_highScoreLines[m_reusableIterator_1];
+				mpp_highScoreLines[m_reusableIterator_1] = nullptr;
 			}
 		}
 		delete[] mpp_highScoreLines;
@@ -207,9 +259,9 @@ SharedGame::~SharedGame()
 	delete[] mp_arrayOfColumnIndices;
 	delete[] mp_availableSpawnPositions;
 
-	for (int positionIndex = Consts::NO_VALUE; positionIndex < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; positionIndex++)
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; m_reusableIterator_1++)
 	{
-		delete mp_snakeStartPositions[positionIndex];
+		delete mp_snakeStartPositions[m_reusableIterator_1];
 	}
 }
 #pragma endregion

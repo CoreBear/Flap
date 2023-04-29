@@ -66,6 +66,7 @@ private:
 	int m_sizeofSockAddr;
 	std::unordered_map<unsigned long, MapVal>m_mapOfClientAddrsConnTypeAndSpecMess;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapIterator;
+	std::unordered_map<unsigned long, MapVal>::iterator m_mapJoinIterator;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapSendAllIterator;
 	unsigned long m_sendingClientsAddrPort;
 

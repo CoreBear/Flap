@@ -24,14 +24,18 @@ public:
 	~RenderManager() override;
 
 private:
+	// Member Variables
 	CHAR_INFO* const mp_renderBuffer;
 	COORD FRAME_BUFFER_HEIGHT_WIDTH;
 	COORD m_frameBufferTopLeftPosition;
 	const HANDLE OUTPUT_WINDOW_HANDLE;
-	int m_reusableIterator;						
+	int m_renderBufferIndex;
+	int m_reusableIterator_1;
+	int m_reusableIterator_2;
 	SharedGame& mr_sharedGame;
 	SMALL_RECT m_drawRegion;
 	std::unique_lock<std::mutex> m_frameBufferUniqueLock;
+	Structure::Vector2<short> m_cellCR;
 };
 
 #endif RENDER_MANAGER_H

@@ -282,7 +282,7 @@ void MenuManager::WriteMenuIntoFrameBuffer()
 
 	for (m_menuCellsIterator = mpp_menus[m_currentMenuIndex]->m_cells.Begin(); m_menuCellsIterator != mpp_menus[m_currentMenuIndex]->m_cells.End(); ++m_menuCellsIterator)
 	{
-		mp_bufferCell = &mr_sharedGame.mp_frameBuffer[((*m_menuCellsIterator)->m_position.m_y * mr_sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_x) + (*m_menuCellsIterator)->m_position.m_x];
+		mp_bufferCell = &mr_sharedGame.mpp_frameBuffer[(*m_menuCellsIterator)->m_position.m_y][(*m_menuCellsIterator)->m_position.m_x];
 		mp_bufferCell->m_character = (*m_menuCellsIterator)->m_character;
 		mp_bufferCell->m_colorBFGround = (*m_menuCellsIterator)->m_colorBFGround;
 	}
@@ -305,7 +305,7 @@ void MenuManager::WriteTextLineIntoBuffer(bool _highlightLine, const TextLine& _
 	constexpr char const END_OF_STRING = '\0';
 	while (*mp_walker != END_OF_STRING)
 	{
-		mp_bufferCell = &mr_sharedGame.mp_frameBuffer[(_textLine.m_position.m_y * mr_sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_x) + m_textLetterColumnPosition++];
+		mp_bufferCell = &mr_sharedGame.mpp_frameBuffer[_textLine.m_position.m_y][m_textLetterColumnPosition++];
 		mp_bufferCell->m_character = *mp_walker;
 		mp_bufferCell->m_colorBFGround = m_lineColor;
 

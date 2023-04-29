@@ -8,17 +8,17 @@
 
 #pragma region Initialization
 RenderManager::RenderManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame) :
-	mp_renderBuffer(new CHAR_INFO[_sharedGame.m_bufferSize]),
+	mp_renderBuffer(new CHAR_INFO[_sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_x * _sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_y]),
 	OUTPUT_WINDOW_HANDLE(_outputWindowHandle),
-	m_reusableIterator(Consts::NO_VALUE),
+	m_reusableIterator_1(Consts::NO_VALUE),
 	mr_sharedGame(_sharedGame),
 	m_frameBufferUniqueLock(mr_sharedGame.m_frameBufferMutex)
 {
 	m_frameBufferUniqueLock.unlock();
 
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < _sharedGame.m_bufferSize; m_reusableIterator++)
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < _sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_x * _sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_y; m_reusableIterator_1++)
 	{
-		mp_renderBuffer[m_reusableIterator].Char.UnicodeChar = Consts::EMPTY_SPACE_CHAR;
+		mp_renderBuffer[m_reusableIterator_1].Char.UnicodeChar = Consts::EMPTY_SPACE_CHAR;
 	}
 
 	FRAME_BUFFER_HEIGHT_WIDTH.X = _sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_x;
@@ -40,11 +40,51 @@ void RenderManager::Update()
 	m_frameBufferUniqueLock.lock();
 	mr_sharedGame.m_frameBufferConVar.wait(m_frameBufferUniqueLock);
 
-	// For each cell
-	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mr_sharedGame.m_bufferSize; m_reusableIterator++)
+	m_renderBufferIndex = Consts::NO_VALUE;
+
+	if (mr_sharedGame.m_borderIsRequired)
 	{
-		mp_renderBuffer[m_reusableIterator].Attributes = mr_sharedGame.mp_frameBuffer[m_reusableIterator].m_colorBFGround;
-		mp_renderBuffer[m_reusableIterator].Char.UnicodeChar = mr_sharedGame.mp_frameBuffer[m_reusableIterator].m_character;
+		// For each cell
+		for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < mr_sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_y; m_reusableIterator_1++)
+		{
+			for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < mr_sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_x; m_reusableIterator_2++)
+			{
+				// If border cell
+				if (m_reusableIterator_2 < mr_sharedGame.m_gameAreaBounds.m_w						||	// Left bound
+					m_reusableIterator_1 < mr_sharedGame.m_gameAreaBounds.m_x						|| 	// Top bound
+					m_reusableIterator_2 > mr_sharedGame.m_gameAreaBounds.m_y - Consts::OFF_BY_ONE	||	// Right bound
+					m_reusableIterator_1 > mr_sharedGame.m_gameAreaBounds.m_z - Consts::OFF_BY_ONE)		// Bottom bound
+				{
+					mp_renderBuffer[m_renderBufferIndex].Attributes = Consts::BACKGROUND_COLORS[static_cast<int>(Enums::Color::White)];
+					mp_renderBuffer[m_renderBufferIndex].Char.UnicodeChar = Consts::EMPTY_SPACE_CHAR;
+				}
+
+				// If not border cell
+				else
+				{
+					mp_renderBuffer[m_renderBufferIndex].Attributes = mr_sharedGame.mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_colorBFGround;
+					mp_renderBuffer[m_renderBufferIndex].Char.UnicodeChar = mr_sharedGame.mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_character;
+				}
+
+				++m_renderBufferIndex;
+			}
+		}
+	}
+
+	// If no border is required
+	else
+	{
+		// For each cell
+		for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < mr_sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_y; m_reusableIterator_1++)
+		{
+			for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < mr_sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_x; m_reusableIterator_2++)
+			{
+				mp_renderBuffer[m_renderBufferIndex].Attributes = mr_sharedGame.mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_colorBFGround;
+				mp_renderBuffer[m_renderBufferIndex].Char.UnicodeChar = mr_sharedGame.mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_character;
+
+				++m_renderBufferIndex;
+			}
+		}
 	}
 
 	// Render from buffer

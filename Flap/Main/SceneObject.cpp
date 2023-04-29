@@ -31,11 +31,14 @@ void SceneObject::SetPosition(const Structure::Vector2<int>& _position)
 bool SceneObject::CheckPositionValidity(Structure::Vector2<int>& _position)
 {
 	// NOTE: Notice the negation
-	return !(_position.m_x < Consts::NO_VALUE || _position.m_y < Consts::NO_VALUE || _position.m_x == sp_sharedGame->m_gameAreaWidthHeight.m_x || _position.m_y == sp_sharedGame->m_gameAreaWidthHeight.m_y);
+	return !(_position.m_x < sp_sharedGame->m_gameAreaBounds.m_w  ||	// Left bound
+			 _position.m_y < sp_sharedGame->m_gameAreaBounds.m_x  || 	// Top bound
+			 _position.m_x == sp_sharedGame->m_gameAreaBounds.m_y ||  	// Right bound
+			 _position.m_y == sp_sharedGame->m_gameAreaBounds.m_z);		// Bottom bound
 }
 void SceneObject::WriteIntoFrameBufferCell(Structure::CollisionRenderInfo& _collisionRenderInfo)
 {
-	mp_bufferCell = &sp_sharedGame->mp_frameBuffer[(_collisionRenderInfo.m_position.m_y * sp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x) + _collisionRenderInfo.m_position.m_x];
+	mp_bufferCell = &sp_sharedGame->mpp_frameBuffer[_collisionRenderInfo.m_position.m_y][_collisionRenderInfo.m_position.m_x];
 
 	mp_bufferCell->mp_collisionRenderInfo[mp_bufferCell->m_objectInCellIndex] = &_collisionRenderInfo;
 	mp_bufferCell->mp_voidSceneObject[mp_bufferCell->m_objectInCellIndex++] = reinterpret_cast<void*>(this);
