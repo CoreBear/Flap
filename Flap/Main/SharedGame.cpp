@@ -2,6 +2,7 @@
 #include "SharedGame.h"
 
 #include "BufferCell.h"
+#include "Consts.h"
 #include "MenuBase.h"
 #include "Queue.h"
 #include "SceneObject.h"
@@ -94,8 +95,7 @@ SharedGame::SharedGame(const Structure::Vector2<short>& _frameBufferWidthHeight)
 		}
 	}
 
-	ResetLargestClientOffsets();
-	UpdateMyGameAreaBounds(5, 2);// 0, 0);
+	UpdateMyGameAreaBounds(FRAME_BUFFER_HEIGHT_WIDTH.m_x, FRAME_BUFFER_HEIGHT_WIDTH.m_y);
 }
 #pragma endregion
 
@@ -194,16 +194,13 @@ void SharedGame::StartGameSession(bool _isInGameSession, bool _isSinglePlayerGam
 	m_isInGameSession = _isInGameSession;
 	m_isSinglePlayerGame = _isSinglePlayerGame;
 
-	if (m_gameAreaBounds.m_x != Consts::NO_VALUE || m_gameAreaBounds.m_y != Consts::NO_VALUE)
-	{
-		m_borderIsRequired = true;
-	}
+	TryToggleBorder(true);
 }
 void SharedGame::TryToggleBorder(bool _isVisible)
 {
 	if (_isVisible)
 	{
-		if (m_gameAreaBounds.m_x != Consts::NO_VALUE || m_gameAreaBounds.m_y != Consts::NO_VALUE)
+		if (m_gameAreaBounds.m_x != FRAME_BUFFER_HEIGHT_WIDTH.m_x || m_gameAreaBounds.m_y != FRAME_BUFFER_HEIGHT_WIDTH.m_y)
 		{
 			m_borderIsRequired = true;
 			return;
@@ -223,12 +220,10 @@ void SharedGame::UpdateClientSharedGameAreaOffsets(const Structure::Vector2<shor
 		m_clientSharedGameAreaOffsets.m_y = _clientOffsets.m_y;
 	}
 }
-void SharedGame::UpdateMyGameAreaBounds(short _xOffset, short _yOffset)
+void SharedGame::UpdateMyGameAreaBounds(short _xBound, short _yBound)
 {
-	m_gameAreaBounds.m_w = _xOffset;
-	m_gameAreaBounds.m_x = _yOffset;
-	m_gameAreaBounds.m_y = FRAME_BUFFER_HEIGHT_WIDTH.m_x - _xOffset;
-	m_gameAreaBounds.m_z = FRAME_BUFFER_HEIGHT_WIDTH.m_y - _yOffset;
+	m_gameAreaBounds.m_x = _xBound;
+	m_gameAreaBounds.m_y = _yBound;
 }
 #pragma endregion
 

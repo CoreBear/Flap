@@ -66,21 +66,6 @@ namespace Structure
 		Input(const Input&) = default;
 		Input& operator=(const Input&) = default;
 	};
-	template<class Type>
-	struct Vector4
-	{
-	public:
-		// Member Variables
-		Type m_w;
-		Type m_x;
-		Type m_y;
-		Type m_z;
-
-		// Initialization
-		inline Vector4() : m_w(Consts::NO_VALUE), m_x(Consts::NO_VALUE), m_y(Consts::NO_VALUE), m_z(Consts::NO_VALUE) { return; }
-		inline Vector4(Type _w, Type _x, Type _y, Type _z) : m_w(_w), m_x(_x), m_y(_y), m_z(_z) { return; }
-		Vector4(const Vector4<Type>&) = default;
-	};
 }
 
 #endif STRUCTURE_H

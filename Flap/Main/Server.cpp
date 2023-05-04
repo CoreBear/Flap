@@ -63,7 +63,7 @@ void Server::RecvCommMessLoop()
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::GetNumber);
 			}
-			else if (CheckForJoin())
+			else if (CheckForSpecMessPipeNull(SharedNetwork::SpecialMessage::Join))
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Join);
 			}
@@ -114,13 +114,22 @@ void Server::UpdateLoop()
 #pragma region Public Functionality
 void Server::Join()
 {
-	mp_sharedGame->ResetLargestClientOffsets();
+	mp_sharedGame->m_clientSharedGameAreaOffsets.m_x = SHRT_MAX;
+	mp_sharedGame->m_clientSharedGameAreaOffsets.m_y = SHRT_MAX;
 
 	// Get the largest game area possible, that's common for all players
 	for (m_mapJoinIterator = m_mapOfClientAddrsConnTypeAndSpecMess.begin(); m_mapJoinIterator != m_mapOfClientAddrsConnTypeAndSpecMess.end(); ++m_mapJoinIterator)
 	{
-		mp_sharedGame->UpdateClientSharedGameAreaOffsets(m_mapIterator->second.m_maxFrameBufferWidthHeight);
+		mp_sharedGame->UpdateClientSharedGameAreaOffsets(m_mapJoinIterator->second.m_maxFrameBufferWidthHeight);
 	}
+
+	GenSpecMess(SharedNetwork::SpecialMessage::Setup);
+
+	SendCommMessToEveryClient_Except();
+
+	mr_sharedNetwork.m_startNetworkedGameMutex.lock();
+	mr_sharedNetwork.m_startNetworkedGame = true;
+	mr_sharedNetwork.m_startNetworkedGameMutex.unlock();
 }
 void Server::Stop()
 {
@@ -153,39 +162,6 @@ void Server::AddrAndSendCommMess(unsigned long _addressOrPort)
 #endif SAME_SYSTEM_NETWORK
 
 	SendCommMess();
-}
-bool Server::CheckForJoin()
-{
-	mp_recvBuffWalker = m_recvBuffer;
-	mp_specMessWalker = mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Join)];
-
-	while (*mp_recvBuffWalker != '|')
-	{
-		// If any character is off, this is not the SendNumber response
-		if (*mp_recvBuffWalker != *mp_specMessWalker)
-		{
-			return false;
-		}
-
-		++mp_recvBuffWalker;
-		++mp_specMessWalker;
-	}
-
-	// To get beyond the pipe character
-	++mp_recvBuffWalker;
-
-	mp_joinFrameBufferDimensionsPipeNuller = mp_recvBuffWalker;
-
-	// Move deleter down to pipe
-	while (*mp_joinFrameBufferDimensionsPipeNuller != '|')
-	{
-		++mp_joinFrameBufferDimensionsPipeNuller;
-	}
-
-	// Null pipe
-	*mp_joinFrameBufferDimensionsPipeNuller = '\0';
-
-	return true;
 }
 void Server::HandleSpecMess()
 {
@@ -225,11 +201,7 @@ void Server::HandleSpecMess()
 					m_mapIterator->second.m_joined = true;
 
 					m_mapIterator->second.m_maxFrameBufferWidthHeight.m_x = static_cast<short>(Tools::StringToInt(mp_recvBuffWalker));
-
-					mp_recvBuffWalker = mp_joinFrameBufferDimensionsPipeNuller;
-					++mp_recvBuffWalker;
-
-					m_mapIterator->second.m_maxFrameBufferWidthHeight.m_y = static_cast<short>(Tools::StringToInt(mp_recvBuffWalker));
+					m_mapIterator->second.m_maxFrameBufferWidthHeight.m_y = static_cast<short>(Tools::StringToInt(++mp_joinFrameBufferDimensionsPipeNuller));
 
 					mr_sharedNetwork.m_numOfConnClientsOnServ = static_cast<char>(++m_numberOfConnectedClients) + '0';
 

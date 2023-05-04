@@ -40,26 +40,27 @@ namespace Enums
 		Join = 18,
 		LoadGame = 19, 
 		PlayGameLocal = 20, 
-		PlayGameSingle = 21, 
-		ResumeGame = 22, 
-		Return = 23, 
-		RunAsClient = 24,
-		RunAsServer = 25,
-		SaveGame = 26, 
-		SaveHighScores = 27, 
-		ShowHighScores = 28,
-		StartNetworking = 29,
-		StopHost = 30,
-		StopNetworking = 31;
+		PlayGameMulti = 21,
+		PlayGameSingle = 22, 
+		ResumeGame = 23, 
+		Return = 24, 
+		RunAsClient = 25,
+		RunAsServer = 26,
+		SaveGame = 27, 
+		SaveHighScores = 28, 
+		ShowHighScores = 29,
+		StartNetworking = 30,
+		StopHost = 31,
+		StopNetworking = 32;
 	};
 	class GameActivity : public MenuReturn
 	{
 	public:
 		static constexpr int
-			ExitToResults = 32,
-			Game = 33,
-			Menu = 34,
-			PauseGame = 35;
+			ExitToResults = 33,
+			Game = 34,
+			Menu = 35,
+			PauseGame = 36;
 	};
 	enum class ObjectType { Avatar, Food, NoTouchy, Snake, NumberOfTypes, NA };
 	enum class SpawnState { Selected, Spawned, WaitingSelection };

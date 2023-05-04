@@ -50,10 +50,8 @@ void RenderManager::Update()
 			for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < mr_sharedGame.FRAME_BUFFER_HEIGHT_WIDTH.m_x; m_reusableIterator_2++)
 			{
 				// If border cell
-				if (m_reusableIterator_2 < mr_sharedGame.m_gameAreaBounds.m_w						||	// Left bound
-					m_reusableIterator_1 < mr_sharedGame.m_gameAreaBounds.m_x						|| 	// Top bound
-					m_reusableIterator_2 > mr_sharedGame.m_gameAreaBounds.m_y - Consts::OFF_BY_ONE	||	// Right bound
-					m_reusableIterator_1 > mr_sharedGame.m_gameAreaBounds.m_z - Consts::OFF_BY_ONE)		// Bottom bound
+				if (m_reusableIterator_1 > mr_sharedGame.m_gameAreaBounds.m_y - Consts::OFF_BY_ONE ||	// Right bound
+					m_reusableIterator_2 > mr_sharedGame.m_gameAreaBounds.m_x - Consts::OFF_BY_ONE)		// Bottom bound
 				{
 					mp_renderBuffer[m_renderBufferIndex].Attributes = Consts::BACKGROUND_COLORS[static_cast<int>(Enums::Color::White)];
 					mp_renderBuffer[m_renderBufferIndex].Char.UnicodeChar = Consts::EMPTY_SPACE_CHAR;

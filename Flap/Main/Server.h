@@ -61,7 +61,6 @@ private:
 	};
 
 	// Member Variables
-	char* mp_joinFrameBufferDimensionsPipeNuller;
 	int m_numberOfConnectedClients;
 	int m_sizeofSockAddr;
 	std::unordered_map<unsigned long, MapVal>m_mapOfClientAddrsConnTypeAndSpecMess;
@@ -72,7 +71,6 @@ private:
 
 	// Functionality
 	void AddrAndSendCommMess(unsigned long _addressOrPort);
-	bool CheckForJoin();
 	void HandleSpecMess();
 	bool RemoveClient_EmptyMap(std::unordered_map<unsigned long, MapVal>::iterator& _iterator);
 	void SendCommMessToEveryClient_Except(unsigned long _addressOrPort = ULONG_MAX);

@@ -31,10 +31,7 @@ void SceneObject::SetPosition(const Structure::Vector2<int>& _position)
 bool SceneObject::CheckPositionValidity(Structure::Vector2<int>& _position)
 {
 	// NOTE: Notice the negation
-	return !(_position.m_x < sp_sharedGame->m_gameAreaBounds.m_w  ||	// Left bound
-			 _position.m_y < sp_sharedGame->m_gameAreaBounds.m_x  || 	// Top bound
-			 _position.m_x == sp_sharedGame->m_gameAreaBounds.m_y ||  	// Right bound
-			 _position.m_y == sp_sharedGame->m_gameAreaBounds.m_z);		// Bottom bound
+	return !(_position.m_x == sp_sharedGame->m_gameAreaBounds.m_x || _position.m_y == sp_sharedGame->m_gameAreaBounds.m_y);
 }
 void SceneObject::WriteIntoFrameBufferCell(Structure::CollisionRenderInfo& _collisionRenderInfo)
 {

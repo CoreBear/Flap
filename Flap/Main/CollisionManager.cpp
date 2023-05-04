@@ -21,9 +21,9 @@ void CollisionManager::FixedUpdate()
 {
 	mr_sharedGame.m_frameBufferMutex.lock();
 
-	for (m_reusableIterator_1 = mr_sharedGame.m_gameAreaBounds.m_x; m_reusableIterator_1 < mr_sharedGame.m_gameAreaBounds.m_z; m_reusableIterator_1++)
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < mr_sharedGame.m_gameAreaBounds.m_y; m_reusableIterator_1++)
 	{
-		for (m_reusableIterator_2 = mr_sharedGame.m_gameAreaBounds.m_w; m_reusableIterator_2 < mr_sharedGame.m_gameAreaBounds.m_y; m_reusableIterator_2++)
+		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < mr_sharedGame.m_gameAreaBounds.m_x; m_reusableIterator_2++)
 		{
 			UpdateCell(mr_sharedGame.mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2]);
 		}

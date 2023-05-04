@@ -1,3 +1,6 @@
+   |108
+   |1
+   |1
 AAA|0
 BBB|0
 CCC|0
@@ -5,6 +8,3 @@ DDD|0
 EEE|0
 FFF|0
 GGG|0
-HHH|0
-III|0
-JJJ|0

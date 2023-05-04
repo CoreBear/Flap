@@ -40,6 +40,10 @@ void NetworkManager::Join()
 }
 void NetworkManager::RunHost(bool _isClient, SharedGame& _sharedGame)
 {
+	mr_sharedNetwork.m_startNetworkedGameMutex.lock();
+	mr_sharedNetwork.m_startNetworkedGame = false;
+	mr_sharedNetwork.m_startNetworkedGameMutex.unlock();
+
 	if (_isClient)
 	{
 		mp_host = new Client(_sharedGame, mr_sharedNetwork);
@@ -57,6 +61,10 @@ void NetworkManager::RunHost(bool _isClient, SharedGame& _sharedGame)
 }
 void NetworkManager::StopHost()
 {
+	mr_sharedNetwork.m_startNetworkedGameMutex.lock();
+	mr_sharedNetwork.m_startNetworkedGame = false;
+	mr_sharedNetwork.m_startNetworkedGameMutex.unlock();
+
 	mp_host->Stop();
 
 	m_updateLoopThread.join();

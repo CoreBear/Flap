@@ -65,6 +65,48 @@ void Host::Init()
 #pragma endregion
 
 #pragma region Protected Functionality
+bool Host::CheckForSpecMess(SharedNetwork::SpecialMessage _specialMessage)
+{
+	mp_recvBuffWalker = m_recvBuffer;
+	mp_specMessWalker = mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(_specialMessage)];
+
+	while (*mp_recvBuffWalker != '|')
+	{
+		// If any character is off, this is not the SendNumber response
+		if (*mp_recvBuffWalker != *mp_specMessWalker)
+		{
+			return false;
+		}
+
+		++mp_recvBuffWalker;
+		++mp_specMessWalker;
+	}
+
+	// To get beyond the pipe character
+	++mp_recvBuffWalker;
+
+	return true;
+}
+bool Host::CheckForSpecMessPipeNull(SharedNetwork::SpecialMessage _specialMessage)
+{
+	if (CheckForSpecMess(_specialMessage) == false)
+	{
+		return false;
+	}
+
+	mp_joinFrameBufferDimensionsPipeNuller = mp_recvBuffWalker;
+
+	// Move deleter down to pipe
+	while (*mp_joinFrameBufferDimensionsPipeNuller != '|')
+	{
+		++mp_joinFrameBufferDimensionsPipeNuller;
+	}
+
+	// Null pipe
+	*mp_joinFrameBufferDimensionsPipeNuller = '\0';
+
+	return true;
+}
 void Host::GenAssAndSendSpecMess(SharedNetwork::SpecialMessage _specialMessage, unsigned long _addressOrPort)
 {
 	GenSpecMess(_specialMessage);
@@ -83,22 +125,14 @@ void Host::GenAssAndSendSpecMess(SharedNetwork::SpecialMessage _specialMessage, 
 }
 void Host::GenSpecMess(SharedNetwork::SpecialMessage _specialMessage)
 {
+	strcpy(m_sendBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(_specialMessage)]);
+
 	// NOTE: This may only require an if/else or potentially most things can be dropped in a default
 	switch (_specialMessage)
 	{
-	case SharedNetwork::SpecialMessage::Disconnect:
-	case SharedNetwork::SpecialMessage::Full:
-	case SharedNetwork::SpecialMessage::GetNumber:
-	case SharedNetwork::SpecialMessage::Joined:
-	case SharedNetwork::SpecialMessage::Ping:
-		strcpy(m_sendBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(_specialMessage)]);
-		break;
-
-	// Example Message: "#Join|240|63"
+		// Example Message: "#Join|240|70"
 	case SharedNetwork::SpecialMessage::Join:
 	{
-		strcpy(m_sendBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(_specialMessage)]);
-
 		strcat(m_sendBuffer, "|");
 
 		const char* intString = Tools::IntToString(mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x);
@@ -116,11 +150,30 @@ void Host::GenSpecMess(SharedNetwork::SpecialMessage _specialMessage)
 	// Example Message: "#SendNumber|123456"
 	case SharedNetwork::SpecialMessage::SendNumber:
 	{
-		strcpy(m_sendBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::SendNumber)]);
 		strcat(m_sendBuffer, "|");
 		strcat(m_sendBuffer, static_cast<const char*>(&mr_sharedNetwork.m_numOfConnClientsOnServ));
 	}
 	break;
+
+	// Example Message: "#Border|240|70"
+	case SharedNetwork::SpecialMessage::Setup:
+	{
+		strcat(m_sendBuffer, "|");
+
+		const char* intString = Tools::IntToString(mp_sharedGame->m_clientSharedGameAreaOffsets.m_x);
+		strcat(m_sendBuffer, intString);
+		delete[] intString;
+
+		strcat(m_sendBuffer, "|");
+
+		intString = Tools::IntToString(mp_sharedGame->m_clientSharedGameAreaOffsets.m_y);
+		strcat(m_sendBuffer, intString);
+		delete[] intString;
+	}
+	break;
+
+	default:
+		break;
 	}
 }
 #pragma endregion

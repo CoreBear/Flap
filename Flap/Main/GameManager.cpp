@@ -33,6 +33,46 @@ void GameManager::Update()
 
 	switch (mr_sharedGame.m_gameActivityIndex)
 	{
+	case Enums::GameActivity::ExitToMain:
+	{
+		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+
+		GameOver();
+
+		mp_menuManager->DisplayMenu(Enums::MenuName::Main);
+
+		SetGameActivity(Enums::GameActivity::Menu);
+	}
+	break;
+	case Enums::GameActivity::ExitToResults:
+	{
+		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+
+		if (mr_sharedGame.GetSinglePlayerBool())
+		{
+			m_newHighScore = mp_fileIOManager->CheckForNewHighScore();
+
+			if (m_newHighScore)
+			{
+				mp_menuManager->DisplayMenu(Enums::MenuName::NewHighScore);
+			}
+			else
+			{
+				mp_menuManager->DisplayMenu(Enums::MenuName::HighScore);
+			}
+		}
+		else
+		{
+			mp_menuManager->DisplayMenu(Enums::MenuName::ResultsMulti);
+		}
+
+		GameOver();
+
+		SetGameActivity(Enums::GameActivity::Menu);
+
+		SetInputType(Enums::InputType::MenuCharInput);
+	}
+	break;
 	case Enums::GameActivity::Game:
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
@@ -87,46 +127,6 @@ void GameManager::Update()
 		mp_gameRunManager->Update();
 
 		mp_gameRunManager->LastUpdate();
-	}
-	break;
-	case Enums::GameActivity::ExitToMain:
-	{
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
-
-		GameOver();
-
-		mp_menuManager->DisplayMenu(Enums::MenuName::Main);
-
-		SetGameActivity(Enums::GameActivity::Menu);
-	}
-	break;
-	case Enums::GameActivity::ExitToResults:
-	{
-		mr_sharedGame.m_gameActivityIndexMutex.unlock();
-
-		if (mr_sharedGame.GetSinglePlayerBool())
-		{
-			m_newHighScore = mp_fileIOManager->CheckForNewHighScore();
-
-			if (m_newHighScore)
-			{
-				mp_menuManager->DisplayMenu(Enums::MenuName::NewHighScore);
-			}
-			else
-			{
-				mp_menuManager->DisplayMenu(Enums::MenuName::HighScore);
-			}
-		}
-		else
-		{
-			mp_menuManager->DisplayMenu(Enums::MenuName::ResultsMulti);
-		}
-
-		GameOver();
-
-		SetGameActivity(Enums::GameActivity::Menu);
-
-		SetInputType(Enums::InputType::MenuCharInput);
 	}
 	break;
 	case Enums::GameActivity::HighScoreToMain:
@@ -216,6 +216,18 @@ void GameManager::Update()
 					mp_sharedNetwork->m_serverDisconnectedMutex.unlock();
 				}
 
+				mp_sharedNetwork->m_startNetworkedGameMutex.lock();
+				if (mp_sharedNetwork->m_startNetworkedGame == true)
+				{
+					mp_sharedNetwork->m_startNetworkedGameMutex.unlock();
+
+					SetGameActivity(Enums::GameActivity::PlayGameMulti);
+				}
+				else
+				{
+					mp_sharedNetwork->m_startNetworkedGameMutex.unlock();
+				}
+
 				mp_menuManager->FixedUpdate();
 			}
 		}
@@ -237,6 +249,17 @@ void GameManager::Update()
 	}
 	break;
 	case Enums::GameActivity::PlayGameLocal:
+	{
+		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+
+		mr_sharedGame.StartGameSession(true, false);
+
+		mp_gameRunManager->StartGame(true);
+
+		SetGameActivity(Enums::GameActivity::Game);
+	}
+	break;
+	case Enums::GameActivity::PlayGameMulti:
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 

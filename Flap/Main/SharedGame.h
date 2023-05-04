@@ -36,8 +36,9 @@ public:
 	Queue<int>* mp_availableSpawnPositions;
 	std::random_device m_random;
 	unsigned short m_largestSnakeColor;
+	Structure::Vector2<short> m_clientSharedGameAreaOffsets;
+	Structure::Vector2<short> m_gameAreaBounds;
 	const Structure::Vector2<short> FRAME_BUFFER_HEIGHT_WIDTH;
-	Structure::Vector4<short> m_gameAreaBounds;
 
 	// Initialization
 	SharedGame(const Structure::Vector2<short>& _frameBufferWidthHeight);
@@ -58,7 +59,6 @@ public:
 	inline void IncrementNumberOfSnakesInGame() { ++m_numberOfSnakesInGame; }
 	void RemoveAvailableSpawnIndex(int _x, int _y);
 	void ResetAvailableSpawnIndices();
-	inline void ResetLargestClientOffsets() { m_clientSharedGameAreaOffsets.m_x = m_clientSharedGameAreaOffsets.m_y = SHRT_MAX; }
 	void ResetFrameBuffer();
 	void ResetFrameBufferSynced();
 	inline void SetSinglePlayerBool(bool _isSinglePlayerGame) { m_isSinglePlayerGame = _isSinglePlayerGame; }
@@ -88,7 +88,6 @@ private:
 	int* mp_arrayOfColumnIndices;
 	Structure::Vector2<int> m_randomPosition;
 	Structure::Vector2<int>* mp_snakeStartPositions[Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME];
-	Structure::Vector2<short> m_clientSharedGameAreaOffsets;
 };
 
 #endif SHARED_GAME_H

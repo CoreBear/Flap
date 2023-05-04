@@ -39,7 +39,6 @@ private:
 	ClientStateMachine** m_allClientStates;
 
 	// Functionality
-	bool CheckForSendNumber();
 	void ForcedDisconnect();
 };
 

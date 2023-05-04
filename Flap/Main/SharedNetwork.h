@@ -9,18 +9,19 @@ public:
 	// Static Variables
 	// NOTE: Non-actionable states will be handled by ServerSearchMenu.h
 	enum class ClientState { AttemptToJoinServ, JoinedServ, NotJoined, NumberOfActionableStates, CouldNotConnect = NumberOfActionableStates, FullServ, InvalidAddr, ServDisc, NumberOfTotalStates };
-	enum class SpecialMessage { Disconnect, Full, GetNumber, Join, Joined, Ping, SendNumber, NumberOfSpecialMessages};
+	enum class SpecialMessage { Disconnect, Full, GetNumber, Join, Joined, Ping, SendNumber, Setup, NumberOfSpecialMessages};
 
 	// Member Variables
 	const char* const SPECIAL_MESSAGES[static_cast<int>(SpecialMessage::NumberOfSpecialMessages)] =
 	{
-		"#Disconnect",
+		"#Disc",
 		"#Full",
-		"#GetNumber",
+		"#GetN",
 		"#Join",
 		"#Joined",
 		"#Ping",
-		"#SendNumber"
+		"#SendN",
+		"#Setup"
 	};
 
 public:
@@ -30,6 +31,7 @@ public:
 	// Member Variables
 	bool m_serverIPIsEmpty;
 	bool m_serverDisconnected;
+	bool m_startNetworkedGame;
 	bool m_waitForMenuUpdate;
 	char m_numOfConnClientsOnServ;
 	char m_mayIPAddress[IP_ADDR_CHAR_LENGTH + 1];
@@ -41,11 +43,13 @@ public:
 	std::mutex m_numOfConnClientsOnServMutex;
 	std::mutex m_serverDisconnectedMutex;
 	std::mutex m_serverIPAddressMutex;
+	std::mutex m_startNetworkedGameMutex;
 
 	// Initialization
 	inline SharedNetwork() :
 		m_serverIPIsEmpty(true),
 		m_serverDisconnected(false),
+		m_startNetworkedGame(false),
 		m_waitForMenuUpdate(false),
 		m_numOfConnClientsOnServ('0'),
 		m_currentClientState(ClientState::NotJoined),

@@ -81,12 +81,23 @@ void Client::RecvCommMessLoop()
 		// Server response
 		if (m_recvBuffer[0] == '#')
 		{
-			if (CheckForSendNumber())
+			if (CheckForSpecMess(SharedNetwork::SpecialMessage::SendNumber))
 			{
 				// Store value in shared space
 				mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
 				mr_sharedNetwork.m_numOfConnClientsOnServ = *mp_recvBuffWalker;
 				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
+			}
+			else if (CheckForSpecMessPipeNull(SharedNetwork::SpecialMessage::Setup))
+			{
+				short gameAreaBoundsXOffset = static_cast<short>(Tools::StringToInt(mp_recvBuffWalker));
+				short gameAreaBoundsYOffset = static_cast<short>(Tools::StringToInt(++mp_joinFrameBufferDimensionsPipeNuller));
+
+				mp_sharedGame->UpdateMyGameAreaBounds(gameAreaBoundsXOffset, gameAreaBoundsYOffset);
+
+				mr_sharedNetwork.m_startNetworkedGameMutex.lock();
+				mr_sharedNetwork.m_startNetworkedGame = true;
+				mr_sharedNetwork.m_startNetworkedGameMutex.unlock();
 			}
 			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == Consts::NO_VALUE)
 			{
@@ -213,28 +224,6 @@ void Client::SendCommMess()
 #pragma endregion
 
 #pragma region Private Functionality
-bool Client::CheckForSendNumber()
-{
-	mp_recvBuffWalker = m_recvBuffer;
-	mp_specMessWalker = mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::SendNumber)];
-
-	while (*mp_recvBuffWalker != '|')
-	{
-		// If any character is off, this is not the SendNumber response
-		if (*mp_recvBuffWalker != *mp_specMessWalker)
-		{
-			return false;
-		}
-
-		++mp_recvBuffWalker;
-		++mp_specMessWalker;
-	}
-
-	// To get beyond the pipe character
-	++mp_recvBuffWalker;
-
-	return true;
-}
 void Client::ForcedDisconnect()
 {
 	// Stop host update

@@ -37,6 +37,7 @@ protected:
 	bool m_isRunning;
 	char m_recvBuffer[UCHAR_MAX];
 	char m_sendBuffer[UCHAR_MAX];
+	char* mp_joinFrameBufferDimensionsPipeNuller;
 	char* mp_recvBuffWalker;
 	const char* mp_specMessWalker;
 	int m_winsockErrno;
@@ -63,6 +64,8 @@ protected:
 #ifdef SAME_SYSTEM_NETWORK
 	virtual void AssignPort() = 0;
 #endif SAME_SYSTEM_NETWORK
+	bool CheckForSpecMess(SharedNetwork::SpecialMessage _specialMessage);
+	bool CheckForSpecMessPipeNull(SharedNetwork::SpecialMessage _specialMessage);
 	void GenAssAndSendSpecMess(SharedNetwork::SpecialMessage _specialMessage, unsigned long _addressOrPort = ULONG_MAX);
 	void GenSpecMess(SharedNetwork::SpecialMessage _specialMessage);
 	virtual void SendCommMess() = 0;
