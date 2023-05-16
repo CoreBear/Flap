@@ -110,6 +110,25 @@ void SharedGame::EndGameSession()
 	m_isInGameSession = false;
 	m_isSinglePlayerGame = false;
 }
+int SharedGame::GetPlayerSnakeColorIndex(int _playerIndex) 
+{
+	if (_playerIndex < 2)
+	{
+		return (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex : m_playerTwoSnakeColorIndex;
+	}
+	else
+	{
+		int randVal = 0;
+
+		// Do until random color index that's not one of the two player colors
+		do
+		{
+			randVal = m_random() % static_cast<int>(Enums::Color::NumberOfColors);
+		} while (randVal != m_playerOneSnakeColorIndex && randVal != m_playerTwoSnakeColorIndex);
+
+		return randVal;
+	}
+}
 const Structure::Vector2<int>& SharedGame::GetRandomSpawnPositionRef()
 {
 	// Select a row with available columns

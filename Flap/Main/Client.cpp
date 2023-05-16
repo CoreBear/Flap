@@ -24,8 +24,14 @@ Client::Client(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
 		case SharedNetwork::ClientState::AttemptToJoinServ:
 			m_allClientStates[stateIndex] = new AttemptingToJoinServer(*this, _sharedNetwork);
 			break;
-		case SharedNetwork::ClientState::JoinedServ:
-			m_allClientStates[stateIndex] = new JoinedServer(*this, _sharedNetwork);
+		case SharedNetwork::ClientState::JoinedServ_InGame:
+			m_allClientStates[stateIndex] = new JoinedServer_InGame(*this, _sharedNetwork);
+			break;
+		case SharedNetwork::ClientState::JoinedServ_InLobby:
+			m_allClientStates[stateIndex] = new JoinedServer_InLobby(*this, _sharedNetwork);
+			break;
+		case SharedNetwork::ClientState::JoinedServ_PreGame:
+			m_allClientStates[stateIndex] = new JoinedServer_PreGame(*this, _sharedNetwork);
 			break;
 		case SharedNetwork::ClientState::NotJoined:
 			m_currentClientState = m_allClientStates[stateIndex] = new NotJoined(*this, _sharedNetwork);
@@ -33,11 +39,8 @@ Client::Client(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
 		}
 	}
 
-	mr_sharedNetwork.m_nextClientStateMutex.lock();
-	mr_sharedNetwork.m_waitForMenuUpdate = true;
 	mr_sharedNetwork.m_currentClientState = SharedNetwork::ClientState::NotJoined;	// Arbitrary state, as long as it's not NotJoined
-	mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::NotJoined;
-	mr_sharedNetwork.m_nextClientStateMutex.unlock();
+	SetNextState(SharedNetwork::ClientState::NotJoined);
 }
 #pragma endregion
 
@@ -83,21 +86,12 @@ void Client::RecvCommMessLoop()
 		{
 			if (CheckForSpecMess(SharedNetwork::SpecialMessage::SendNumber))
 			{
+				NextBufferString(false);
+
 				// Store value in shared space
-				mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
-				mr_sharedNetwork.m_numOfConnClientsOnServ = *mp_recvBuffWalker;
-				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
-			}
-			else if (CheckForSpecMessPipeNull(SharedNetwork::SpecialMessage::Setup))
-			{
-				short gameAreaBoundsXOffset = static_cast<short>(Tools::StringToInt(mp_recvBuffWalker));
-				short gameAreaBoundsYOffset = static_cast<short>(Tools::StringToInt(++mp_joinFrameBufferDimensionsPipeNuller));
-
-				mp_sharedGame->UpdateMyGameAreaBounds(gameAreaBoundsXOffset, gameAreaBoundsYOffset);
-
-				mr_sharedNetwork.m_startNetworkedGameMutex.lock();
-				mr_sharedNetwork.m_startNetworkedGame = true;
-				mr_sharedNetwork.m_startNetworkedGameMutex.unlock();
+				mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.lock();
+				mr_sharedNetwork.m_numOfConnClientsOnServChar = *mp_recvBuffWalkerTrailing;
+				mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.unlock();
 			}
 			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == Consts::NO_VALUE)
 			{
@@ -105,24 +99,43 @@ void Client::RecvCommMessLoop()
 			}
 			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Full)]) == Consts::NO_VALUE)
 			{
-				mr_sharedNetwork.m_nextClientStateMutex.lock();
-				mr_sharedNetwork.m_waitForMenuUpdate = true;
-				mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::FullServ;
-				mr_sharedNetwork.m_nextClientStateMutex.unlock();
+				SetNextState(SharedNetwork::ClientState::FullServ);
 			}
 			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Joined)]) == Consts::NO_VALUE)
 			{
 				// Set server's address to send to
 				m_commSockAddrIn.sin_addr.S_un.S_addr = inet_addr(mr_sharedNetwork.m_serverIPAddress);		
 
-				mr_sharedNetwork.m_nextClientStateMutex.lock();
-				mr_sharedNetwork.m_waitForMenuUpdate = true;
-				mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::JoinedServ;
-				mr_sharedNetwork.m_nextClientStateMutex.unlock();
+				SetNextState(SharedNetwork::ClientState::JoinedServ_InLobby);
+			}
+
+			/// <summary>
+			/// This needs to be all of the setup...Boarder should be all the setup stuff...Don't return client ready until the client has spawned everything it needs
+			/// </summary>
+			else if (CheckForSpecMess(SharedNetwork::SpecialMessage::Setup))
+			{
+				NextBufferString(false);
+				short gameAreaBoundsXOffset = static_cast<short>(Tools::StringToInt(mp_recvBuffWalkerTrailing));
+				
+				NextBufferString(false);
+				short gameAreaBoundsYOffset = static_cast<short>(Tools::StringToInt(mp_recvBuffWalkerTrailing));
+
+				mp_sharedGame->UpdateMyGameAreaBounds(gameAreaBoundsXOffset, gameAreaBoundsYOffset);
+
+				NextBufferString(false);
+				mp_sharedGame->m_networkPlayerIndex = static_cast<short>(Tools::StringToInt(mp_recvBuffWalkerTrailing));
+
+				mr_sharedNetwork.m_startNetworkedGameMutex.lock();
+				mr_sharedNetwork.m_startNetworkedGame = true;
+				mr_sharedNetwork.m_startNetworkedGameMutex.unlock();
+
+				SetNextState(SharedNetwork::ClientState::JoinedServ_PreGame);
+
+				GenAssAndSendSpecMess(SharedNetwork::SpecialMessage::ClientReady);
 			}
 		}
 
-		// Other
+		// Gameboard
 		else
 		{
 
@@ -172,6 +185,15 @@ void Client::UpdateLoop()
 		// If client state did not change
 		else
 		{
+			switch (mr_sharedNetwork.m_nextClientState)
+			{
+			case SharedNetwork::ClientState::CouldNotConnect:
+			case SharedNetwork::ClientState::ServDisc:
+			{
+				mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::NotJoined;
+			}
+			break;
+			}
 			mr_sharedNetwork.m_nextClientStateMutex.unlock();
 		}
 	}
@@ -226,28 +248,27 @@ void Client::SendCommMess()
 #pragma region Private Functionality
 void Client::ForcedDisconnect()
 {
-	// Stop host update
-	m_isRunning = false;
-
-	// Notify the user that the server disconnected
-
-	mr_sharedNetwork.m_nextClientStateMutex.lock();
-	mr_sharedNetwork.m_waitForMenuUpdate = true;
-	mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::ServDisc;
-	mr_sharedNetwork.m_nextClientStateMutex.unlock();
+	SetNextState(SharedNetwork::ClientState::ServDisc);
 
 	mr_sharedNetwork.m_serverDisconnectedMutex.lock();
 	mr_sharedNetwork.m_serverDisconnected = true;
 	mr_sharedNetwork.m_serverDisconnectedMutex.unlock();
+}
+void Client::SetNextState(SharedNetwork::ClientState _nextClientState)
+{
+	mr_sharedNetwork.m_nextClientStateMutex.lock();
+	mr_sharedNetwork.m_waitForMenuUpdate = true;
+	mr_sharedNetwork.m_nextClientState = _nextClientState;
+	mr_sharedNetwork.m_nextClientStateMutex.unlock();
 }
 #pragma endregion
 
 #pragma region Destruction
 Client::~Client()
 {
-	mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
-	mr_sharedNetwork.m_numOfConnClientsOnServ = '0';
-	mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
+	mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.lock();
+	mr_sharedNetwork.m_numOfConnClientsOnServChar = '0';
+	mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.unlock();
 
 	for (int stateIndex = Consts::NO_VALUE; stateIndex < static_cast<int>(SharedNetwork::ClientState::NumberOfActionableStates); stateIndex++)
 	{

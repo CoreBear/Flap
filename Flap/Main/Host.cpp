@@ -1,6 +1,7 @@
 #pragma region Includes
 #include "Host.h"
 
+#include "Consts.h"
 #include "SharedGame.h"
 #include "Tools.h"
 #pragma endregion
@@ -65,47 +66,23 @@ void Host::Init()
 #pragma endregion
 
 #pragma region Protected Functionality
+void Host::AddNumFieldToNetString(int _number)
+{
+	const char* const PIPE_CHAR = "|";
+
+	// Add new pipe
+	strcat(m_sendBuffer, PIPE_CHAR);
+
+	const char* intString = Tools::IntToString(_number);
+	strcat(m_sendBuffer, intString);
+	delete[] intString;
+}
 bool Host::CheckForSpecMess(SharedNetwork::SpecialMessage _specialMessage)
 {
-	mp_recvBuffWalker = m_recvBuffer;
-	mp_specMessWalker = mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(_specialMessage)];
+	NextBufferString(true);
 
-	while (*mp_recvBuffWalker != '|')
-	{
-		// If any character is off, this is not the SendNumber response
-		if (*mp_recvBuffWalker != *mp_specMessWalker)
-		{
-			return false;
-		}
-
-		++mp_recvBuffWalker;
-		++mp_specMessWalker;
-	}
-
-	// To get beyond the pipe character
-	++mp_recvBuffWalker;
-
-	return true;
-}
-bool Host::CheckForSpecMessPipeNull(SharedNetwork::SpecialMessage _specialMessage)
-{
-	if (CheckForSpecMess(_specialMessage) == false)
-	{
-		return false;
-	}
-
-	mp_joinFrameBufferDimensionsPipeNuller = mp_recvBuffWalker;
-
-	// Move deleter down to pipe
-	while (*mp_joinFrameBufferDimensionsPipeNuller != '|')
-	{
-		++mp_joinFrameBufferDimensionsPipeNuller;
-	}
-
-	// Null pipe
-	*mp_joinFrameBufferDimensionsPipeNuller = '\0';
-
-	return true;
+	// Return if special message or not
+	return (strcmp(mp_recvBuffWalkerTrailing, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(_specialMessage)]) == Consts::NO_VALUE);
 }
 void Host::GenAssAndSendSpecMess(SharedNetwork::SpecialMessage _specialMessage, unsigned long _addressOrPort)
 {
@@ -125,56 +102,64 @@ void Host::GenAssAndSendSpecMess(SharedNetwork::SpecialMessage _specialMessage, 
 }
 void Host::GenSpecMess(SharedNetwork::SpecialMessage _specialMessage)
 {
+	// "WhateverTheSpecMess" - Add special
 	strcpy(m_sendBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(_specialMessage)]);
 
 	// NOTE: This may only require an if/else or potentially most things can be dropped in a default
 	switch (_specialMessage)
 	{
-		// Example Message: "#Join|240|70"
+		// This client's playable screen dimensions (width|height)
 	case SharedNetwork::SpecialMessage::Join:
 	{
-		strcat(m_sendBuffer, "|");
+		// Example: "Join|240" - Add pipe and game area width
+		AddNumFieldToNetString(mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x);
 
-		const char* intString = Tools::IntToString(mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x);
-		strcat(m_sendBuffer, intString);
-		delete[] intString;
-
-		strcat(m_sendBuffer, "|");
-
-		intString = Tools::IntToString(mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_y);
-		strcat(m_sendBuffer, intString);
-		delete[] intString;
+		// Example: "Join|240|70" - Add pipe and game area height
+		AddNumFieldToNetString(mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_y);
 	}
 	break;
 
+	// Number of clients connected
 	// Example Message: "#SendNumber|123456"
 	case SharedNetwork::SpecialMessage::SendNumber:
 	{
 		strcat(m_sendBuffer, "|");
-		strcat(m_sendBuffer, static_cast<const char*>(&mr_sharedNetwork.m_numOfConnClientsOnServ));
-	}
-	break;
-
-	// Example Message: "#Border|240|70"
-	case SharedNetwork::SpecialMessage::Setup:
-	{
-		strcat(m_sendBuffer, "|");
-
-		const char* intString = Tools::IntToString(mp_sharedGame->m_clientSharedGameAreaOffsets.m_x);
-		strcat(m_sendBuffer, intString);
-		delete[] intString;
-
-		strcat(m_sendBuffer, "|");
-
-		intString = Tools::IntToString(mp_sharedGame->m_clientSharedGameAreaOffsets.m_y);
-		strcat(m_sendBuffer, intString);
-		delete[] intString;
+		strcat(m_sendBuffer, static_cast<const char*>(&mr_sharedNetwork.m_numOfConnClientsOnServChar));
 	}
 	break;
 
 	default:
 		break;
 	}
+}
+void Host::NextBufferString(bool _firstString)
+{
+	if (_firstString)
+	{
+		mp_recvBuffWalkerLeading = m_recvBuffer;
+		mp_recvBuffWalkerTrailing = m_recvBuffer;
+	}
+	else
+	{
+		mp_recvBuffWalkerTrailing = ++mp_recvBuffWalkerLeading;
+	}
+
+	// Move to next pipe
+	while (*mp_recvBuffWalkerLeading != '|')
+	{
+		// If end of string, stop
+		if (*mp_recvBuffWalkerLeading == '\0')
+		{
+			return;
+		}
+
+		++mp_recvBuffWalkerLeading;
+	}
+
+	// Null pipe
+	*mp_recvBuffWalkerLeading = '\0';
+
+	return;
 }
 #pragma endregion
 

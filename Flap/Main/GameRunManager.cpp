@@ -1,18 +1,18 @@
 #pragma region Includes
 #include "GameRunManager.h"
 
-#include "CollisionManager.h"
 #include "ObjectManager.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
+#include "SharedNetwork.h"
 #include "SpawnManager.h"
 #pragma endregion
 
 #pragma region Initialization
-GameRunManager::GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput) :
-	mp_collisionManager(new CollisionManager(_sharedGame)),
+GameRunManager::GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedNetwork& _sharedNetwork) :
 	mp_objectManager(new ObjectManager(_sharedGame, _sharedInput)),
 	mr_sharedGame(_sharedGame),
+	mr_sharedNetwork(_sharedNetwork),
 	mp_spawnManager(new SpawnManager(*mp_objectManager, _sharedGame))
 {
 	return;
@@ -23,8 +23,6 @@ GameRunManager::GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInpu
 void GameRunManager::FixedUpdate()
 {
 	mp_objectManager->FixedUpdate();
-
-	mp_collisionManager->FixedUpdate();
 
 	mp_spawnManager->FixedUpdate();
 }
@@ -55,29 +53,47 @@ void GameRunManager::ResumeGame()
 }
 void GameRunManager::StartGame(bool _newGame)
 {
+	mr_sharedGame.ResetAvailableSpawnIndices();
+
 	switch (mr_sharedGame.m_gameActivityIndex)
 	{
+	// NOTE: Only server will come in here
+	case Enums::GameActivity::PlayGameMulti:
+	{
+		// Add 1, because this server is also a player
+		mr_sharedGame.AssignNumberOfSnakesInGame(mr_sharedNetwork.m_numOfConnClientsOnServInt + Consts::OFF_BY_ONE);
+
+		mp_spawnManager->Start(false);
+	}
+	break;
+
 	case Enums::GameActivity::PlayGameLocal:
 		mr_sharedGame.IncrementNumberOfSnakesInGame();
 
-		// NOTE: Notice the fallthrough
+		// NOTE: Notice the fallthrough!
 	case Enums::GameActivity::PlayGameSingle:
+	{
 		mr_sharedGame.IncrementNumberOfSnakesInGame();
-		break;
+
+		if (_newGame)
+		{
+			mp_spawnManager->Start(true);
+		}
+
+		// Loading game
+		else
+		{
+			mp_objectManager->Start(true);
+		}
 	}
-
-	mp_objectManager->Start(_newGame);
-
-	mr_sharedGame.ResetAvailableSpawnIndices();
-
-	mp_spawnManager->Start(_newGame);
+	break;
+	}
 }
 #pragma endregion
 
 #pragma region Destruction
 GameRunManager::~GameRunManager()
 {
-	delete mp_collisionManager;
 	delete mp_objectManager;
 	delete mp_spawnManager;
 }

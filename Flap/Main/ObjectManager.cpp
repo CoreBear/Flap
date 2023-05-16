@@ -163,12 +163,15 @@ void ObjectManager::SpawnObject(Enums::ObjectType _objectType, const Structure::
 		}
 	}
 }
-void ObjectManager::Start(bool _newGame)
+void ObjectManager::Start(bool _isLocal)
 {
-	if (_newGame)
+	// Loading game
+	if (_isLocal)
 	{
 
 	}
+
+	// Client
 	else
 	{
 

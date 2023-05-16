@@ -1,20 +1,21 @@
+
 #ifndef GAME_RUN_MANAGER_H
 #define GAME_RUN_MANAGER_H
 
 #include "Consts.h"
 #include "Enums.h"
 
-class CollisionManager;
 class ObjectManager;
 class SharedGame;
 class SharedInput;
+class SharedNetwork;
 class SpawnManager;
 
 class GameRunManager final
 {
 public:
 	// Initialization
-	GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput);
+	GameRunManager(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedNetwork& _sharedNetwork);
 	GameRunManager(const GameRunManager&) = delete;
 	GameRunManager& operator=(const GameRunManager&) = delete;
 
@@ -34,9 +35,9 @@ public:
 
 private:
 	// Member Variables
-	CollisionManager* const mp_collisionManager;
 	ObjectManager* const mp_objectManager;
 	SharedGame& mr_sharedGame;
+	SharedNetwork& mr_sharedNetwork;
 	SpawnManager* const mp_spawnManager;
 };
 

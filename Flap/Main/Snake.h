@@ -18,7 +18,13 @@ public:
 
 	// Initialization
 	virtual void Initialize(const Structure::Generic* const _genericContainer) override;
-	Snake();
+	inline Snake() :
+		m_currentDirection(Enums::InputName::NA),
+		m_newDirection(Enums::InputName::NA),
+		m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
+	{
+		return;
+	}
 	Snake(const Snake&) = delete;
 	Snake& operator=(const Snake&) = delete;
 
@@ -45,7 +51,6 @@ protected:
 
 private:
 	// Static Variables
-	static constexpr char INVALID_PLAYER = '?';
 	static int s_snakeStartingSpeed;
 
 	// Member Variables

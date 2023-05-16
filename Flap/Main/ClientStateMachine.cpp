@@ -22,7 +22,7 @@ void AttemptingToJoinServer::Update()
 
 		// If client connected to server, return
 		mr_sharedNetwork.m_nextClientStateMutex.lock();
-		if (mr_sharedNetwork.m_nextClientState == SharedNetwork::ClientState::JoinedServ)
+		if (mr_sharedNetwork.m_nextClientState == SharedNetwork::ClientState::JoinedServ_InLobby)
 		{
 			mr_sharedNetwork.m_nextClientStateMutex.unlock();
 			return;

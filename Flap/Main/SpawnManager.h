@@ -19,7 +19,7 @@ public:
 	void FixedUpdate();
 
 	// Functionality
-	void Start(bool _newGame);
+	void Start(bool _isLocal);
 
 private:
 	// Member Variables

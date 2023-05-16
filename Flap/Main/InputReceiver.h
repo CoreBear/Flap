@@ -4,9 +4,6 @@
 #include "Enums.h"
 #include "Structure.h"
 
-#include <mutex>
-#include <queue>
-
 class SharedInput;
 
 class InputReceiver

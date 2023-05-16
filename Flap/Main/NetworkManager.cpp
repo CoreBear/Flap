@@ -47,10 +47,14 @@ void NetworkManager::RunHost(bool _isClient, SharedGame& _sharedGame)
 	if (_isClient)
 	{
 		mp_host = new Client(_sharedGame, mr_sharedNetwork);
+
+		mr_sharedNetwork.m_hostType = Enums::HostType::Client;
 	}
 	else
 	{
 		mp_host = new Server(_sharedGame, mr_sharedNetwork);
+
+		mr_sharedNetwork.m_hostType = Enums::HostType::Server;
 	}
 
 	mp_host->Init();
@@ -71,6 +75,8 @@ void NetworkManager::StopHost()
 
 	delete mp_host;
 	mp_host = nullptr;
+
+	mr_sharedNetwork.m_hostType = Enums::HostType::NA;
 }
 #pragma endregion
 
@@ -79,7 +85,7 @@ void NetworkManager::GenerateIPAddress()
 {
 #ifdef TEST_ON_LOOP_BACK
 	strcpy(mr_sharedNetwork.m_mayIPAddress, mr_sharedNetwork.LOOP_BACK_ADDR);
-#else !TEST_ON_LOOP_BACK
+#else // !TEST_ON_LOOP_BACK
 	// Get the actual name of this system
 	char hostName[100];
 	if (gethostname(hostName, sizeof(hostName)) == SOCKET_ERROR)

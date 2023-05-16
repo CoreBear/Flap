@@ -6,6 +6,7 @@ namespace Enums
 	enum class Color { Black, Blue, Green, LightBlue, Magenta, Red, White, Yellow, NumberOfColors };
 	enum class CellState { Collision, Empty, Food, Snake };
 	enum class CollisionType { HeadToBody, HeadToFruit, HeadToHead };
+	enum class HostType { Client, NA, Server };
 	enum class InputName { Accept, Down, Left, Pause, Right, Up, NumberOfNames, NA };
 	enum class InputPressState { Click, Dead, Held, PressedThisFrame, Released };
 	enum class InputType { MenuCharInput, Normal, ToNorm };
@@ -58,9 +59,10 @@ namespace Enums
 	public:
 		static constexpr int
 			ExitToResults = 33,
-			Game = 34,
-			Menu = 35,
-			PauseGame = 36;
+			GameLocalOrServer = 34,
+			GameMultiClient = 35,
+			Menu = 36,
+			PauseGame = 37;
 	};
 	enum class ObjectType { Avatar, Food, NoTouchy, Snake, NumberOfTypes, NA };
 	enum class SpawnState { Selected, Spawned, WaitingSelection };

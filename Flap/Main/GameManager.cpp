@@ -1,10 +1,12 @@
 #pragma region Includes
 #include "GameManager.h"
 
+#include "CollisionManager.h"
 #include "Consts.h"
 #include "FileIOManager.h"
 #include "GameRunManager.h"
 #include "MenuManager.h"
+#include "NetworkInputUpdater.h"
 #include "NetworkManager.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
@@ -15,10 +17,12 @@
 unsigned int GameManager::s_masterFixedFrameCount = Consts::NO_VALUE;
 
 GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedGame, SharedInput& _sharedInput) :
+	mp_collisionManager(new CollisionManager(_sharedGame)),
 	mp_fileIOManager(new FileIOManager(_sharedGame)),
-	mp_gameRunManager(new GameRunManager(_sharedGame, _sharedInput)),
 	mp_sharedNetwork(new SharedNetwork),
+	mp_gameRunManager(new GameRunManager(_sharedGame, _sharedInput, *mp_sharedNetwork)),
 	mp_menuManager(new MenuManager(_sharedGame, *mp_sharedNetwork)),
+	mp_networkInputUpdater(new NetworkInputUpdater(_sharedInput)),
 	mr_sharedGame(_sharedGame),
 	mr_sharedInput(_sharedInput)
 {
@@ -73,7 +77,7 @@ void GameManager::Update()
 		SetInputType(Enums::InputType::MenuCharInput);
 	}
 	break;
-	case Enums::GameActivity::Game:
+	case Enums::GameActivity::GameLocalOrServer:
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
@@ -92,6 +96,8 @@ void GameManager::Update()
 				++s_masterFixedFrameCount;
 
 				mp_gameRunManager->FixedUpdate();
+
+				mp_collisionManager->FixedUpdate();
 			}
 		}
 
@@ -121,12 +127,35 @@ void GameManager::Update()
 				}
 
 				mp_gameRunManager->FixedUpdate();
+
+				mp_collisionManager->FixedUpdate();
 			}
 		}
 
 		mp_gameRunManager->Update();
 
 		mp_gameRunManager->LastUpdate();
+	}
+	break;
+	case Enums::GameActivity::GameMultiClient:
+	{
+		mr_sharedGame.m_gameActivityIndexMutex.unlock();
+
+		m_currentTime = std::chrono::high_resolution_clock::now();
+
+		// Fixed Update
+		if (std::chrono::duration_cast<std::chrono::microseconds>(m_currentTime - m_lastTime).count() >= Consts::FIXED_DELTA_TIME_LL)
+		{
+			// Update for next iteration
+			m_lastTime = m_currentTime;
+
+			// Update counter
+			++s_masterFixedFrameCount;
+
+			//UpdateGameWithReceivedInfo();
+		}
+
+		mp_networkInputUpdater->Update();
 	}
 	break;
 	case Enums::GameActivity::HighScoreToMain:
@@ -166,7 +195,7 @@ void GameManager::Update()
 
 		mp_gameRunManager->StartGame(false);
 
-		SetGameActivity(Enums::GameActivity::Game);
+		SetGameActivity(Enums::GameActivity::GameLocalOrServer);
 	}
 	break;
 	case Enums::GameActivity::Menu:
@@ -256,7 +285,7 @@ void GameManager::Update()
 
 		mp_gameRunManager->StartGame(true);
 
-		SetGameActivity(Enums::GameActivity::Game);
+		SetGameActivity(Enums::GameActivity::GameLocalOrServer);
 	}
 	break;
 	case Enums::GameActivity::PlayGameMulti:
@@ -265,9 +294,16 @@ void GameManager::Update()
 
 		mr_sharedGame.StartGameSession(true, false);
 
-		mp_gameRunManager->StartGame(true);
+		if (mp_sharedNetwork->m_hostType == Enums::HostType::Client)
+		{
+			SetGameActivity(Enums::GameActivity::GameMultiClient);
+		}
+		else
+		{
+			mp_gameRunManager->StartGame(true);
 
-		SetGameActivity(Enums::GameActivity::Game);
+			SetGameActivity(Enums::GameActivity::GameLocalOrServer);
+		}
 	}
 	break;
 	case Enums::GameActivity::PlayGameSingle:
@@ -278,7 +314,7 @@ void GameManager::Update()
 
 		mp_gameRunManager->StartGame(true);
 
-		SetGameActivity(Enums::GameActivity::Game);
+		SetGameActivity(Enums::GameActivity::GameLocalOrServer);
 	}
 	break;
 	case Enums::GameActivity::ResumeGame:
@@ -289,7 +325,7 @@ void GameManager::Update()
 
 		mr_sharedGame.TryToggleBorder(true);
 
-		SetGameActivity(Enums::GameActivity::Game);
+		SetGameActivity(Enums::GameActivity::GameLocalOrServer);
 	}
 	break;
 	case Enums::GameActivity::RunAsClient:
@@ -422,9 +458,11 @@ void GameManager::SetInputType(Enums::InputType _inputType)
 #pragma region Destruction
 GameManager::~GameManager()
 {
+	delete mp_collisionManager;
 	delete mp_fileIOManager;
 	delete mp_gameRunManager;
 	delete mp_menuManager;
+	delete mp_networkInputUpdater;
 	delete mp_sharedNetwork;
 }
 #pragma endregion

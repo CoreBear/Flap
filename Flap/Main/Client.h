@@ -40,6 +40,7 @@ private:
 
 	// Functionality
 	void ForcedDisconnect();
+	void SetNextState(SharedNetwork::ClientState _nextClientState);
 };
 
 #endif CLIENT_H

@@ -52,16 +52,43 @@ private:
 	// Member Variables
 	int m_numberOfWaits;
 };
-class JoinedServer final : public ClientStateMachine
+class JoinedServer : public ClientStateMachine
 {
 public:
 	// Initialization
-	inline JoinedServer(Client& _client, SharedNetwork& _sharedNetwork) : ClientStateMachine(_client, _sharedNetwork) { return; }
 	JoinedServer(const JoinedServer&) = delete;
 	JoinedServer& operator=(const JoinedServer&) = delete;
 
 	// Updates
-	void Update() override;
+	void Update() override final;
+
+protected:
+	// Initialization
+	inline JoinedServer(Client& _client, SharedNetwork& _sharedNetwork) : ClientStateMachine(_client, _sharedNetwork) { return; }
+};
+class JoinedServer_InGame : public JoinedServer
+{
+public:
+	// Initialization
+	inline JoinedServer_InGame(Client& _client, SharedNetwork& _sharedNetwork) : JoinedServer(_client, _sharedNetwork) { return; }
+	JoinedServer_InGame(const JoinedServer_InGame&) = delete;
+	JoinedServer_InGame& operator=(const JoinedServer_InGame&) = delete;
+};
+class JoinedServer_InLobby : public JoinedServer
+{
+public:
+	// Initialization
+	inline JoinedServer_InLobby(Client& _client, SharedNetwork& _sharedNetwork) : JoinedServer(_client, _sharedNetwork) { return; }
+	JoinedServer_InLobby(const JoinedServer_InLobby&) = delete;
+	JoinedServer_InLobby& operator=(const JoinedServer_InLobby&) = delete;
+};
+class JoinedServer_PreGame : public JoinedServer
+{
+public:
+	// Initialization
+	inline JoinedServer_PreGame(Client& _client, SharedNetwork& _sharedNetwork) : JoinedServer(_client, _sharedNetwork) { return; }
+	JoinedServer_PreGame(const JoinedServer_PreGame&) = delete;
+	JoinedServer_PreGame& operator=(const JoinedServer_PreGame&) = delete;
 };
 class NotJoined final : public ClientStateMachine
 {

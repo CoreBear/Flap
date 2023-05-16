@@ -149,7 +149,9 @@ public:
 
 		// Generate messages
 		mpp_cannedMessages[static_cast<int>(SharedNetwork::ClientState::AttemptToJoinServ)] = "Attempting to join server...";
-		mpp_cannedMessages[static_cast<int>(SharedNetwork::ClientState::JoinedServ)] = "Joined server. Number of connected users: 0/4";
+		mpp_cannedMessages[static_cast<int>(SharedNetwork::ClientState::JoinedServ_InGame)] = nullptr;
+		mpp_cannedMessages[static_cast<int>(SharedNetwork::ClientState::JoinedServ_InLobby)] = "Joined server. Number of connected users: 0/4";
+		mpp_cannedMessages[static_cast<int>(SharedNetwork::ClientState::JoinedServ_PreGame)] = nullptr;
 		mpp_cannedMessages[static_cast<int>(SharedNetwork::ClientState::NotJoined)] = "Please enter an IP and join server.";
 		mpp_cannedMessages[static_cast<int>(SharedNetwork::ClientState::CouldNotConnect)] = "Could not connect to this server. Please try a different IP.";
 		mpp_cannedMessages[static_cast<int>(SharedNetwork::ClientState::FullServ)] = "This server is full. Please try a different IP.";
@@ -159,7 +161,11 @@ public:
 		// Generate start indices
 		for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < static_cast<int>(SharedNetwork::ClientState::NumberOfTotalStates); m_reusableIterator++)
 		{
-			mp_cannedMessageStartIndices[m_reusableIterator] = Tools::CenterText_ReturnStartColumn(mpp_cannedMessages[m_reusableIterator]);
+			// If there's a message to offset
+			if (mpp_cannedMessages[m_reusableIterator] != nullptr)
+			{
+				mp_cannedMessageStartIndices[m_reusableIterator] = Tools::CenterText_ReturnStartColumn(mpp_cannedMessages[m_reusableIterator]);
+			}
 		}
 	}
 	ServerSearchMenu(const ServerSearchMenu&) = delete;
@@ -213,12 +219,12 @@ public:
 				mr_sharedNetwork.m_nextClientStateMutex.unlock();
 			}
 
-			constexpr int MENU_THAT_DISPLAYS_CONN_CLIENTS = static_cast<int>(SharedNetwork::ClientState::JoinedServ);
+			constexpr int MENU_THAT_DISPLAYS_CONN_CLIENTS = static_cast<int>(SharedNetwork::ClientState::JoinedServ_InLobby);
 			if (m_clientStateIndex == MENU_THAT_DISPLAYS_CONN_CLIENTS)
 			{
-				mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
-				mp_connectedUsersBufferCell->m_character = mr_sharedNetwork.m_numOfConnClientsOnServ;
-				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
+				mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.lock();
+				mp_connectedUsersBufferCell->m_character = mr_sharedNetwork.m_numOfConnClientsOnServChar;
+				mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.unlock();
 			}
 		}
 	}

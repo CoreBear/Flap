@@ -36,6 +36,7 @@ public:
 	Queue<int>* mp_availableSpawnPositions;
 	std::random_device m_random;
 	unsigned short m_largestSnakeColor;
+	unsigned short m_networkPlayerIndex;
 	Structure::Vector2<short> m_clientSharedGameAreaOffsets;
 	Structure::Vector2<short> m_gameAreaBounds;
 	const Structure::Vector2<short> FRAME_BUFFER_HEIGHT_WIDTH;
@@ -47,11 +48,13 @@ public:
 
 	// Functionality
 	void AddAvailableSpawnIndex(int _x, int _y);
+	inline void AssignNumberOfSnakesInGame(int _numberOfSnakesInGame) { m_numberOfSnakesInGame = _numberOfSnakesInGame; }
 	inline void DecrementNumberOfSnakesInGame() { --m_numberOfSnakesInGame; }
 	void EndGameSession();
 	inline bool GetIsInGameSession() const { return m_isInGameSession; }
 	inline int GetNumberOfFramesBeforeGameStart() const { return m_numberOfFramesBeforeGameStart; }
 	inline int GetNumberOfSnakesInGame() const { return m_numberOfSnakesInGame; }
+	int GetPlayerSnakeColorIndex(int _playerIndex);
 	inline int& GetPlayerSnakeColorIndexRef(int _playerIndex) { return (_playerIndex == Consts::NO_VALUE) ? m_playerOneSnakeColorIndex : m_playerTwoSnakeColorIndex; }
 	const Structure::Vector2<int>& GetRandomSpawnPositionRef();
 	inline bool GetSinglePlayerBool() const { return m_isSinglePlayerGame; }

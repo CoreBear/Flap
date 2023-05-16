@@ -32,6 +32,7 @@ namespace Structure
 	{
 	public:
 		// Member Variables
+		bool m_bool;
 		int m_int;
 
 		// Initialization

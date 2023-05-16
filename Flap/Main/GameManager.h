@@ -8,9 +8,11 @@
 #include <chrono>
 #include <Windows.h>		// NOTE/WARNING: Has to be here or else the compiler screams about forward declaring HANDLE
 
+class CollisionManager;
 class FileIOManager;
 class GameRunManager;
 class MenuManager;
+class NetworkInputUpdater;
 class NetworkManager;
 class SharedGame;
 class SharedInput;
@@ -37,11 +39,13 @@ public:
 private:
 	// Member Variables
 	bool m_newHighScore;
+	CollisionManager* const mp_collisionManager;
 	FileIOManager* const mp_fileIOManager;
+	SharedNetwork* const mp_sharedNetwork;	// Out of order because certain managers need it
 	GameRunManager* const mp_gameRunManager;
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
-	SharedNetwork* const mp_sharedNetwork;
 	MenuManager* const mp_menuManager;
+	NetworkInputUpdater* mp_networkInputUpdater;
 	NetworkManager* mp_networkManager;		// NOTE: Allocated and destroyed at specific times so winsock isn't always initialized
 	SharedGame& mr_sharedGame;
 	SharedInput& mr_sharedInput;

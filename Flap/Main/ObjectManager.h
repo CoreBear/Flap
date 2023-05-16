@@ -33,7 +33,7 @@ public:
 	void Pause();
 	void Resume();
 	void SpawnObject(Enums::ObjectType _objectType, const Structure::Vector2<int>& _position, const Structure::Generic* const _genericContainer = nullptr);
-	void Start(bool _newGame);
+	void Start(bool _isLocal);
 
 	// Desturction
 	~ObjectManager();

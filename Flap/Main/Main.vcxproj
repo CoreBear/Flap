@@ -136,6 +136,7 @@
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="FileIOManager.cpp" />
     <ClCompile Include="Host.cpp" />
+    <ClCompile Include="NetworkInputUpdater.cpp" />
     <ClCompile Include="NoTouchy.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Food.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="DynamicTextMenu.h" />
     <ClInclude Include="FileIOManager.h" />
     <ClInclude Include="Host.h" />
+    <ClInclude Include="NetworkInputUpdater.h" />
     <ClInclude Include="NewHighScoreMenu.h" />
     <ClInclude Include="NoTouchy.h" />
     <ClInclude Include="Queue.h" />

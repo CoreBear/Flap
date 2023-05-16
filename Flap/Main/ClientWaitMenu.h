@@ -73,16 +73,16 @@ public:
 		{
 			// Number Of Connected Users
 			{
-				mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
-				mp_connectedUsersBufferCell->m_character = mr_sharedNetwork.m_numOfConnClientsOnServ;
-				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
+				mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.lock();
+				mp_connectedUsersBufferCell->m_character = mr_sharedNetwork.m_numOfConnClientsOnServChar;
+				mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.unlock();
 			}
 
 			// If lobby is empty
-			mr_sharedNetwork.m_numOfConnClientsOnServMutex.lock();
-			if (mr_sharedNetwork.m_numOfConnClientsOnServ == '0')
+			mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.lock();
+			if (mr_sharedNetwork.m_numOfConnClientsOnServChar == '0')
 			{
-				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
+				mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.unlock();
 
 				if (m_lobbyWasEmptyLastFrame == false)
 				{
@@ -96,7 +96,7 @@ public:
 			// If lobby is not empty
 			else
 			{
-				mr_sharedNetwork.m_numOfConnClientsOnServMutex.unlock();
+				mr_sharedNetwork.m_numOfConnClientsOnServCharMutex.unlock();
 
 				if (m_lobbyWasEmptyLastFrame)
 				{
