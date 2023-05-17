@@ -12,6 +12,7 @@ public:
 	// Member Variables
 	Structure::CollisionRenderInfo* mp_collisionRenderInfo[MAX_NUMBER_OF_OBJECTS_IN_CELL];
 	char m_character;
+	int m_colorIndex;
 	int m_objectInCellIndex;
 	unsigned short m_colorBFGround;
 	Structure::Vector2<int> m_position;

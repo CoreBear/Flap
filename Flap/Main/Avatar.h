@@ -11,7 +11,6 @@ public:
 	Avatar();
 	Avatar(const Avatar&) = delete;
 	Avatar& operator=(const Avatar&) = delete;
-	void Initialize(const Structure::Generic* const _genericContainer) override;
 
 	// Updates
 	void FixedUpdate() override;

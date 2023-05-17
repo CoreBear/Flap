@@ -1,6 +1,8 @@
 #ifndef NETWORK_INPUT_UPDATER
 #define NETWORK_INPUT_UPDATER
 
+#include "Structure.h"
+
 class SharedInput;
 class SharedNetwork;
 

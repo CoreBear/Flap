@@ -46,6 +46,7 @@ namespace Structure
 		// Member Variables
 		char m_char;
 		Enums::ObjectType m_objectType;
+		int m_colorIndex;
 		int m_value;
 		unsigned short m_color;
 		Vector2<int> m_position;

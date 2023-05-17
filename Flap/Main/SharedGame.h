@@ -25,7 +25,8 @@ public:
 	BufferCell** mpp_frameBuffer;
 	char m_initials[MAX_NUMBER_OF_INITIALS]{ ' ',' ',' ' };
 	char** mpp_highScoreLines;
-	std::condition_variable m_frameBufferConVar;
+	std::condition_variable m_rendererConVar;
+	std::condition_variable m_serverConVar;
 	int m_gameActivityIndex;
 	int m_largestSnakeLengthUponDeath;
 	int m_numberOfFramesBetweenSpawn;

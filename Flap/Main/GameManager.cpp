@@ -22,7 +22,7 @@ GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedG
 	mp_sharedNetwork(new SharedNetwork),
 	mp_gameRunManager(new GameRunManager(_sharedGame, _sharedInput, *mp_sharedNetwork)),
 	mp_menuManager(new MenuManager(_sharedGame, *mp_sharedNetwork)),
-	mp_networkInputUpdater(new NetworkInputUpdater(_sharedInput)),
+	mp_networkInputUpdater(new NetworkInputUpdater(_sharedInput, *mp_sharedNetwork)),
 	mr_sharedGame(_sharedGame),
 	mr_sharedInput(_sharedInput)
 {
@@ -97,7 +97,7 @@ void GameManager::Update()
 
 				mp_gameRunManager->FixedUpdate();
 
-				mp_collisionManager->FixedUpdate();
+				mp_collisionManager->FixedUpdate(false);
 			}
 		}
 
@@ -128,7 +128,7 @@ void GameManager::Update()
 
 				mp_gameRunManager->FixedUpdate();
 
-				mp_collisionManager->FixedUpdate();
+				mp_collisionManager->FixedUpdate(true);
 			}
 		}
 

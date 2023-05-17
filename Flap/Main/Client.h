@@ -40,7 +40,7 @@ private:
 
 	// Functionality
 	void ForcedDisconnect();
-	void SetNextState(SharedNetwork::ClientState _nextClientState);
+	void SetNextState(SharedNetwork::ClientState _nextClientState, bool _waitForMenuUpdate = true);
 };
 
 #endif CLIENT_H

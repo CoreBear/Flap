@@ -38,7 +38,7 @@ RenderManager::RenderManager(const HANDLE& _outputWindowHandle, SharedGame& _sha
 void RenderManager::Update()
 {
 	m_frameBufferUniqueLock.lock();
-	mr_sharedGame.m_frameBufferConVar.wait(m_frameBufferUniqueLock);
+	mr_sharedGame.m_rendererConVar.wait(m_frameBufferUniqueLock);
 
 	m_renderBufferIndex = Consts::NO_VALUE;
 

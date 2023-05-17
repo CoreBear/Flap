@@ -245,7 +245,8 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 		//case Enums::GameActivity::StartGame:
 
 			// If not transitioning, add input
-		case Enums::GameActivity::Game:
+		case Enums::GameActivity::GameLocalOrServer:
+		case Enums::GameActivity::GameMultiClient:
 		case Enums::GameActivity::Menu:
 		{
 			// Add values to container
@@ -266,7 +267,7 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 	else
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.lock();
-		if (mr_sharedGame.m_gameActivityIndex == Enums::GameActivity::Game)
+		if (mr_sharedGame.m_gameActivityIndex == Enums::GameActivity::GameLocalOrServer)
 		{
 			mr_sharedGame.m_gameActivityIndexMutex.unlock();
 			ClearQueuesAndUpdateGameActivity(Enums::GameActivity::PauseGame);

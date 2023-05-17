@@ -5,6 +5,7 @@
 #include "Queue.h"
 #include "Structure.h"
 
+#include <mutex>
 #include <unordered_map>
 
 class SharedGame;
@@ -14,12 +15,7 @@ class Server final : public Host
 {
 public:
 	// Initialization
-	inline Server(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
-		Host(1, _sharedGame, _sharedNetwork),							// HACK: Hardcoding
-		m_netState(NetState::InLobby)
-	{
-		mr_sharedNetwork.m_numOfConnClientsOnServChar = static_cast<char>(mr_sharedNetwork.m_numOfConnClientsOnServInt = 0) + '0';
-	}
+	Server(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork);
 	Server(const Server&) = delete;
 	Server& operator=(const Server&) = delete;
 
@@ -40,12 +36,10 @@ protected:
 
 private:
 	// Container
-	enum class NetState { InGame, InLobby, PreGame };
 	struct MapVal
 	{
 	public:
 		// Member Variables
-		bool m_isReadyToPlay;
 		bool m_joined;
 		int m_numberOfCyclesSinceLastPing;
 		Queue<SharedNetwork::SpecialMessage> m_specialMessageQueue;
@@ -54,7 +48,6 @@ private:
 
 		// Initialization
 		inline MapVal(bool _connected) :
-			m_isReadyToPlay(false),
 			m_joined(_connected),
 			m_numberOfCyclesSinceLastPing(0),
 			m_networkPlayerIndex(0)
@@ -67,10 +60,10 @@ private:
 	};
 
 	// Member Variables
-	int m_numOfClientsReadyToPlay;
-	int m_playerNumberIndex;
+	bool m_isInGame;
+	char m_colorBits;
 	int m_sizeofSockAddr;
-	NetState m_netState;
+	std::unique_lock<std::mutex> m_frameBufferUniqueLock;
 	std::unordered_map<unsigned long, MapVal>m_mapOfClientAddrsConnTypeAndSpecMess;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapIterator;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapJoinIterator;
@@ -79,10 +72,10 @@ private:
 
 	// Functionality
 	void AddrAndSendCommMess(unsigned long _addressOrPort);
-	void GenAndSendSetupMess();
 	void HandleSpecMess();
 	bool RemoveClient_EmptyMap(std::unordered_map<unsigned long, MapVal>::iterator& _iterator);
 	void SendCommMessToEveryClient_Except(unsigned long _addressOrPort = ULONG_MAX);
+	void StoreGameBoard();
 };
 
 #endif SERVER_H

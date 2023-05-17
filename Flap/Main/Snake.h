@@ -23,7 +23,7 @@ public:
 		m_newDirection(Enums::InputName::NA),
 		m_numberOfTailSectionsToAdd(Consts::NO_VALUE)
 	{
-		return;
+		m_newCollisionRenderInfo.m_char = Consts::EMPTY_SPACE_CHAR;
 	}
 	Snake(const Snake&) = delete;
 	Snake& operator=(const Snake&) = delete;

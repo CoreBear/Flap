@@ -1,6 +1,7 @@
 #pragma region Includes
 #include "Client.h"
 
+#include "BufferCell.h"
 #include "ClientStateMachine.h"
 #include "Consts.h"
 #include "SharedGame.h"
@@ -50,7 +51,7 @@ void Client::RecvCommMessLoop()
 	// Daemon
 	while (true)
 	{
-		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, UCHAR_MAX, Consts::NO_VALUE, NULL, NULL);
+		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, MAX_BUFF_SIZE, Consts::NO_VALUE, NULL, NULL);
 		if (m_winsockResult == SOCKET_ERROR)
 		{
 			// HACK: Don't need the errno catch right here, just useful for debugging
@@ -108,37 +109,50 @@ void Client::RecvCommMessLoop()
 
 				SetNextState(SharedNetwork::ClientState::JoinedServ_InLobby);
 			}
-
-			/// <summary>
-			/// This needs to be all of the setup...Boarder should be all the setup stuff...Don't return client ready until the client has spawned everything it needs
-			/// </summary>
-			else if (CheckForSpecMess(SharedNetwork::SpecialMessage::Setup))
+			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::StartGame)]) == Consts::NO_VALUE)
 			{
-				NextBufferString(false);
-				short gameAreaBoundsXOffset = static_cast<short>(Tools::StringToInt(mp_recvBuffWalkerTrailing));
-				
-				NextBufferString(false);
-				short gameAreaBoundsYOffset = static_cast<short>(Tools::StringToInt(mp_recvBuffWalkerTrailing));
-
-				mp_sharedGame->UpdateMyGameAreaBounds(gameAreaBoundsXOffset, gameAreaBoundsYOffset);
-
-				NextBufferString(false);
-				mp_sharedGame->m_networkPlayerIndex = static_cast<short>(Tools::StringToInt(mp_recvBuffWalkerTrailing));
-
 				mr_sharedNetwork.m_startNetworkedGameMutex.lock();
 				mr_sharedNetwork.m_startNetworkedGame = true;
 				mr_sharedNetwork.m_startNetworkedGameMutex.unlock();
 
-				SetNextState(SharedNetwork::ClientState::JoinedServ_PreGame);
-
-				GenAssAndSendSpecMess(SharedNetwork::SpecialMessage::ClientReady);
+				SetNextState(SharedNetwork::ClientState::JoinedServ_InGame, false);
 			}
 		}
 
 		// Gameboard
 		else
 		{
+			mp_sharedGame->m_frameBufferMutex.lock();
 
+			m_cellIndex = Consts::NO_VALUE;
+
+			for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_y; m_reusableIterator_1++)
+			{
+				for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x; m_reusableIterator_2++)
+				{
+					// First 4 bits (lower) are char (number in cell)
+					// Store number from low bits
+					constexpr char LOW_BIT_MASK = 15;
+					mp_sharedGame->mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_character = m_recvBuffer[m_cellIndex] & LOW_BIT_MASK;
+
+					// Shift high bits to low bits
+					if (m_recvBuffer[m_cellIndex] != Consts::EMPTY_SPACE_CHAR)
+					{
+						m_recvBuffer[m_cellIndex] >>= LOW_HIGH_BIT_SHIFT;
+					}
+					else
+					{
+						m_recvBuffer[m_cellIndex] = NULL;
+					}
+
+					// Second 4 bits (higher) are color (background, foreground will be black)
+					// Store high bits in a temp variable
+					mp_sharedGame->mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_colorBFGround = Consts::BACKGROUND_COLORS[m_recvBuffer[m_cellIndex++]];
+				}
+			}
+
+			mp_sharedGame->m_frameBufferMutex.unlock();
+			mp_sharedGame->m_rendererConVar.notify_one();
 		}
 	}
 }
@@ -226,7 +240,7 @@ void Client::AssignPort()
 void Client::SendCommMess()
 {
 	// NOTE: Container stores information about who it's being sent to
-	m_winsockResult = sendto(m_commSocket, m_sendBuffer, UCHAR_MAX, 0, (SOCKADDR*)&m_commSockAddrIn, sizeof(m_commSockAddrIn));
+	m_winsockResult = sendto(m_commSocket, m_sendBuffer, MAX_BUFF_SIZE, 0, (SOCKADDR*)&m_commSockAddrIn, sizeof(m_commSockAddrIn));
 	if (m_winsockResult == SOCKET_ERROR)
 	{
 		// HACK: Don't need the errno catch right here, just useful for debugging
@@ -254,10 +268,10 @@ void Client::ForcedDisconnect()
 	mr_sharedNetwork.m_serverDisconnected = true;
 	mr_sharedNetwork.m_serverDisconnectedMutex.unlock();
 }
-void Client::SetNextState(SharedNetwork::ClientState _nextClientState)
+void Client::SetNextState(SharedNetwork::ClientState _nextClientState, bool _waitForMenuUpdate)
 {
 	mr_sharedNetwork.m_nextClientStateMutex.lock();
-	mr_sharedNetwork.m_waitForMenuUpdate = true;
+	mr_sharedNetwork.m_waitForMenuUpdate = _waitForMenuUpdate;
 	mr_sharedNetwork.m_nextClientState = _nextClientState;
 	mr_sharedNetwork.m_nextClientStateMutex.unlock();
 }

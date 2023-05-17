@@ -33,12 +33,39 @@ protected:
 	friend class JoinedServer;
 	friend class NotJoined;
 
+	// Static Variables
+	static constexpr int LOW_HIGH_BIT_SHIFT = 4;
+	static constexpr unsigned short MAX_BUFF_SIZE = 16080;
+
+	// Containers
+	//struct GameBoardMessage
+	//{
+	//public:
+	//	// Member Variables
+	//	bool* m_arr;
+
+	//	// Initialization
+	//	inline GameBoardMessage() : 
+	//		m_arr(new bool[MAX_BUFF_SIZE * 8])	// Bool to char
+	//	{
+	//		return; 
+	//	}
+	//	GameBoardMessage(const GameBoardMessage&) = delete;
+	//	GameBoardMessage& operator=(const GameBoardMessage&) = delete;
+
+	//	// Destruction
+	//	inline ~GameBoardMessage() { delete m_arr; }
+	//} m_gameBoard;
+
 	// Member Variables
 	bool m_isRunning;
-	char m_recvBuffer[UCHAR_MAX];
-	char m_sendBuffer[UCHAR_MAX];
+	char m_recvBuffer[MAX_BUFF_SIZE];
+	char m_sendBuffer[MAX_BUFF_SIZE];
 	char* mp_recvBuffWalkerLeading;
 	char* mp_recvBuffWalkerTrailing;
+	int m_cellIndex;
+	int m_reusableIterator_1;
+	int m_reusableIterator_2;
 	int m_winsockErrno;
 	int m_winsockResult;
 	SharedGame* const mp_sharedGame;

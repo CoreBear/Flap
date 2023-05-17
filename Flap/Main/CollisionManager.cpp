@@ -17,7 +17,7 @@ CollisionManager::CollisionManager(SharedGame& _sharedGame) :
 #pragma endregion
 
 #pragma region Updates
-void CollisionManager::FixedUpdate()
+void CollisionManager::FixedUpdate(bool _isNetworked)
 {
 	mr_sharedGame.m_frameBufferMutex.lock();
 
@@ -30,7 +30,15 @@ void CollisionManager::FixedUpdate()
 	}
 
 	mr_sharedGame.m_frameBufferMutex.unlock();
-	mr_sharedGame.m_frameBufferConVar.notify_one();
+	
+	if (_isNetworked)
+	{
+		mr_sharedGame.m_serverConVar.notify_one();
+	}
+	else
+	{
+		mr_sharedGame.m_rendererConVar.notify_one();
+	}
 }
 #pragma endregion
 
@@ -51,6 +59,7 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 			if (_bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_objectType == Enums::ObjectType::Snake)
 			{
 				_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_char;
+				_bufferCell.m_colorIndex = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_colorIndex;
 				_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_color;
 
 				UpdateColliders(_bufferCell);
@@ -68,6 +77,7 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 			case Enums::ObjectType::NoTouchy:
 			{
 				_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_char;
+				_bufferCell.m_colorIndex = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_colorIndex;
 				_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_color;
 
 				UpdateColliders(_bufferCell);
@@ -80,18 +90,21 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 				case CollisionType::HeadOnOrSelf:
 				{
 					_bufferCell.m_character = Consts::EMPTY_SPACE_CHAR;
+					_bufferCell.m_colorIndex = NULL;
 					_bufferCell.m_colorBFGround = NULL;
 				}
 				break;
 				case CollisionType::ObjectOneSurvived:
 				{
 					_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_char;
+					_bufferCell.m_colorIndex = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_colorIndex;
 					_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_color;
 				}
 				break;
 				case CollisionType::ObjectTwoSurvived:
 				{
 					_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_char;
+					_bufferCell.m_colorIndex = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_colorIndex;
 					_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]->m_color;
 				}
 				break;
@@ -110,6 +123,7 @@ void CollisionManager::UpdateCell(BufferCell& _bufferCell)
 	case Consts::OFF_BY_ONE:
 	{
 		_bufferCell.m_character = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_char;
+		_bufferCell.m_colorIndex = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_colorIndex;
 		_bufferCell.m_colorBFGround = _bufferCell.mp_collisionRenderInfo[FIRST_OBJECT_INDEX]->m_color;
 	}
 	break;
@@ -129,7 +143,7 @@ CollisionManager::CollisionType CollisionManager::UpdateColliders(BufferCell& _b
 	// If object collided with self
 	if (mp_firstSceneObject == mp_secondSceneObject)
 	{
-		mp_firstSceneObject->Collision_IsDead(*_bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX]);
+		mp_firstSceneObject->Collision_IsDead(*_bufferCell.mp_collisionRenderInfo[SECOND_OBJECT_INDEX], true);
 		return CollisionType::HeadOnOrSelf;
 	}
 

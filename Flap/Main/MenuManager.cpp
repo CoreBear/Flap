@@ -288,7 +288,7 @@ void MenuManager::WriteMenuIntoFrameBuffer()
 	}
 
 	mr_sharedGame.m_frameBufferMutex.unlock();
-	mr_sharedGame.m_frameBufferConVar.notify_one();
+	mr_sharedGame.m_rendererConVar.notify_one();
 }
 void MenuManager::WriteTextLineIntoBuffer(bool _highlightLine, const TextLine& _textLine)
 {

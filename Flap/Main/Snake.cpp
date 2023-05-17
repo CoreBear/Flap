@@ -22,8 +22,9 @@ void Snake::Initialize(const Structure::Generic* const _genericContainer)
 	m_currentDirection = Enums::InputName::NA;
 	m_newDirection = Enums::InputName::NA;
 
+	m_newCollisionRenderInfo.m_colorIndex = sp_sharedGame->GetPlayerSnakeColorIndex(_genericContainer->m_int - Consts::OFF_BY_ONE);
 	m_newCollisionRenderInfo.m_objectType = Enums::ObjectType::Snake;
-	m_newCollisionRenderInfo.m_color = Consts::BACKGROUND_COLORS[sp_sharedGame->GetPlayerSnakeColorIndex(_genericContainer->m_int - Consts::OFF_BY_ONE)];
+	m_newCollisionRenderInfo.m_color = Consts::BACKGROUND_COLORS[m_newCollisionRenderInfo.m_colorIndex];
 	m_newCollisionRenderInfo.m_position = m_position;
 	
 	m_bodyNodes.PushBack(m_newCollisionRenderInfo);

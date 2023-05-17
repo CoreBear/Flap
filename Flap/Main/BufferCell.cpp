@@ -8,6 +8,7 @@ void BufferCell::ResetCell()
 	mp_collisionRenderInfo[Consts::NO_VALUE] = nullptr;
 	mp_collisionRenderInfo[Consts::OFF_BY_ONE] = nullptr;
 	m_character = Consts::EMPTY_SPACE_CHAR;
+	m_colorIndex = NULL;
 	m_objectInCellIndex = Consts::NO_VALUE;
 	m_colorBFGround = NULL;
 	m_position.m_x = Consts::NO_VALUE;

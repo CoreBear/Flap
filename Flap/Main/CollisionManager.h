@@ -18,7 +18,7 @@ public:
 	CollisionManager& operator=(const CollisionManager&) = delete;
 
 	// Updates
-	void FixedUpdate();
+	void FixedUpdate(bool _isNetworked);
 
 private:
 	// Static Variables

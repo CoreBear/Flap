@@ -11,12 +11,11 @@ public:
 	// Static Variables
 	// NOTE: Non-actionable states will be handled by ServerSearchMenu.h
 	enum class ClientState { AttemptToJoinServ, JoinedServ_InGame, JoinedServ_InLobby, JoinedServ_PreGame, NotJoined, NumberOfActionableStates, CouldNotConnect = NumberOfActionableStates, FullServ, InvalidAddr, ServDisc, NumberOfTotalStates };
-	enum class SpecialMessage { ClientReady, Disconnect, Full, GetNumber, Join, Joined, Ping, SendNumber, Setup, SetupComplete, NumberOfSpecialMessages};
+	enum class SpecialMessage { Disconnect, Full, GetNumber, Join, Joined, Ping, SendNumber, StartGame, NumberOfSpecialMessages};
 
 	// Member Variables
 	const char* const SPECIAL_MESSAGES[static_cast<int>(SpecialMessage::NumberOfSpecialMessages)] =
 	{
-		"#ClientReady",
 		"#Disc",
 		"#Full",
 		"#GetN",
@@ -24,8 +23,7 @@ public:
 		"#Joined",
 		"#Ping",
 		"#SendN",
-		"#Setup",
-		"#SetupComplete"
+		"#StartGame"
 	};
 
 public:

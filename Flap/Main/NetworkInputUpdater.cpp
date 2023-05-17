@@ -25,7 +25,7 @@ void NetworkInputUpdater::Update()
 		if (m_currentInput.m_inputPressState == Enums::InputPressState::PressedThisFrame)
 		{
 			mr_sharedNetwork.m_mostRecentClientInputMutex.lock();
-			mr_sharedNetwork.m_mostRecentClientInput == m_currentInput.m_inputIndexOrCharacter;
+			mr_sharedNetwork.m_mostRecentClientInput = m_currentInput.m_inputIndexOrCharacter;
 			mr_sharedNetwork.m_mostRecentClientInputMutex.unlock();
 		}
 

@@ -1,9 +1,23 @@
 #pragma region Includes
 #include "Server.h"
 
+#include "BufferCell.h"
 #include "Consts.h"
+#include "Enums.h"
 #include "SharedGame.h"
 #include "Tools.h"
+#pragma endregion
+
+#pragma region Initialization
+Server::Server(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
+	Host(1, _sharedGame, _sharedNetwork),							// HACK: Hardcoding
+	m_isInGame(false),
+	m_frameBufferUniqueLock(_sharedGame.m_frameBufferMutex)
+{
+	m_frameBufferUniqueLock.unlock();
+
+	mr_sharedNetwork.m_numOfConnClientsOnServChar = static_cast<char>(mr_sharedNetwork.m_numOfConnClientsOnServInt = 0) + '0';
+}
 #pragma endregion
 
 #pragma region Loops
@@ -14,7 +28,7 @@ void Server::RecvCommMessLoop()
 	{
 		// NOTE: Container stores information about who it's being sent from
 		m_sizeofSockAddr = sizeof(m_commSockAddrIn);
-		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, UCHAR_MAX, Consts::NO_VALUE, (SOCKADDR*)&m_commSockAddrIn, &m_sizeofSockAddr);
+		m_winsockResult = recvfrom(m_commSocket, m_recvBuffer, MAX_BUFF_SIZE, Consts::NO_VALUE, (SOCKADDR*)&m_commSockAddrIn, &m_sizeofSockAddr);
 		if (m_winsockResult == SOCKET_ERROR)
 		{
 			// HACK: Don't need the errno catch right here, just useful for debugging
@@ -55,10 +69,6 @@ void Server::RecvCommMessLoop()
 			if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Ping)]) == Consts::NO_VALUE)
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Ping);
-			}
-			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::ClientReady)]) == Consts::NO_VALUE)
-			{
-				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::ClientReady);
 			}
 			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == Consts::NO_VALUE)
 			{
@@ -110,43 +120,21 @@ void Server::UpdateLoop()
 		// Handle the special messages of all clients
 		HandleSpecMess();
 
-		switch (m_netState)
+		if (m_isInGame)
 		{
-		case NetState::InGame:
-		{
-			// So the server doesn't do this all too rapidly
-			std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+			StoreGameBoard();
+
+			SendCommMessToEveryClient_Except();
+
+			// The server 
+			//constexpr long long HALF_FRAME_DELTA_TIME = static_cast<long long>(Consts::FIXED_DELTA_TIME_LL * Consts::MULTIPLICATIVE_HALF_F);
+			//std::this_thread::sleep_for(std::chrono::microseconds(Consts::FIXED_DELTA_TIME_LL));
+			//std::this_thread::sleep_for(std::chrono::microseconds(HALF_FRAME_DELTA_TIME)); Consts::FIXED_DELTA_TIME_LL
 		}
-		break;
-		case NetState::InLobby:
+		else
 		{
-			// So the server doesn't do this all too rapidly
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
-		break;
-		case NetState::PreGame:
-		{
-			m_numOfClientsReadyToPlay = Consts::NO_VALUE;
-
-			// Get how many clients are ready to play
-			for (m_mapIterator = m_mapOfClientAddrsConnTypeAndSpecMess.begin(); m_mapIterator != m_mapOfClientAddrsConnTypeAndSpecMess.end(); ++m_mapIterator)
-			{
-				if (m_mapIterator->second.m_isReadyToPlay)
-				{
-					++m_numOfClientsReadyToPlay;
-				}
-			}
-
-			// If all clients are ready
-			if (m_numOfClientsReadyToPlay == mr_sharedNetwork.m_numOfConnClientsOnServInt)
-			{
-				m_netState = NetState::InGame;
-			}
-
 			// So the server doesn't do this all too rapidly
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-		}
-		break;
 		}
 	}
 }
@@ -163,14 +151,16 @@ void Server::Join()
 	{
 		mp_sharedGame->UpdateClientSharedGameAreaOffsets(m_mapJoinIterator->second.m_maxFrameBufferWidthHeight);
 	}
-	
-	GenAndSendSetupMess();
 
 	mr_sharedNetwork.m_startNetworkedGameMutex.lock();
 	mr_sharedNetwork.m_startNetworkedGame = true;
 	mr_sharedNetwork.m_startNetworkedGameMutex.unlock();
 
-	m_netState = NetState::PreGame;
+	m_isInGame = true;
+
+	GenSpecMess(SharedNetwork::SpecialMessage::StartGame);
+
+	SendCommMessToEveryClient_Except();
 }
 void Server::Stop()
 {
@@ -204,46 +194,6 @@ void Server::AddrAndSendCommMess(unsigned long _addressOrPort)
 
 	SendCommMess();
 }
-void Server::GenAndSendSetupMess()
-{
-	// Generate the reusable section of the message
-	{
-		// "Setup" - Add special
-		strcpy(m_sendBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Setup)]);
-
-		// Example: "Setup|240" - Add pipe and game area width
-		AddNumFieldToNetString(mp_sharedGame->m_clientSharedGameAreaOffsets.m_x);
-
-		// Example: "Setup|240|70" - Add pipe and game area height
-		AddNumFieldToNetString(mp_sharedGame->m_clientSharedGameAreaOffsets.m_y);
-	}
-
-	// // Example: "Setup|240|70|0" - Adding arbitrary player index value to the end so it can be overwritten below
-	AddNumFieldToNetString(0);
-
-	// Move walker to the end of string
-	while (mp_recvBuffWalkerLeading != '\0')
-	{
-		++mp_recvBuffWalkerLeading;
-	}
-
-	// Move walker to the client/snake's player index
-	--mp_recvBuffWalkerLeading;
-
-	// Server is player index 0 (player 1)
-	m_playerNumberIndex = Consts::OFF_BY_ONE;
-
-	// For each connected client, generate setup message and send to client
-	for (m_mapSendAllIterator = m_mapOfClientAddrsConnTypeAndSpecMess.begin(); m_mapSendAllIterator != m_mapOfClientAddrsConnTypeAndSpecMess.end(); ++m_mapSendAllIterator)
-	{
-		m_mapSendAllIterator->second.m_networkPlayerIndex = m_playerNumberIndex;
-
-		// // Example: "Setup|240|70|1" - Assign player number index (1 - 3)
-		*mp_recvBuffWalkerLeading = Tools::IntToChar(m_playerNumberIndex++);
-
-		AddrAndSendCommMess(m_mapSendAllIterator->first);
-	}
-}
 void Server::HandleSpecMess()
 {
 	// For each client
@@ -257,11 +207,6 @@ void Server::HandleSpecMess()
 			case SharedNetwork::SpecialMessage::Ping:
 			{
 				m_mapIterator->second.m_numberOfCyclesSinceLastPing = Consts::NO_VALUE;
-			}
-			break;
-			case SharedNetwork::SpecialMessage::ClientReady:
-			{
-				m_mapIterator->second.m_isReadyToPlay = true;
 			}
 			break;
 			case SharedNetwork::SpecialMessage::Disconnect:
@@ -333,7 +278,7 @@ bool Server::RemoveClient_EmptyMap(std::unordered_map<unsigned long, Server::Map
 void Server::SendCommMess()
 {
 	// NOTE: Container stores information about who it's being sent to
-	m_winsockResult = sendto(m_commSocket, m_sendBuffer, UCHAR_MAX, 0, (SOCKADDR*)&m_commSockAddrIn, sizeof(m_commSockAddrIn));
+	m_winsockResult = sendto(m_commSocket, m_sendBuffer, MAX_BUFF_SIZE, 0, (SOCKADDR*)&m_commSockAddrIn, sizeof(m_commSockAddrIn));
 	if (m_winsockResult == SOCKET_ERROR)
 	{
 		// HACK: Don't need the errno catch right here, just useful for debugging
@@ -373,5 +318,35 @@ void Server::SendCommMessToEveryClient_Except(unsigned long _address)
 			AddrAndSendCommMess(m_mapSendAllIterator->first);
 		}
 	}
+}
+void Server::StoreGameBoard()
+{
+	m_frameBufferUniqueLock.lock();
+	mp_sharedGame->m_serverConVar.wait(m_frameBufferUniqueLock);
+
+	m_cellIndex = Consts::NO_VALUE;
+
+	for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_y; m_reusableIterator_1++)
+	{
+		for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x; m_reusableIterator_2++)
+		{
+			// First 4 bits (lower) are char (number in cell)
+			// Store low bits
+			m_sendBuffer[m_cellIndex] = mp_sharedGame->mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_character;
+
+			// Second 4 bits (higher) are color (background, foreground will be black)
+			// Store high bits in a temp variable
+			m_colorBits = mp_sharedGame->mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_colorIndex;
+
+			// Shift low bits to high bits
+			m_colorBits <<= LOW_HIGH_BIT_SHIFT;
+
+			// Combine number (low) and color (high) bits
+			m_sendBuffer[m_cellIndex++] |= m_colorBits;
+		}
+	}
+
+	m_frameBufferUniqueLock.unlock();
+	mp_sharedGame->m_rendererConVar.notify_one();
 }
 #pragma endregion
