@@ -275,6 +275,8 @@ void MenuManager::WriteMenuIntoFrameBuffer()
 {
 	mr_sharedGame.m_frameBufferMutex.lock();
 
+	mr_sharedGame.ResetFrameBuffer();
+
 	for (m_reusableIterator = Consts::NO_VALUE; m_reusableIterator < mpp_menus[m_currentMenuIndex]->m_currNumOfTextLines; m_reusableIterator++)
 	{
 		WriteTextLineIntoBuffer(mpp_menus[m_currentMenuIndex]->GetCurrentButtonNumber() == m_reusableIterator, *mpp_menus[m_currentMenuIndex]->mp_textLines[m_reusableIterator]);

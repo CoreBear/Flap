@@ -30,13 +30,15 @@ void CollisionManager::FixedUpdate(bool _isNetworked)
 	}
 
 	mr_sharedGame.m_frameBufferMutex.unlock();
-	
+
+	// Release server thread
 	if (_isNetworked)
 	{
 		mr_sharedGame.m_serverConVar.notify_one();
 	}
 	else
 	{
+		// Release render thread
 		mr_sharedGame.m_rendererConVar.notify_one();
 	}
 }

@@ -62,6 +62,8 @@ void ObjectManager::FixedUpdate()
 {
 	mr_sharedGame.m_frameBufferMutex.lock();
 
+	mr_sharedGame.ResetFrameBuffer();
+
 	for (m_sceneObjectsIterator = m_sceneObjectsList.Begin(); m_sceneObjectsIterator != m_sceneObjectsList.End(); ++m_sceneObjectsIterator)
 	{
 		(*m_sceneObjectsIterator)->FixedUpdate();

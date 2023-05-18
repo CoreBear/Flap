@@ -88,8 +88,6 @@ void RenderManager::Update()
 	// Render from buffer
 	WriteConsoleOutput(OUTPUT_WINDOW_HANDLE, mp_renderBuffer, FRAME_BUFFER_HEIGHT_WIDTH, m_frameBufferTopLeftPosition, &m_drawRegion);
 
-	mr_sharedGame.ResetFrameBuffer();
-
 	m_frameBufferUniqueLock.unlock();
 }
 #pragma endregion

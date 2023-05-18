@@ -124,6 +124,8 @@ void Client::RecvCommMessLoop()
 		{
 			mp_sharedGame->m_frameBufferMutex.lock();
 
+			mp_sharedGame->ResetFrameBuffer();
+
 			m_cellIndex = Consts::NO_VALUE;
 
 			for (m_reusableIterator_1 = Consts::NO_VALUE; m_reusableIterator_1 < mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_y; m_reusableIterator_1++)

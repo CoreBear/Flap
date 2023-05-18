@@ -21,7 +21,7 @@ SpawnManager::SpawnManager(ObjectManager& _objectManager, SharedGame& _sharedGam
 #pragma region MyRegion
 void SpawnManager::FixedUpdate()
 {
-	if (GameManager::s_masterFixedFrameCount == m_spawnTargetFrame)
+	if (GameManager::s_masterFixedFrameCount >= m_spawnTargetFrame)
 	{
 		m_spawnTargetFrame = GameManager::s_masterFixedFrameCount + mr_sharedGame.m_numberOfFramesBetweenSpawn;
 		

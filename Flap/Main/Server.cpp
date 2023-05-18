@@ -347,6 +347,8 @@ void Server::StoreGameBoard()
 	}
 
 	m_frameBufferUniqueLock.unlock();
+
+	// Release render thread
 	mp_sharedGame->m_rendererConVar.notify_one();
 }
 #pragma endregion
