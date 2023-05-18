@@ -132,20 +132,22 @@ void Client::RecvCommMessLoop()
 			{
 				for (m_reusableIterator_2 = Consts::NO_VALUE; m_reusableIterator_2 < mp_sharedGame->FRAME_BUFFER_HEIGHT_WIDTH.m_x; m_reusableIterator_2++)
 				{
+					// If NoTouchy
+					if (m_recvBuffer[m_cellIndex] == CHAR_MAX)
+					{
+						mp_sharedGame->mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_character = NO_TOUCHY_CHAR;
+						mp_sharedGame->mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_colorBFGround = Consts::BACKGROUND_COLORS[static_cast<int>(Enums::Color::Red)];
+						m_cellIndex++;
+						continue;
+					}
+
 					// First 4 bits (lower) are char (number in cell)
 					// Store number from low bits
-					constexpr char LOW_BIT_MASK = 15;
-					mp_sharedGame->mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_character = m_recvBuffer[m_cellIndex] & LOW_BIT_MASK;
+					m_recvChar = m_recvBuffer[m_cellIndex] & LOW_BIT_MASK;
+					mp_sharedGame->mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_character = (m_recvChar == NULL) ? Consts::EMPTY_SPACE_CHAR : m_recvChar + ASCII_CHAR_OFFSETTER;
 
 					// Shift high bits to low bits
-					if (m_recvBuffer[m_cellIndex] != Consts::EMPTY_SPACE_CHAR)
-					{
-						m_recvBuffer[m_cellIndex] >>= LOW_HIGH_BIT_SHIFT;
-					}
-					else
-					{
-						m_recvBuffer[m_cellIndex] = NULL;
-					}
+					m_recvBuffer[m_cellIndex] >>= LOW_HIGH_BIT_SHIFT;
 
 					// Second 4 bits (higher) are color (background, foreground will be black)
 					// Store high bits in a temp variable

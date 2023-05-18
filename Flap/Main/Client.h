@@ -35,6 +35,7 @@ protected:
 
 private:
 	// Member Variables
+	char m_recvChar;
 	ClientStateMachine* m_currentClientState;
 	ClientStateMachine** m_allClientStates;
 

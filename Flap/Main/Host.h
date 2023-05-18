@@ -34,28 +34,11 @@ protected:
 	friend class NotJoined;
 
 	// Static Variables
+	static constexpr char ASCII_CHAR_OFFSETTER = '0';
+	static constexpr char LOW_BIT_MASK = 15;
+	static constexpr char NO_TOUCHY_CHAR = 'X';
 	static constexpr int LOW_HIGH_BIT_SHIFT = 4;
 	static constexpr unsigned short MAX_BUFF_SIZE = 16080;
-
-	// Containers
-	//struct GameBoardMessage
-	//{
-	//public:
-	//	// Member Variables
-	//	bool* m_arr;
-
-	//	// Initialization
-	//	inline GameBoardMessage() : 
-	//		m_arr(new bool[MAX_BUFF_SIZE * 8])	// Bool to char
-	//	{
-	//		return; 
-	//	}
-	//	GameBoardMessage(const GameBoardMessage&) = delete;
-	//	GameBoardMessage& operator=(const GameBoardMessage&) = delete;
-
-	//	// Destruction
-	//	inline ~GameBoardMessage() { delete m_arr; }
-	//} m_gameBoard;
 
 	// Member Variables
 	bool m_isRunning;

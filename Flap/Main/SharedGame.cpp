@@ -52,8 +52,8 @@ SharedGame::SharedGame(const Structure::Vector2<short>& _frameBufferWidthHeight)
 		// Two players
 		{
 			// Player 1
-			mp_snakeStartPositions[1][0].m_x = 10;
-			mp_snakeStartPositions[1][0].m_y = 20;
+			mp_snakeStartPositions[1][0].m_x = 0;
+			mp_snakeStartPositions[1][0].m_y = 0;
 
 			// Player 2
 			mp_snakeStartPositions[1][1].m_x = 20;

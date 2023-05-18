@@ -45,11 +45,11 @@ void SpawnManager::Start(bool _isLocal)
 	// HACK: Figure out who is an avatar and who is a snake (piloted by networked player or AI)
 
 	m_numberOfPlayersIndex = mr_sharedGame.GetNumberOfSnakesInGame() - Consts::OFF_BY_ONE;
+	
+	m_spawnTargetFrame = GameManager::s_masterFixedFrameCount + mr_sharedGame.GetNumberOfFramesBeforeGameStart();
 
 	if (_isLocal)
 	{
-		m_spawnTargetFrame = GameManager::s_masterFixedFrameCount + mr_sharedGame.GetNumberOfFramesBeforeGameStart();
-
 		// Spawn avatars and snakes
 		{
 			// Number the snake's body

@@ -334,6 +334,25 @@ void Server::StoreGameBoard()
 			// Store low bits
 			m_sendBuffer[m_cellIndex] = mp_sharedGame->mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_character;
 
+			// If empty space, make it null (will be translated on the other side)
+			if (m_sendBuffer[m_cellIndex] == Consts::EMPTY_SPACE_CHAR)
+			{
+				m_sendBuffer[m_cellIndex] = NULL;
+			}
+
+			// If NoTouchy
+			else if (m_sendBuffer[m_cellIndex] == NO_TOUCHY_CHAR)
+			{
+				m_sendBuffer[m_cellIndex++] = CHAR_MAX;
+				continue;
+			}
+
+			// If food (has a number)
+			else
+			{
+				m_sendBuffer[m_cellIndex] -= ASCII_CHAR_OFFSETTER;
+			}
+
 			// Second 4 bits (higher) are color (background, foreground will be black)
 			// Store high bits in a temp variable
 			m_colorBits = mp_sharedGame->mpp_frameBuffer[m_reusableIterator_1][m_reusableIterator_2].m_colorIndex;
