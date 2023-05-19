@@ -165,9 +165,6 @@
     <ClCompile Include="ClientStateMachine.cpp">
       <Filter>Source Files\Networking</Filter>
     </ClCompile>
-    <ClCompile Include="NetworkInputUpdater.cpp">
-      <Filter>Source Files\Input</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputManager.h">
@@ -319,9 +316,6 @@
     </ClInclude>
     <ClInclude Include="ClientStateMachine.h">
       <Filter>Header Files\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="NetworkInputUpdater.h">
-      <Filter>Header Files\Input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

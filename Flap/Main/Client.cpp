@@ -4,6 +4,7 @@
 #include "BufferCell.h"
 #include "ClientStateMachine.h"
 #include "Consts.h"
+#include "GameManager.h"
 #include "SharedGame.h"
 #include "SharedNetwork.h"
 
@@ -26,7 +27,7 @@ Client::Client(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
 			m_allClientStates[stateIndex] = new AttemptingToJoinServer(*this, _sharedNetwork);
 			break;
 		case SharedNetwork::ClientState::JoinedServ_InGame:
-			m_allClientStates[stateIndex] = new JoinedServer_InGame(*this, _sharedNetwork);
+			m_allClientStates[stateIndex] = new JoinedServer_InGame(*this, MAX_BUFF_SIZE, _sharedGame, _sharedNetwork, m_commSockAddrIn, m_commSocket);
 			break;
 		case SharedNetwork::ClientState::JoinedServ_InLobby:
 			m_allClientStates[stateIndex] = new JoinedServer_InLobby(*this, _sharedNetwork);
@@ -42,6 +43,8 @@ Client::Client(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
 
 	mr_sharedNetwork.m_currentClientState = SharedNetwork::ClientState::NotJoined;	// Arbitrary state, as long as it's not NotJoined
 	SetNextState(SharedNetwork::ClientState::NotJoined);
+
+	m_updateTargetFrame = static_cast<unsigned int>(GameManager::s_masterFixedFrameCount + NUM_OF_FRAMES_BETWEEN_UPDATE);
 }
 #pragma endregion
 
@@ -164,55 +167,57 @@ void Client::UpdateLoop()
 {
 	while (m_isRunning)
 	{
-		// If client state is actionable (i.e., it can be denit'd/init'd/updated) and it's not waiting for menu to update itself
-		mr_sharedNetwork.m_nextClientStateMutex.lock();
-		if (mr_sharedNetwork.m_nextClientState < SharedNetwork::ClientState::NumberOfActionableStates && mr_sharedNetwork.m_waitForMenuUpdate == false)
+		if (GameManager::s_masterFixedFrameCount == m_updateTargetFrame)
 		{
-			// If client state changed
-			if (mr_sharedNetwork.m_currentClientState != mr_sharedNetwork.m_nextClientState)
+			m_updateTargetFrame = static_cast<unsigned int>(GameManager::s_masterFixedFrameCount + NUM_OF_FRAMES_BETWEEN_UPDATE);
+
+			// If client state is actionable (i.e., it can be denit'd/init'd/updated) and it's not waiting for menu to update itself
+			mr_sharedNetwork.m_nextClientStateMutex.lock();
+			if (mr_sharedNetwork.m_nextClientState < SharedNetwork::ClientState::NumberOfActionableStates && mr_sharedNetwork.m_waitForMenuUpdate == false)
 			{
-				// Change storage state while still locked
-				mr_sharedNetwork.m_currentClientState = mr_sharedNetwork.m_nextClientState;
-
-				mr_sharedNetwork.m_nextClientStateMutex.unlock();
-
-				// Denitialize previous state
-				if (m_currentClientState != nullptr)
+				// If client state changed
+				if (mr_sharedNetwork.m_currentClientState != mr_sharedNetwork.m_nextClientState)
 				{
-					m_currentClientState->Denit();
+					// Change storage state while still locked
+					mr_sharedNetwork.m_currentClientState = mr_sharedNetwork.m_nextClientState;
+
+					mr_sharedNetwork.m_nextClientStateMutex.unlock();
+
+					// Denitialize previous state
+					if (m_currentClientState != nullptr)
+					{
+						m_currentClientState->Denit();
+					}
+
+					// Change to next state and initialize state
+					m_currentClientState = m_allClientStates[static_cast<int>(mr_sharedNetwork.m_nextClientState)];
+					m_currentClientState->Init();
 				}
 
-				// Change to next state and initialize state
-				m_currentClientState = m_allClientStates[static_cast<int>(mr_sharedNetwork.m_nextClientState)];
-				m_currentClientState->Init();
+				// If client state did not change
+				else
+				{
+					mr_sharedNetwork.m_nextClientStateMutex.unlock();
+				}
+
+				// Update the current state
+				m_currentClientState->Update();
 			}
 
 			// If client state did not change
 			else
 			{
+				switch (mr_sharedNetwork.m_nextClientState)
+				{
+				case SharedNetwork::ClientState::CouldNotConnect:
+				case SharedNetwork::ClientState::ServDisc:
+				{
+					mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::NotJoined;
+				}
+				break;
+				}
 				mr_sharedNetwork.m_nextClientStateMutex.unlock();
 			}
-
-			// Update the current state
-			m_currentClientState->Update();
-
-			// Sleep, so the client doesn't do this all too rapidly
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-		}
-
-		// If client state did not change
-		else
-		{
-			switch (mr_sharedNetwork.m_nextClientState)
-			{
-			case SharedNetwork::ClientState::CouldNotConnect:
-			case SharedNetwork::ClientState::ServDisc:
-			{
-				mr_sharedNetwork.m_nextClientState = SharedNetwork::ClientState::NotJoined;
-			}
-			break;
-			}
-			mr_sharedNetwork.m_nextClientStateMutex.unlock();
 		}
 	}
 }

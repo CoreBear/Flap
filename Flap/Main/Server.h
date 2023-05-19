@@ -9,13 +9,14 @@
 #include <unordered_map>
 
 class SharedGame;
+class SharedInput;
 class SharedNetwork;
 
 class Server final : public Host
 {
 public:
 	// Initialization
-	Server(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork);
+	Server(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedNetwork& _sharedNetwork);
 	Server(const Server&) = delete;
 	Server& operator=(const Server&) = delete;
 
@@ -62,13 +63,16 @@ private:
 	// Member Variables
 	bool m_isInGame;
 	char m_colorBits;
+	Structure::Input m_newInput;
 	int m_sizeofSockAddr;
+	SharedInput* const mp_sharedInput;
 	std::unique_lock<std::mutex> m_frameBufferUniqueLock;
 	std::unordered_map<unsigned long, MapVal>m_mapOfClientAddrsConnTypeAndSpecMess;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapIterator;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapJoinIterator;
 	std::unordered_map<unsigned long, MapVal>::iterator m_mapSendAllIterator;
 	unsigned long m_sendingClientsAddrPort;
+	unsigned short m_networkPlayerIndex;
 
 	// Functionality
 	void AddrAndSendCommMess(unsigned long _addressOrPort);

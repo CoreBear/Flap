@@ -38,7 +38,7 @@ void NetworkManager::Join()
 {
 	mp_host->Join();
 }
-void NetworkManager::RunHost(bool _isClient, SharedGame& _sharedGame)
+void NetworkManager::RunHost(bool _isClient, SharedGame& _sharedGame, SharedInput& _sharedInput)
 {
 	mr_sharedNetwork.m_startNetworkedGameMutex.lock();
 	mr_sharedNetwork.m_startNetworkedGame = false;
@@ -52,7 +52,7 @@ void NetworkManager::RunHost(bool _isClient, SharedGame& _sharedGame)
 	}
 	else
 	{
-		mp_host = new Server(_sharedGame, mr_sharedNetwork);
+		mp_host = new Server(_sharedGame, _sharedInput, mr_sharedNetwork);
 
 		mr_sharedNetwork.m_hostType = Enums::HostType::Server;
 	}

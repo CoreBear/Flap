@@ -6,7 +6,6 @@
 #include "FileIOManager.h"
 #include "GameRunManager.h"
 #include "MenuManager.h"
-#include "NetworkInputUpdater.h"
 #include "NetworkManager.h"
 #include "SharedGame.h"
 #include "SharedInput.h"
@@ -22,7 +21,6 @@ GameManager::GameManager(const HANDLE& _outputWindowHandle, SharedGame& _sharedG
 	mp_sharedNetwork(new SharedNetwork),
 	mp_gameRunManager(new GameRunManager(_sharedGame, _sharedInput, *mp_sharedNetwork)),
 	mp_menuManager(new MenuManager(_sharedGame, *mp_sharedNetwork)),
-	mp_networkInputUpdater(new NetworkInputUpdater(_sharedInput, *mp_sharedNetwork)),
 	mr_sharedGame(_sharedGame),
 	mr_sharedInput(_sharedInput)
 {
@@ -151,11 +149,7 @@ void GameManager::Update()
 
 			// Update counter
 			++s_masterFixedFrameCount;
-
-			//UpdateGameWithReceivedInfo();
 		}
-
-		mp_networkInputUpdater->Update();
 	}
 	break;
 	case Enums::GameActivity::HighScoreToMain:
@@ -297,6 +291,8 @@ void GameManager::Update()
 		if (mp_sharedNetwork->m_hostType == Enums::HostType::Client)
 		{
 			SetGameActivity(Enums::GameActivity::GameMultiClient);
+
+			SetInputType(Enums::InputType::ToNorm);
 		}
 		else
 		{
@@ -332,7 +328,7 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
-		mp_networkManager->RunHost(true, mr_sharedGame);
+		mp_networkManager->RunHost(true, mr_sharedGame, mr_sharedInput);
 
 		mp_menuManager->DisplayMenu(Enums::MenuName::ServerSearch);
 
@@ -345,7 +341,7 @@ void GameManager::Update()
 	{
 		mr_sharedGame.m_gameActivityIndexMutex.unlock();
 
-		mp_networkManager->RunHost(false, mr_sharedGame);
+		mp_networkManager->RunHost(false, mr_sharedGame, mr_sharedInput);
 
 		mp_menuManager->DisplayMenu(Enums::MenuName::ClientSearch);
 
@@ -462,7 +458,6 @@ GameManager::~GameManager()
 	delete mp_fileIOManager;
 	delete mp_gameRunManager;
 	delete mp_menuManager;
-	delete mp_networkInputUpdater;
 	delete mp_sharedNetwork;
 }
 #pragma endregion

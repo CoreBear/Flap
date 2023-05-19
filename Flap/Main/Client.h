@@ -34,10 +34,13 @@ protected:
 	void SendCommMess() override;
 
 private:
+	static constexpr char NUM_OF_FRAMES_BETWEEN_UPDATE = 5;
+
 	// Member Variables
 	char m_recvChar;
 	ClientStateMachine* m_currentClientState;
 	ClientStateMachine** m_allClientStates;
+	unsigned int m_updateTargetFrame;
 
 	// Functionality
 	void ForcedDisconnect();

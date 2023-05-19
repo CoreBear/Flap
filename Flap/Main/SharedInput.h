@@ -20,7 +20,7 @@ public:
 	Enums::InputType m_inputType;
 	std::mutex m_inputQueueMutex;
 	std::mutex m_inputTypeMutex;
-	std::queue<Structure::Input> m_inputQueue[Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM];
+	std::queue<Structure::Input> m_inputQueue[Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME];
 };
 
 #endif SHARED_INPUT_H

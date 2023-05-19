@@ -157,7 +157,7 @@ void InputManager::ClearQueuesAndUpdateGameActivity(int _gameActivityIndex)
 {
 	// Clear input queues
 	mr_sharedInput.m_inputQueueMutex.lock();
-	for (m_reusableIterator_4 = Consts::NO_VALUE; m_reusableIterator_4 < Consts::MAX_NUMBER_OF_PLAYERS_PER_SYSTEM; m_reusableIterator_4++)
+	for (m_reusableIterator_4 = Consts::NO_VALUE; m_reusableIterator_4 < Consts::MAX_NUMBER_OF_PLAYERS_PER_GAME; m_reusableIterator_4++)
 	{
 		while (mr_sharedInput.m_inputQueue[m_reusableIterator_4].empty() == false)
 		{
@@ -191,9 +191,9 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 				mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Held;
 			}
 		}
-		// NOTE: Fallthrough!
+		return;
 		case Enums::InputPressState::Held:
-			return;
+			break;
 		case Enums::InputPressState::PressedThisFrame:
 		{
 			mpp_inputPressStates[m_reusableIterator_2][m_reusableIterator_3] = Enums::InputPressState::Dead;
@@ -257,6 +257,11 @@ void InputManager::ReadAndEnqueueInput(const KEY_EVENT_RECORD& _inputInfo)
 			mr_sharedInput.m_inputQueueMutex.lock();
 			mr_sharedInput.m_inputQueue[m_reusableIterator_2].push(m_newInput);
 			mr_sharedInput.m_inputQueueMutex.unlock();
+		}
+		break;
+		default:
+		{
+			int h = 0;
 		}
 		break;
 		}

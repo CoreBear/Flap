@@ -5,16 +5,20 @@
 #include "Consts.h"
 #include "Enums.h"
 #include "SharedGame.h"
+#include "SharedInput.h"
 #include "Tools.h"
 #pragma endregion
 
 #pragma region Initialization
-Server::Server(SharedGame& _sharedGame, SharedNetwork& _sharedNetwork) :
+Server::Server(SharedGame& _sharedGame, SharedInput& _sharedInput, SharedNetwork& _sharedNetwork) :
 	Host(1, _sharedGame, _sharedNetwork),							// HACK: Hardcoding
 	m_isInGame(false),
+	mp_sharedInput(&_sharedInput),
 	m_frameBufferUniqueLock(_sharedGame.m_frameBufferMutex)
 {
 	m_frameBufferUniqueLock.unlock();
+
+	m_newInput.m_inputPressState = Enums::InputPressState::PressedThisFrame;
 
 	mr_sharedNetwork.m_numOfConnClientsOnServChar = static_cast<char>(mr_sharedNetwork.m_numOfConnClientsOnServInt = 0) + '0';
 }
@@ -70,6 +74,10 @@ void Server::RecvCommMessLoop()
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Ping);
 			}
+			else if (CheckForSpecMess(SharedNetwork::SpecialMessage::Input))
+			{
+				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Input);
+			}
 			else if (strcmp(m_recvBuffer, mr_sharedNetwork.SPECIAL_MESSAGES[static_cast<int>(SharedNetwork::SpecialMessage::Disconnect)]) == Consts::NO_VALUE)
 			{
 				m_mapOfClientAddrsConnTypeAndSpecMess[m_sendingClientsAddrPort].m_specialMessageQueue.PushBack(SharedNetwork::SpecialMessage::Disconnect);
@@ -105,7 +113,7 @@ void Server::UpdateLoop()
 			if (m_mapIterator->second.m_joined)
 			{
 				// If client hasn't ping'ed recently enough, remove it
-				constexpr int MAX_NUM_CYC_SINCE_LAST_PING = 3;
+				constexpr int MAX_NUM_CYC_SINCE_LAST_PING = 60;
 				if (++m_mapIterator->second.m_numberOfCyclesSinceLastPing > MAX_NUM_CYC_SINCE_LAST_PING)
 				{
 					// If map is empty, stop iterating
@@ -160,7 +168,15 @@ void Server::Join()
 
 	GenSpecMess(SharedNetwork::SpecialMessage::StartGame);
 
-	SendCommMessToEveryClient_Except();
+	m_networkPlayerIndex = Consts::OFF_BY_ONE;
+
+	// For each connected client, assign address and send message
+	for (m_mapSendAllIterator = m_mapOfClientAddrsConnTypeAndSpecMess.begin(); m_mapSendAllIterator != m_mapOfClientAddrsConnTypeAndSpecMess.end(); ++m_mapSendAllIterator)
+	{
+		m_mapSendAllIterator->second.m_networkPlayerIndex = m_networkPlayerIndex++;
+
+		AddrAndSendCommMess(m_mapSendAllIterator->first);
+	}
 }
 void Server::Stop()
 {
@@ -207,6 +223,14 @@ void Server::HandleSpecMess()
 			case SharedNetwork::SpecialMessage::Ping:
 			{
 				m_mapIterator->second.m_numberOfCyclesSinceLastPing = Consts::NO_VALUE;
+			}
+			break;
+			case SharedNetwork::SpecialMessage::Input:
+			{
+				NextBufferString(false);
+				m_newInput.m_inputIndexOrCharacter = static_cast<int>(Tools::StringToInt(mp_recvBuffWalkerTrailing));
+
+				mp_sharedInput->m_inputQueue[m_mapIterator->second.m_networkPlayerIndex].push(m_newInput);
 			}
 			break;
 			case SharedNetwork::SpecialMessage::Disconnect:

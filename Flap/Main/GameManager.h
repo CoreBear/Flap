@@ -12,7 +12,6 @@ class CollisionManager;
 class FileIOManager;
 class GameRunManager;
 class MenuManager;
-class NetworkInputUpdater;
 class NetworkManager;
 class SharedGame;
 class SharedInput;
@@ -45,7 +44,6 @@ private:
 	GameRunManager* const mp_gameRunManager;
 	std::chrono::high_resolution_clock::time_point m_currentTime, m_lastTime;
 	MenuManager* const mp_menuManager;
-	NetworkInputUpdater* mp_networkInputUpdater;
 	NetworkManager* mp_networkManager;		// NOTE: Allocated and destroyed at specific times so winsock isn't always initialized
 	SharedGame& mr_sharedGame;
 	SharedInput& mr_sharedInput;
